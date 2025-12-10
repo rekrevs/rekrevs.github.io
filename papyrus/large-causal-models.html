@@ -1,0 +1,3192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Large Causal Models from Large Language Models - Papyrus</title>
+    <style>
+        :root {
+            --text: #1a1a1a;
+            --text-muted: #666;
+            --bg: #fafafa;
+            --bg-alt: #f0f0f0;
+            --border: #ddd;
+            --accent: #2563eb;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: 100vh;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 2rem 1rem;
+            background: var(--bg-alt);
+            border-right: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+        nav a {
+            display: block;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        nav a:hover { background: var(--border); color: var(--text); }
+        nav .nav-section { margin-top: 1rem; font-weight: 600; color: var(--text); padding: 0.25rem 0.5rem; }
+        nav .back { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+        main {
+            max-width: 48rem;
+            padding: 2rem 3rem 4rem;
+        }
+        header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+        header h1 { font-size: 1.75rem; line-height: 1.3; margin-bottom: 0.5rem; }
+        header .authors { color: var(--text-muted); font-size: 0.95rem; }
+        header .meta { font-size: 0.875rem; color: var(--text-muted); margin-top: 0.5rem; }
+        header .meta a { color: var(--accent); }
+        section { margin-bottom: 2.5rem; }
+        section > h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        h3 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; }
+        h4 { font-size: 1rem; margin: 1.25rem 0 0.5rem; }
+        p { margin-bottom: 1rem; }
+        ul, ol { margin: 0 0 1rem 1.5rem; }
+        li { margin-bottom: 0.25rem; }
+        code {
+            font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.875em;
+            background: var(--bg-alt);
+            padding: 0.125rem 0.375rem;
+            border-radius: 3px;
+        }
+        pre {
+            background: var(--bg-alt);
+            padding: 1rem;
+            overflow-x: auto;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        pre code { background: none; padding: 0; }
+        blockquote {
+            border-left: 3px solid var(--border);
+            padding-left: 1rem;
+            color: var(--text-muted);
+            margin: 1rem 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+        th { background: var(--bg-alt); font-weight: 600; }
+        details { margin: 0.5rem 0; }
+        summary { cursor: pointer; color: var(--accent); }
+        a { color: var(--accent); }
+        .tldr {
+            background: var(--bg-alt);
+            padding: 1rem 1.25rem;
+            border-radius: 6px;
+            font-size: 1.05rem;
+            border-left: 4px solid var(--accent);
+        }
+        .glossary-term { font-weight: 600; }
+        @media (max-width: 768px) {
+            body { grid-template-columns: 1fr; }
+            nav {
+                position: relative;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            main { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="back"><a href="index.html">&larr; All Papers</a></div>
+        <div class="nav-section">Overview</div>
+        <a href="#tldr">TL;DR</a>
+        <a href="#summary">Summary</a>
+        <a href="#eli5">ELI5</a>
+        <div class="nav-section">Deep Dive</div>
+        <a href="#tutorial">Tutorial</a>
+        <a href="#claims">Claims</a>
+        <a href="#methods">Methods</a>
+        <a href="#findings">Findings</a>
+        <div class="nav-section">Learning</div>
+        <a href="#glossary">Glossary</a>
+        <a href="#prereqs">Prerequisites</a>
+        <a href="#questions">Questions</a>
+        <a href="#quiz">Quiz</a>
+        <div class="nav-section">Context</div>
+        <a href="#related">Related Work</a>
+        <a href="#context">Research Context</a>
+        <a href="#highlights">Highlights</a>
+        <div class="nav-section">Critical</div>
+        <a href="#limitations">Limitations</a>
+        <a href="#disagreements">Disagreements</a>
+        <a href="#future-work">Future Work</a>
+    </nav>
+    <main>
+        <header>
+            <h1>Large Causal Models from Large Language Models</h1>
+            <div class="authors">Sridhar Mahadevan</div>
+            <div class="meta">2025 &middot; arXiv preprint &middot; <a href="https://arxiv.org/abs/2512.07796v1">arXiv</a></div>
+        </header>
+
+        <section id="tldr">
+            <h2>TL;DR</h2>
+            <div class="tldr">DEMOCRITUS is a system that extracts causal knowledge from LLMs by generating topics, causal questions, and statements, then weaves them into large, navigable causal models (LCMs) using Geometric Transformers and manifold embeddings across diverse domains like economics, biology, and archaeology.</div>
+        </section>
+
+        <section id="summary">
+            <h2>Summary</h2>
+            <h4>Abstract (Clarified)</h4>
+<p>
+This paper introduces DEMOCRITUS (Decentralized Extraction of Manifold Ontologies of Causal Relations Integrating Topos Universal Slices), a system for building Large Causal Models (LCMs) by extracting causal knowledge from Large Language Models. Unlike traditional causal inference that relies on controlled experiments with numerical data, DEMOCRITUS uses an LLM (Qwen3-Next-80B) to generate topics, causal questions, and causal statements across diverse domains. These fragmented causal claims are then organized into coherent structures using a Geometric Transformer and visualized as manifolds via UMAP.
+</p>
+<h4>Key Contributions</h4>
+<ol>
+<li><strong>Novel Paradigm for Causal Discovery</strong>: Proposes extracting causal knowledge directly from LLMs rather than from experimental data, enabling causal modeling in domains where controlled experiments are impossible (e.g., historical events, civilization collapse).</li>
+</ol>
+<ol>
+<li><strong>DEMOCRITUS System Architecture</strong>: A six-module pipeline that:</li>
+</ol>
+<p>
+   - Builds topic hierarchies via LLM-driven BFS expansion
+    - Generates causal questions and statements for each topic
+    - Extracts relational triples (subject, relation, object)
+    - Embeds graphs using Geometric Transformers
+    - Produces navigable 2D/3D manifold visualizations
+</p>
+<ol>
+<li><strong>Geometric Transformer Implementation</strong>: A higher-order message-passing architecture that operates on both edges (1-simplices) and triangles (2-simplices), producing more structured embeddings than standard graph transformers.</li>
+</ol>
+<ol>
+<li><strong>Cross-Domain Application</strong>: Demonstrates the system across economics (~35,000 variables), biology, and archaeology (Indus Valley civilization), showing coherent domain clustering and interpretable causal neighborhoods.</li>
+</ol>
+<h4>Main Results</h4>
+<ul>
+<li>Processed 90,016 synthetic relational causal statements across 9 domains</li>
+<li>Extracted 54,514 unique concepts and 57,390 typed relations</li>
+<li>UMAP projections reveal clear domain clustering with smooth transition zones</li>
+<li>Local causal neighborhoods recover interpretable structures (e.g., electricity demand linked to heating, cooling, EV charging)</li>
+<li>Heavy-tailed degree distribution with high-impact causal hubs (stress, inflation, vaccination)</li>
+<li>Geometric Transformer significantly outperforms edge-only Graph Transformers on structural tasks (100% vs 54.87% on triangle detection)</li>
+</ul>
+<h4>Significance</h4>
+<p>
+DEMOCRITUS represents a shift from data-driven to knowledge-driven causal discovery. While not replacing formal causal inference, it provides:
+</p>
+<ul>
+<li>Structured hypothesis spaces for domain experts</li>
+<li>Candidate mechanisms and confounders for further analysis</li>
+<li>A "legal discovery" or "literature review" tool that organizes implicit LLM knowledge</li>
+<li>A foundation for active, task-conditioned exploration of causal knowledge</li>
+</ul>
+<p>
+The approach is particularly valuable for historical and complex domains where traditional experimental methods are impossible.
+</p>
+        </section>
+
+        <section id="eli5">
+            <h2>ELI5</h2>
+            <h4>The Simple Version</h4>
+<p>
+Imagine you want to understand why things happen - like why did an ancient civilization collapse, or what makes the economy go up and down. Normally, scientists do experiments to figure out cause and effect. But you can't run experiments on things that already happened thousands of years ago!
+</p>
+<p>
+This paper describes a clever workaround: <strong>ask an AI that has read millions of books and articles</strong>.
+</p>
+<h4>How It Works</h4>
+<p>
+Think of it like interviewing a super-smart librarian who has read everything:
+</p>
+<ol>
+<li><strong>Ask for topics</strong>: "Tell me 10 important things about the ancient Indus Valley civilization"</li>
+<li><strong>Ask cause-and-effect questions</strong>: "What causes droughts?" "What leads to cities being abandoned?"</li>
+<li><strong>Get explanations</strong>: "Droughts reduce river water, which hurts farming, which causes people to move away"</li>
+</ol>
+<p>
+The system (called DEMOCRITUS, named after an ancient Greek philosopher) does this thousands of times across different subjects.
+</p>
+<h4>The Problem with Just Asking</h4>
+<p>
+If you just ask an AI one big question, you get a messy answer that's hard to organize. It's like asking someone to explain all of history in one breath.
+</p>
+<p>
+DEMOCRITUS instead:
+</p>
+<ul>
+<li>Asks many small, specific questions</li>
+<li>Connects the answers together like puzzle pieces</li>
+<li>Creates a big "map" showing how everything relates</li>
+</ul>
+<h4>The Map (Manifold)</h4>
+<p>
+The coolest part is the map it creates. Imagine a city map where:
+</p>
+<ul>
+<li>Similar things are close together (all the climate stuff in one neighborhood, all the economics stuff in another)</li>
+<li>You can see connections between neighborhoods (how climate affects economics)</li>
+<li>You can zoom into any area to see details</li>
+</ul>
+<p>
+This map helps researchers see patterns they might miss otherwise.
+</p>
+<h4>Why It Matters</h4>
+<p>
+For topics where we can't do experiments:
+</p>
+<ul>
+<li>Why did dinosaurs go extinct?</li>
+<li>Why did ancient civilizations fail?</li>
+<li>What might climate change do in the future?</li>
+</ul>
+<p>
+DEMOCRITUS helps organize what we know (and what the AI "knows" from reading) into something we can explore and question. It's not proving anything is true - it's helping us see the big picture of possible explanations.
+</p>
+<h4>The Catch</h4>
+<p>
+The system only knows what the AI learned from its training. If the AI learned wrong things, those wrong things show up in the map. It's a starting point for investigation, not a final answer.
+</p>
+        </section>
+
+        <section id="tutorial">
+            <h2>Tutorial</h2>
+            <h4>Introduction: The Problem of Causal Knowledge at Scale</h4>
+<h5>Why Causal Discovery Matters</h5>
+<p>
+Understanding cause and effect is fundamental to science. When we know that smoking causes cancer, or that increased CO2 causes warming, we can make predictions and interventions. Traditional causal inference has developed rigorous methods for discovering causal relationships from data, primarily through:
+</p>
+<ol>
+<li><strong>Randomized Controlled Trials (RCTs)</strong>: The gold standard where we manipulate one variable and observe effects</li>
+<li><strong>Observational Studies with Causal Inference</strong>: Using statistical techniques to infer causality from non-experimental data</li>
+<li><strong>Structural Equation Models</strong>: Mathematical frameworks representing causal relationships</li>
+</ol>
+<h5>The Limitation: Some Questions Can't Be Answered Experimentally</h5>
+<p>
+Consider these questions:
+</p>
+<ul>
+<li>What caused the collapse of the Indus Valley civilization 5000 years ago?</li>
+<li>What factors led to the extinction of the dinosaurs?</li>
+<li>How might different monetary policies affect long-term economic stability?</li>
+</ul>
+<p>
+For historical events, we can't run experiments. For complex systems like economies, controlled experiments are often impossible or unethical. Yet scientists still seek causal explanations through careful reasoning, evidence synthesis, and theoretical frameworks.
+</p>
+<h5>The Opportunity: LLMs as Knowledge Repositories</h5>
+<p>
+Large Language Models like GPT-4, Claude, or Qwen have been trained on vast corpora of human knowledge - scientific papers, textbooks, historical analyses, expert discussions. They've absorbed (imperfectly) much of humanity's causal reasoning across domains.
+</p>
+<p>
+<strong>Key Insight</strong>: What if we could systematically extract and organize this implicit causal knowledge?
+</p>
+<p>
+This is the central idea behind DEMOCRITUS.
+</p>
+<hr>
+<h4>Part 1: Conceptual Foundation</h4>
+<h5>1.1 What is a Large Causal Model (LCM)?</h5>
+<p>
+An LCM is a structured representation of causal knowledge spanning potentially hundreds of domains and millions of causal claims. Unlike a traditional causal graph (DAG) focused on a specific study, an LCM is:
+</p>
+<pre><code>
+┌─────────────────────────────────────────────────────────────────┐
+│                    LARGE CAUSAL MODEL (LCM)                     │
+├─────────────────────────────────────────────────────────────────┤
+│  • Multi-domain: Economics, Biology, Climate, History...       │
+│  • Multi-scale: From molecular mechanisms to civilizations      │
+│  • Navigable: Can zoom in/out, explore neighborhoods           │
+│  • Geometric: Embedded in a manifold for visualization         │
+│  • Evolving: Can be deepened and refined iteratively           │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h5>1.2 The DEMOCRITUS Philosophy</h5>
+<p>
+Named after the ancient Greek philosopher who said "I would rather discover one true cause than gain the kingdom of Persia," DEMOCRITUS treats causal discovery as an ongoing exploratory process rather than a one-shot inference problem.
+</p>
+<p>
+<strong>Key Design Principles</strong>:
+</p>
+<ol>
+<li><strong>Decentralized</strong>: Causal claims come from many sources (LLM responses to diverse queries)</li>
+<li><strong>Manifold-based</strong>: Knowledge is organized geometrically, not just as a graph</li>
+<li><strong>Slice-based</strong>: Different domains form "slices" that can be studied independently or unified</li>
+<li><strong>Active</strong>: The system can decide where to explore deeper based on utility</li>
+</ol>
+<h5>1.3 What DEMOCRITUS Is NOT</h5>
+<p>
+Before diving deeper, let's be clear about limitations:
+</p>
+<pre><code>
+┌─────────────────────────────────────────────────────────────────┐
+│  DEMOCRITUS IS:                   DEMOCRITUS IS NOT:            │
+├─────────────────────────────────────────────────────────────────┤
+│  • A hypothesis organizer         • A causal proof system       │
+│  • A literature review tool       • A replacement for RCTs      │
+│  • An exploration assistant       • Ground truth about causality│
+│  • A manifold builder             • Free of LLM biases/errors   │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h4>Part 2: System Architecture</h4>
+<h5>2.1 The Six-Module Pipeline</h5>
+<p>
+DEMOCRITUS processes causal knowledge through six sequential modules:
+</p>
+<pre><code>
+┌──────────────────────────────────────────────────────────────────────────┐
+│                        DEMOCRITUS PIPELINE                               │
+└──────────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────┐
+    │    LLM      │ (Qwen3-80B)
+    │  (Teacher)  │
+    └──────┬──────┘
+           │
+           ▼
+┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐
+│   Module 1:      │───▶│   Module 2:      │───▶│   Module 3:      │
+│   Topic Graph    │    │ Causal Questions │    │Causal Statements │
+│                  │    │                  │    │                  │
+│ BFS expansion of │    │ "What causes X?" │    │ "X causes Y"     │
+│ domain topics    │    │ "What leads to?" │    │ "X leads to Y"   │
+└──────────────────┘    └──────────────────┘    └────────┬─────────┘
+                                                         │
+                                                         ▼
+┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐
+│   Module 6:      │◀───│   Module 5:      │◀───│   Module 4:      │
+│  Topos Slice     │    │   Geometric      │    │    Triple        │
+│   Storage        │    │  Transformer     │    │   Extraction     │
+│                  │    │  + UMAP          │    │                  │
+│ Store, unify,    │    │ Manifold         │    │ (subj, rel, obj) │
+│ query slices     │    │ embedding        │    │ from statements  │
+└──────────────────┘    └──────────────────┘    └──────────────────┘
+</code></pre>
+<h5>2.2 Module 1: Topic Graph Construction</h5>
+<p>
+<strong>Purpose</strong>: Build a hierarchical tree of topics for a domain via breadth-first search.
+</p>
+<p>
+<strong>How it works</strong>:
+</p>
+<pre><code>
+Input: Root topics (e.g., ["Macroeconomics", "Microeconomics", "Finance"])
+
+For each topic at current depth:
+    Prompt LLM: "Given the topic '{TOPIC}', list 10 important subtopics"
+    Parse response into child topics
+    Add children to topic graph
+    Continue until depth limit or topic cap reached
+
+Output: topic_graph.jsonl (tree structure with depths)
+</code></pre>
+<p>
+<strong>Example Expansion</strong>:
+</p>
+<pre><code>
+Macroeconomics (depth 0)
+├── GDP and its measurement (depth 1)
+│   ├── Real vs Nominal GDP (depth 2)
+│   ├── GDP deflator (depth 2)
+│   └── Purchasing Power Parity (depth 2)
+├── Inflation and price indices (depth 1)
+│   ├── Consumer Price Index (depth 2)
+│   ├── Hyperinflation (depth 2)
+│   └── Deflation risks (depth 2)
+├── Unemployment (depth 1)
+│   ├── Structural unemployment (depth 2)
+│   ├── Cyclical unemployment (depth 2)
+│   └── Natural rate of unemployment (depth 2)
+└── ... (continues to depth 5)
+</code></pre>
+<p>
+<strong>Prompt Template</strong>:
+</p>
+<pre><code>
+You are an expert in {domain}.
+Given the topic "{TOPIC}", list 10 important subtopics
+that help explain its causes, consequences, or mechanisms.
+Return ONLY a numbered list of subtopics, one per line.
+</code></pre>
+<h5>2.3 Module 2: Causal Question Generation</h5>
+<p>
+<strong>Purpose</strong>: For each topic, generate questions that probe causal mechanisms.
+</p>
+<p>
+<strong>Prompt Template</strong>:
+</p>
+<pre><code>
+You are an expert in {domain}.
+Topic: "{TOPIC}".
+Write 3 causal questions a student might ask about this topic.
+Each question should start with "What causes" or "What leads to".
+Return only the questions, one per line.
+</code></pre>
+<p>
+<strong>Example Output</strong> for topic "Inflation":
+</p>
+<pre><code>
+1. What causes inflation to accelerate beyond central bank targets?
+2. What leads to wage-price spirals during inflationary periods?
+3. What causes inflation expectations to become unanchored?
+</code></pre>
+<h5>2.4 Module 3: Causal Statement Generation</h5>
+<p>
+<strong>Purpose</strong>: Generate explicit causal claims that answer the questions and expand topic coverage.
+</p>
+<p>
+<strong>Prompt Template</strong>:
+</p>
+<pre><code>
+You are an expert in {domain}.
+Topic: "{TOPIC}".
+Write 3 short statements of the form "X causes Y" or
+"X leads to Y" that describe causal relationships in this topic.
+Return only the statements, one per line.
+</code></pre>
+<p>
+<strong>Example Output</strong>:
+</p>
+<pre><code>
+1. Excessive money supply growth causes inflation by increasing
+   aggregate demand beyond productive capacity.
+2. Supply chain disruptions lead to cost-push inflation by
+   raising input prices for manufacturers.
+3. Low unemployment causes wage inflation through increased
+   worker bargaining power.
+</code></pre>
+<h5>2.5 Module 4: Relational Triple Extraction</h5>
+<p>
+<strong>Purpose</strong>: Convert natural language causal statements into structured triples.
+</p>
+<p>
+<strong>Process</strong>:
+</p>
+<pre><code>
+Input: "Excessive money supply growth causes inflation by..."
+
+Output: ("excessive money supply growth", causes, "inflation")
+
+Relation types extracted:
+- causes
+- leads_to
+- increases
+- reduces
+- influences
+- affects
+</code></pre>
+<p>
+<strong>Data Structure</strong>:
+</p>
+<pre><code class="python">
+Triple = {
+    "subject": "excessive money supply growth",
+    "relation": "causes",
+    "object": "inflation",
+    "domain": "Macroeconomics",
+    "source_topic": "Inflation"
+}
+</code></pre>
+<p>
+This creates a <strong>multi-relational directed graph</strong> where:
+</p>
+<ul>
+<li>Nodes = unique subject/object phrases</li>
+<li>Edges = typed causal relations</li>
+<li>Metadata = domain labels, source topics</li>
+</ul>
+<h5>2.6 Module 5: Geometric Transformer and Manifold Embedding</h5>
+<p>
+This is the technical heart of DEMOCRITUS. The goal is to take the raw graph of triples and produce:
+</p>
+<ol>
+<li>Refined node embeddings that capture causal structure</li>
+<li>A low-dimensional manifold for visualization</li>
+</ol>
+<h6>2.6.1 Initial Embeddings</h6>
+<p>
+Each node (phrase) gets an initial embedding from a sentence encoder (like Sentence-BERT):
+</p>
+<pre><code>
+"excessive money supply growth" → [0.23, -0.15, 0.67, ..., 0.42] ∈ ℝ^384
+</code></pre>
+<h6>2.6.2 The Geometric Transformer (GT)</h6>
+<p>
+The GT extends standard Graph Neural Networks by operating on <strong>simplicial complexes</strong>, not just graphs.
+</p>
+<p>
+<strong>What's a Simplicial Complex?</strong>
+</p>
+<pre><code>
+0-simplex: A point (node)           •
+
+1-simplex: An edge (pair)           •───•
+
+2-simplex: A triangle (triple)      •
+                                   / \
+                                  •───•
+
+Higher simplices: Tetrahedra, etc.
+</code></pre>
+<p>
+<strong>Why Higher-Order Structure Matters</strong>:
+</p>
+<p>
+Consider two graphs:
+</p>
+<pre><code>
+Graph A (Triangle):          Graph B (Path):
+    •                            •
+   / \                           │
+  •───•                          •
+                                 │
+                                 •
+</code></pre>
+<p>
+A standard GNN (edge-only message passing) struggles to distinguish these. But they're structurally very different! A GT with triangle-level (2-simplex) message passing can capture this.
+</p>
+<p>
+<strong>GT Architecture</strong>:
+</p>
+<pre><code>
+Layer l → Layer l+1:
+
+For each node v:
+
+    1. Edge messages (1-simplex):
+       m_edge(v) = AGG({W_1 · h_u : u ∈ Neighbors(v)})
+
+    2. Triangle messages (2-simplex):
+       m_tri(v) = AGG({W_2 · [h_u, h_w] : (u,v,w) forms triangle})
+
+    3. Update:
+       h_v^{l+1} = σ(W_0 · h_v^l + m_edge(v) + m_tri(v))
+</code></pre>
+<p>
+<strong>Result</strong>: Node embeddings that encode both local (edge) and higher-order (triangle) causal structure.
+</p>
+<h6>2.6.3 UMAP Projection</h6>
+<p>
+After GT refinement, we have high-dimensional embeddings. UMAP (Uniform Manifold Approximation and Projection) produces a 2D or 3D visualization:
+</p>
+<pre><code>
+GT Embeddings: ℝ^128  ──UMAP──▶  Manifold: ℝ^2 or ℝ^3
+</code></pre>
+<p>
+<strong>UMAP Hyperparameters</strong>:
+</p>
+<ul>
+<li>n_neighbors = 30 (local neighborhood size)</li>
+<li>min_dist = 0.1 (how tightly points cluster)</li>
+<li>metric = cosine (distance measure)</li>
+</ul>
+<h5>2.7 Module 6: Topos Slice Storage</h5>
+<p>
+<strong>Concept</strong>: Each domain (economics, biology, etc.) produces a "slice" - a self-contained LCM that can be:
+</p>
+<ul>
+<li>Stored persistently</li>
+<li>Queried independently</li>
+<li>Unified with other slices</li>
+<li>Refined incrementally</li>
+</ul>
+<p>
+<strong>Topos Theory Connection</strong>:
+</p>
+<p>
+A topos is a category with special properties that supports internal logic. The paper frames LCMs as slices of a larger "Topos Causal Model" (TCM), enabling:
+</p>
+<ul>
+<li>Intuitionistic reasoning about causality</li>
+<li>Map-reduce style decentralized construction</li>
+<li>Robust integration of diverse causal claims</li>
+</ul>
+<p>
+(Full categorical details are deferred to other papers by the author.)
+</p>
+<hr>
+<h4>Part 3: Walkthrough Example</h4>
+<p>
+Let's trace a complete path through DEMOCRITUS, starting from "Macroeconomics" and ending at a causal neighborhood around gold prices.
+</p>
+<h5>Step 1: Topic Expansion</h5>
+<pre><code>
+Root: "Macroeconomics"
+
+LLM Query: "List 10 important subtopics of Macroeconomics"
+
+Response:
+1. GDP and its measurement
+2. Inflation and price indices
+3. Unemployment types and rates
+4. Fiscal policy and government spending
+5. Monetary policy and central banking
+6. Aggregate demand and aggregate supply
+7. Business cycles
+8. International trade
+9. Exchange rates
+10. Long-run economic growth
+</code></pre>
+<p>
+Each subtopic becomes a child node. Process continues recursively.
+</p>
+<h5>Step 2: Causal Questions (for "Macroeconomics")</h5>
+<pre><code>
+LLM Query: "Write 3 causal questions about Macroeconomics"
+
+Response:
+1. What causes a rise in the price of gold?
+2. What leads to a leftward shift in the demand curve?
+3. What causes stagflation?
+</code></pre>
+<h5>Step 3: Causal Statements</h5>
+<pre><code>
+LLM Query: "Write 3 causal statements about Macroeconomics"
+
+Response:
+1. "Increased demand for gold as a safe-haven asset during
+    economic uncertainty causes its price to rise."
+2. "A decline in the value of the U.S. dollar leads to higher
+    gold prices due to its inverse correlation."
+3. "Geopolitical instability influences investor behavior,
+    resulting in greater gold accumulation and higher prices."
+</code></pre>
+<h5>Step 4: Triple Extraction</h5>
+<pre><code>
+Statement: "Increased demand for gold as a safe-haven asset
+            during economic uncertainty causes its price to rise."
+
+Triple: ("demand for gold as a safe-haven asset",
+         causes,
+         "price of gold rises")
+</code></pre>
+<h5>Step 5: Graph Construction</h5>
+<p>
+After processing thousands of topics, we have a graph like:
+</p>
+<pre><code>
+                    ┌──────────────────────┐
+                    │ geopolitical         │
+                    │ instability          │
+                    └──────────┬───────────┘
+                               │ influences
+                               ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│ U.S. dollar     │────▶│ gold price      │◀────│ safe-haven      │
+│ decline         │leads│                 │cause│ demand          │
+└─────────────────┘ to  └─────────────────┘  s  └─────────────────┘
+                               ▲
+                               │ influences
+                    ┌──────────┴───────────┐
+                    │ economic             │
+                    │ uncertainty          │
+                    └──────────────────────┘
+</code></pre>
+<h5>Step 6: GT Refinement</h5>
+<p>
+The Geometric Transformer:
+</p>
+<ol>
+<li>Initializes node embeddings from text</li>
+<li>Passes messages along edges (1-simplices)</li>
+<li>Passes messages across triangles (2-simplices)</li>
+<li>Produces refined embeddings capturing structure</li>
+</ol>
+<h5>Step 7: UMAP Visualization</h5>
+<p>
+The 2D projection shows gold-related nodes clustering together, with meaningful neighbors like inflation, dollar value, safe-haven assets, and geopolitical risk.
+</p>
+<hr>
+<h4>Part 4: Key Experimental Results</h4>
+<h5>4.1 Scale of Experiments</h5>
+<table>
+<tr><th>Metric</th><th>Value</th></tr>
+<tr><td>Causal statements generated</td><td>90,016</td></tr>
+<tr><td>Domains covered</td><td>9</td></tr>
+<tr><td>Unique concepts extracted</td><td>54,514</td></tr>
+<tr><td>Typed relations</td><td>57,390</td></tr>
+<tr><td>Regime triangles per domain</td><td>553-1,336</td></tr>
+</table>
+<h5>4.2 Timing Profile (Economics Slice, 7004 topics)</h5>
+<table>
+<tr><th>Module</th><th>Time</th></tr>
+<tr><td>1: Topic graph</td><td>13,700 s (~3.8 hrs)</td></tr>
+<tr><td>2: Causal questions</td><td>31,006 s (~8.6 hrs)</td></tr>
+<tr><td>3: Causal statements</td><td>13,369 s (~3.7 hrs)</td></tr>
+<tr><td>4: Triple extraction</td><td>4.7 s</td></tr>
+<tr><td>5: GT + UMAP</td><td>44.8 s</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>58,124 s (~16.1 hrs)</strong></td></tr>
+</table>
+<p>
+<strong>Key Insight</strong>: LLM calls dominate (>99.9% of time). GT and UMAP are negligible.
+</p>
+<h5>4.3 Geometric Transformer vs. Baseline</h5>
+<p>
+On a triangle detection task (can the model identify if a graph contains a triangle?):
+</p>
+<table>
+<tr><th>Model</th><th>Accuracy</th></tr>
+<tr><td>Graph Transformer (edges only)</td><td>54.87%</td></tr>
+<tr><td>Geometric Transformer (edges + triangles)</td><td><strong>100%</strong></td></tr>
+</table>
+<p>
+This demonstrates the value of higher-order message passing for structural tasks.
+</p>
+<h5>4.4 Manifold Quality</h5>
+<p>
+<strong>Without GT</strong> (raw UMAP on triples):
+</p>
+<ul>
+<li>"Giant hairball" with no discernible structure</li>
+</ul>
+<p>
+<strong>With GT</strong>:
+</p>
+<ul>
+<li>Clear domain clustering</li>
+<li>Smooth transition zones</li>
+<li>Interpretable local neighborhoods</li>
+</ul>
+<h5>4.5 Local Causal Neighborhoods</h5>
+<p>
+The system recovers sensible causal clusters:
+</p>
+<p>
+<strong>Electricity Demand Neighborhood</strong>:
+</p>
+<pre><code>
+heating/cooling ─┐
+EV charging ─────┼──▶ electricity demand
+industrial use ──┤
+insulation ──────┘
+</code></pre>
+<p>
+<strong>Minimum Wage Neighborhood</strong>:
+</p>
+<pre><code>
+employment ──────┐
+consumer spending┼──▶ minimum wage effects
+inflation ───────┤
+business closures┘
+</code></pre>
+<hr>
+<h4>Part 5: The Indus Valley Case Study</h4>
+<h5>5.1 Background</h5>
+<p>
+The Indus Valley (Harappan) civilization flourished around 5000 years ago in what is now Pakistan and northwest India. Its decline around 1900 BCE has long puzzled archaeologists.
+</p>
+<p>
+A recent paper (Solanki et al., 2025) proposes that prolonged droughts caused by monsoon variability led to the civilization's "metamorphosis" (gradual transformation and dispersal rather than violent collapse).
+</p>
+<h5>5.2 DEMOCRITUS Application</h5>
+<p>
+The authors used DEMOCRITUS to:
+</p>
+<ol>
+<li>Expand on the causal claims in the published study</li>
+<li>Connect disparate evidence (climate, hydrology, agriculture, trade)</li>
+<li>Identify potential gaps and alternative hypotheses</li>
+</ol>
+<p>
+<strong>Seed Topics</strong>:
+</p>
+<ul>
+<li>Indus Valley Civilization / Harappan civilization</li>
+<li>Holocene monsoon / paleoclimate / 4.2 ka event</li>
+<li>Indus river discharge, river droughts</li>
+<li>Wheat/barley/cotton agriculture, irrigation</li>
+<li>Riverine trade networks</li>
+</ul>
+<h5>5.3 Generated Causal Questions</h5>
+<pre><code>
+• "What causes multi-decadal droughts in the Indus basin?"
+• "How do changes in the tropical Pacific influence Indus monsoon?"
+• "How does reduced rainfall propagate to crop viability?"
+• "Why might repeated long droughts drive gradual urban decline?"
+</code></pre>
+<h5>5.4 Extracted Causal Triples</h5>
+<pre><code>
+(tropical Pacific warming, reduces, monsoon rainfall)
+(reduced rainfall, decreases, Indus river discharge)
+(lower discharge, impedes, river trade)
+(multi-decade droughts, stress, agriculture and governance)
+(chronic water stress, leads to, relocation of settlements)
+</code></pre>
+<h5>5.5 Value Added by DEMOCRITUS</h5>
+<ol>
+<li><strong>Graph Connectivity</strong>: Links Indus collapse to other 4.2 ka event stories (Akkadian, Egyptian Old Kingdom)</li>
+</ol>
+<ol>
+<li><strong>Alternative Hypotheses</strong>: Enumerates other proposed drivers (river avulsion, conflict, disease, trade shifts)</li>
+</ol>
+<ol>
+<li><strong>Modern Analogues</strong>: Suggests exploring similar causal chains in modern South Asia</li>
+</ol>
+<ol>
+<li><strong>Active Deepening</strong>: Allows researchers to selectively explore specific regions of the LCM</li>
+</ol>
+<hr>
+<h4>Part 6: Limitations and Future Directions</h4>
+<h5>6.1 Current Limitations</h5>
+<ol>
+<li><strong>No Validation Against Data</strong>: LCMs are hypothesis spaces, not validated causal models</li>
+</ol>
+<ol>
+<li><strong>LLM Biases and Hallucinations</strong>: DEMOCRITUS inherits whatever errors exist in the LLM</li>
+</ol>
+<ol>
+<li><strong>No Effect Sizes</strong>: All edges have weight 1.0; no quantitative causal strength</li>
+</ol>
+<ol>
+<li><strong>Static DAGs</strong>: Current version doesn't model dynamical systems with feedback loops</li>
+</ol>
+<ol>
+<li><strong>Expensive LLM Calls</strong>: Naive BFS expansion wastes budget on irrelevant branches</li>
+</ol>
+<h5>6.2 Planned Extensions</h5>
+<ol>
+<li><strong>Active Manifold Building</strong>: Use utility scores to decide where to expand:</li>
+</ol>
+<p>
+   ```
+    U(t) = w1·e^(-α·depth(t)) + w2·degree(t) + w3·triple_count(t) + w4·novelty(t)
+    ```
+</p>
+<ol>
+<li><strong>Task-Conditioned Refinement</strong>: Deepen specific regions based on user queries</li>
+</ol>
+<ol>
+<li><strong>Integration with Quantitative Causal Inference</strong>: Assign data-driven edge strengths</li>
+</ol>
+<ol>
+<li><strong>DEMOCRITUS-ODE</strong>: Extend to dynamical causal models with differential equations</li>
+</ol>
+<ol>
+<li><strong>Topos Reasoning</strong>: Use intuitionistic logic for formal causal reasoning</li>
+</ol>
+<hr>
+<h4>Part 7: Practical Implications</h4>
+<h5>7.1 Who Should Use DEMOCRITUS?</h5>
+<ul>
+<li><strong>Researchers</strong> exploring new domains or synthesizing literature</li>
+<li><strong>Educators</strong> creating visual explanations of complex topics</li>
+<li><strong>Policy analysts</strong> mapping out causal factors in complex systems</li>
+<li><strong>Historians</strong> organizing hypotheses about past events</li>
+</ul>
+<h5>7.2 Who Should NOT Rely on DEMOCRITUS Alone?</h5>
+<ul>
+<li>Anyone needing <strong>validated causal claims</strong> for interventions</li>
+<li>Researchers who can run <strong>controlled experiments</strong></li>
+<li>Anyone requiring <strong>quantitative effect estimates</strong></li>
+</ul>
+<h5>7.3 Best Practices</h5>
+<ol>
+<li><strong>Treat outputs as hypotheses</strong>, not facts</li>
+<li><strong>Validate important claims</strong> against domain expertise</li>
+<li><strong>Use for exploration</strong>, not confirmation</li>
+<li><strong>Combine with traditional methods</strong> when possible</li>
+<li><strong>Be aware of LLM limitations</strong> (training data biases, hallucinations)</li>
+</ol>
+<hr>
+<h4>Conclusion</h4>
+<p>
+DEMOCRITUS represents a novel approach to causal discovery that leverages the vast knowledge encoded in LLMs. By systematically extracting and organizing causal claims into navigable manifolds, it provides researchers with powerful tools for hypothesis generation and knowledge exploration.
+</p>
+<p>
+The key innovations are:
+</p>
+<ol>
+<li><strong>Treating LLMs as causal knowledge sources</strong> rather than just text generators</li>
+<li><strong>Using Geometric Transformers</strong> to capture higher-order structure</li>
+<li><strong>Creating navigable manifold visualizations</strong> of causal knowledge</li>
+<li><strong>Enabling active, task-conditioned exploration</strong></li>
+</ol>
+<p>
+While DEMOCRITUS cannot replace rigorous causal inference from data, it fills an important gap: organizing and visualizing causal knowledge in domains where traditional experimental methods are impossible. As LLMs improve and the system evolves, this approach may become increasingly valuable for scientific discovery across many fields.
+</p>
+<hr>
+<h4>Appendix: Key Equations</h4>
+<h5>Geometric Transformer Update Rule</h5>
+<pre><code>
+h_v^{(l+1)} = σ(W_0 · h_v^{(l)} + Σ_{u∈N(v)} W_1 · h_u^{(l)} + Σ_{(u,w)∈Tri(v)} W_2 · [h_u^{(l)}, h_w^{(l)}])
+</code></pre>
+<p>
+Where:
+</p>
+<ul>
+<li><code>h_v^{(l)}</code> = embedding of node v at layer l</li>
+<li><code>N(v)</code> = neighbors of v (1-simplex)</li>
+<li><code>Tri(v)</code> = triangles containing v (2-simplex)</li>
+<li><code>σ</code> = activation function</li>
+<li><code>W_0, W_1, W_2</code> = learned weight matrices</li>
+</ul>
+<h5>Active Exploration Utility Score</h5>
+<pre><code>
+U(t) = w1·e^(-α·depth(t)) + w2·degree(t) + w3·triple_count(t) + w4·U_novel(t)
+</code></pre>
+<p>
+Where:
+</p>
+<ul>
+<li><code>depth(t)</code> = depth of topic t in topic graph</li>
+<li><code>degree(t)</code> = graph degree of topic node</li>
+<li><code>triple_count(t)</code> = number of triples mentioning t</li>
+<li><code>U_novel(t)</code> = inverse local density in embedding space (novelty)</li>
+</ul>
+        </section>
+
+        <section id="claims">
+            <h2>Claims</h2>
+            <h4>Primary Thesis</h4>
+<ol>
+<li><strong>Large Causal Models (LCMs) can be constructed from LLM knowledge</strong>: The vast causal knowledge implicitly encoded in LLMs can be systematically extracted and organized into coherent, navigable causal structures spanning multiple domains. (p. 1)</li>
+</ol>
+<ol>
+<li><strong>DEMOCRITUS represents a methodologically distinct paradigm</strong>: Unlike traditional causal discovery from numerical experimental data, DEMOCRITUS builds causal models from textual queries to LLMs, enabling causal reasoning in domains where experiments are impossible. (p. 1-2)</li>
+</ol>
+<h4>System Architecture Claims</h4>
+<ol>
+<li><strong>A six-module pipeline is sufficient for LCM construction</strong>: Topic graph expansion, causal question generation, causal statement generation, triple extraction, geometric embedding, and topos slice storage together form a complete system. (p. 9, 12)</li>
+</ol>
+<ol>
+<li><strong>LLM calls dominate computational cost</strong>: More than 99.9% of compute budget is spent on LLM queries (Modules 1-3), while triple extraction and manifold construction are negligible. (p. 18, 22)</li>
+</ol>
+<ol>
+<li><strong>High-quality LLMs are essential</strong>: The quality of resulting LCMs depends critically on using capable models (e.g., 80B+ parameters); smaller models produce sparse, noisy manifolds. (p. 18-19, 23)</li>
+</ol>
+<h4>Technical Claims</h4>
+<ol>
+<li><strong>Geometric Transformers outperform standard Graph Transformers on structural tasks</strong>: GT with 2-simplex (triangle) message passing achieves 100% accuracy on triangle detection vs. 54.87% for edge-only transformers. (p. 22, Table 2)</li>
+</ol>
+<ol>
+<li><strong>Higher-order message passing captures structure that edge-only methods miss</strong>: The distinction between triangles and paths, which edge-only GNNs struggle with, is cleanly captured by GT's explicit 2-simplicial channel. (p. 21-22)</li>
+</ol>
+<ol>
+<li><strong>UMAP alone produces unstructured embeddings</strong>: Without GT refinement, UMAP on causal triples produces a "giant hairball" with no discernible structure. (p. 15-16, Figure 12)</li>
+</ol>
+<ol>
+<li><strong>GT + UMAP produces coherent domain clustering</strong>: The combination reveals macro-domain structure, causal gradients, and cross-domain interactions. (p. 7)</li>
+</ol>
+<h4>Manifold Structure Claims</h4>
+<ol>
+<li><strong>LCM graphs exhibit scale-free, heavy-tailed degree distributions</strong>: A few high-degree hub variables (stress, inflation, vaccination) exist alongside many low-degree fringe nodes. (p. 9, 19)</li>
+</ol>
+<ol>
+<li><strong>Hub-fringe structure provides robustness</strong>: Injecting noise affects low-degree peripheral nodes without reshaping core clusters or changing high-degree hubs. (p. 19-20)</li>
+</ol>
+<ol>
+<li><strong>Local causal neighborhoods are interpretable</strong>: The learned LCM recovers sensible causal clusters (e.g., electricity demand linked to heating, cooling, EV charging). (p. 8)</li>
+</ol>
+<h4>Scope and Limitation Claims</h4>
+<ol>
+<li><strong>LCMs are hypothesis spaces, not validated causal models</strong>: The outputs should be viewed as structured hypothesis spaces and narrative maps, not as identified causal models with identifiability guarantees. (p. 5, 22-23)</li>
+</ol>
+<ol>
+<li><strong>DEMOCRITUS does not replace formal causal inference</strong>: The system does not guarantee causal correctness in the sense of Pearl or Imbens-Rubin; it provides candidate mechanisms for further analysis. (p. 5)</li>
+</ol>
+<ol>
+<li><strong>LCMs inherit LLM biases and hallucinations</strong>: If the underlying model has absorbed incorrect narratives, these will appear in the resulting graphs and manifolds. (p. 23)</li>
+</ol>
+<ol>
+<li><strong>DEMOCRITUS is closer to legal discovery than parametric modeling</strong>: It organizes and visualizes what an LLM "knows" about a domain as a starting point for expert investigation. (p. 5)</li>
+</ol>
+<h4>Application Claims</h4>
+<ol>
+<li><strong>Cross-domain causal exploration is feasible</strong>: The system successfully produces coherent LCMs spanning economics (~35,000 variables), biology, and Indus Valley archaeology. (p. 6-8, 13)</li>
+</ol>
+<ol>
+<li><strong>DEMOCRITUS can elaborate on published causal studies</strong>: Applied to the Indus Valley collapse study, it identifies alternative hypotheses, connects to other historical events, and suggests modern analogues. (p. 2-4)</li>
+</ol>
+<ol>
+<li><strong>Active manifold building can improve efficiency</strong>: Using utility scores to prioritize topic expansion can reduce wasted LLM budget on irrelevant branches. (p. 20-21)</li>
+</ol>
+<h4>Future Direction Claims</h4>
+<ol>
+<li><strong>Task-conditioned refinement is possible</strong>: User queries can condition the utility function to deepen specific regions of interest. (p. 21)</li>
+</ol>
+<ol>
+<li><strong>Integration with quantitative causal inference is planned</strong>: Future versions aim to assign data-driven edge strengths and subject edges to genuine causal validation. (p. 4, 17)</li>
+</ol>
+<ol>
+<li><strong>Extension to dynamical causal models is possible</strong>: DEMOCRITUS-ODE could help construct differential equation models, not just static DAGs. (p. 23-24)</li>
+</ol>
+        </section>
+
+        <section id="methods">
+            <h2>Methods</h2>
+            <h4>Overview</h4>
+<p>
+DEMOCRITUS uses a six-module pipeline to construct Large Causal Models (LCMs) from LLM queries.
+</p>
+<h4>Module 1: Topic Graph Construction (p. 10)</h4>
+<ul>
+<li><strong>Approach</strong>: Breadth-first search (BFS) expansion of domain topics</li>
+<li><strong>LLM Used</strong>: Qwen3-Next-80B-A3B-Instruct-6bit</li>
+<li><strong>Process</strong>:</li>
+</ul>
+<p>
+  - Start with root topics (e.g., Macroeconomics, Microeconomics, Game Theory)
+   - At each node, prompt LLM to list subtopics
+   - Add subtopics as children in topic graph
+   - Continue until depth limit (typically 5) or topic cap (e.g., 7000) reached
+</p>
+<ul>
+<li><strong>Output</strong>: JSONL topic graph with depth annotations</li>
+</ul>
+<p>
+<strong>Prompt Template</strong>:
+</p>
+<pre><code>
+You are an expert in {domain}.
+Given the topic "{TOPIC}", list 10 important subtopics...
+Return ONLY a numbered list of subtopics, one per line.
+</code></pre>
+<h4>Module 2: Causal Question Generation (p. 10-11)</h4>
+<ul>
+<li><strong>Purpose</strong>: Generate causal questions for each topic</li>
+<li><strong>Process</strong>: For each topic, prompt LLM to generate 3 causal questions</li>
+<li><strong>Question Format</strong>: "What causes X?" or "What leads to Y?"</li>
+<li><strong>Output</strong>: JSONL file with topic-question mappings</li>
+</ul>
+<p>
+<strong>Prompt Template</strong>:
+</p>
+<pre><code>
+You are an expert in {domain}.
+Topic: "{TOPIC}".
+Write 3 causal questions a student might ask...
+Each question should start with "What causes" or "What leads to".
+</code></pre>
+<h4>Module 3: Causal Statement Generation (p. 11)</h4>
+<ul>
+<li><strong>Purpose</strong>: Generate explicit causal claims for each topic</li>
+<li><strong>Process</strong>: For each topic, prompt LLM to generate 3 causal statements</li>
+<li><strong>Statement Format</strong>: "X causes Y" or "X leads to Y"</li>
+<li><strong>Output</strong>: JSONL file with topic-statement mappings</li>
+</ul>
+<p>
+<strong>Prompt Template</strong>:
+</p>
+<pre><code>
+You are an expert in {domain}.
+Topic: "{TOPIC}".
+Write 3 short statements of the form "X causes Y" or "X leads to Y"...
+</code></pre>
+<h4>Module 4: Relational Triple Extraction (p. 12, 14-15)</h4>
+<ul>
+<li><strong>Purpose</strong>: Convert natural language statements to structured triples</li>
+<li><strong>Process</strong>: OpenIE-style parsing to extract (subject, relation, object)</li>
+<li><strong>Relation Types</strong>: causes, increases, influences, leads_to, reduces, affects</li>
+<li><strong>Output</strong>: Multi-relational directed graph G = (V, E, rel, dom)</li>
+</ul>
+<p>
+  - V = unique subject/object phrases (variable nodes)
+   - E = directed edges with relation type and domain label
+</p>
+<h4>Module 5: Geometric Transformer + UMAP (p. 12, 15)</h4>
+<h5>5.1 Initial Embeddings</h5>
+<ul>
+<li>Node embeddings initialized from sentence encoder (Sentence-BERT)</li>
+<li>Text-based embeddings concatenated with structural features (degree, domain ID)</li>
+</ul>
+<h5>5.2 Geometric Transformer Architecture (p. 15, 21-22)</h5>
+<ul>
+<li><strong>Hidden dimension</strong>: d = 128</li>
+<li><strong>Depth</strong>: 2 layers</li>
+<li><strong>Message passing</strong>:</li>
+</ul>
+<p>
+  - <strong>1-simplex (edge) messages</strong>: Standard neighbor aggregation
+   - <strong>2-simplex (triangle) messages</strong>: Aggregation over triangles containing node
+</p>
+<ul>
+<li><strong>Triangle detection</strong>: Length-3 cycles in directed graph, treated as undirected 2-simplices</li>
+<li><strong>Update rule</strong>:</li>
+</ul>
+<p>
+  ```
+   h_v^{l+1} = σ(W_0·h_v^l + m_edge(v) + m_tri(v))
+   ```
+</p>
+<h5>5.3 UMAP Projection (p. 15, 27)</h5>
+<ul>
+<li><strong>Parameters</strong>:</li>
+</ul>
+<p>
+  - n_neighbors = 30
+   - min_dist = 0.1
+   - n_components = 2 or 3
+   - metric = cosine
+</p>
+<h4>Module 6: Topos Slice Storage (p. 13)</h4>
+<ul>
+<li><strong>Purpose</strong>: Store domain-specific slices as persistent objects</li>
+<li><strong>Capabilities</strong>:</li>
+</ul>
+<p>
+  - Independent querying per slice
+   - Cross-slice unification
+   - Incremental refinement
+</p>
+<ul>
+<li><strong>Connection</strong>: Slices can be queried by topos reasoners using Judo calculus</li>
+</ul>
+<h4>Experimental Setup</h4>
+<h5>Hardware (p. 22, 28)</h5>
+<ul>
+<li>Apple Silicon Mac Studio</li>
+<li>512 GB RAM</li>
+<li>8TB disk drive</li>
+<li>MLX framework for LLM inference</li>
+</ul>
+<h5>LLM Configuration</h5>
+<ul>
+<li><strong>Model</strong>: Qwen3-Next-80B-A3B-Instruct-6bit (MLX quantized version)</li>
+<li><strong>Source</strong>: Hugging Face mlx-community repository</li>
+</ul>
+<h5>Domain Configurations (p. 27)</h5>
+<table>
+<tr><th>Slice</th><th>Root Topics</th><th>Depth Limit</th><th>Topic Cap</th></tr>
+<tr><td>Economics</td><td>15 (Macro, Micro, Game Theory, Finance...)</td><td>5</td><td>7000</td></tr>
+<tr><td>Biology</td><td>~10 (Neuroscience, Genetics, Cardiology...)</td><td>Similar</td><td>Similar</td></tr>
+<tr><td>Indus Valley</td><td>~10 (Harappan, Holocene monsoon...)</td><td>3</td><td>-</td></tr>
+</table>
+<h5>Evaluation Metrics</h5>
+<ol>
+<li><strong>Triangle Detection Task</strong> (p. 22):</li>
+</ol>
+<p>
+   - Train on synthetic triangle/no-triangle graphs
+    - Evaluate on ProGraph slice
+    - Compare GT vs edge-only Graph Transformer
+</p>
+<ol>
+<li><strong>Manifold Quality</strong> (p. 15-17):</li>
+</ol>
+<p>
+   - Visual inspection of domain clustering
+    - Local neighborhood interpretability
+    - Comparison with/without GT refinement
+</p>
+<ol>
+<li><strong>Graph Statistics</strong> (p. 19):</li>
+</ol>
+<p>
+   - Degree distribution (heavy-tailed)
+    - Laplacian spectrum (algebraic connectivity λ2)
+    - Connected component analysis
+</p>
+<h5>Planned Robustness Experiments (p. 19-20)</h5>
+<ol>
+<li><strong>Stability across repeated runs</strong>: Pairwise distance correlation, k-NN overlap</li>
+<li><strong>Scaling with teacher model size</strong>: Compare 8B, 30B, 80B, 235B models</li>
+<li><strong>Robustness to noise</strong>: Inject false statements, measure impact on hubs vs fringe</li>
+</ol>
+        </section>
+
+        <section id="findings">
+            <h2>Findings</h2>
+            <h4>Scale and Scope</h4>
+<h5>Data Generation (p. 7)</h5>
+<ul>
+<li><strong>90,016</strong> synthetic relational causal statements generated across 9 domains</li>
+<li><strong>54,514</strong> unique concepts extracted</li>
+<li><strong>57,390</strong> typed relations identified</li>
+<li><strong>553-1,336</strong> regime triangles per domain (~9k 2-simplices total)</li>
+</ul>
+<h5>Economics Slice (p. 13, 22)</h5>
+<ul>
+<li><strong>7,004 topics</strong> in topic graph (depth 5)</li>
+<li><strong>~35,000 variables</strong> in relational graph</li>
+<li>Clear domain clustering visible in manifold (Figure 11)</li>
+</ul>
+<h5>Biology Slice (p. 19)</h5>
+<ul>
+<li><strong>36,720 variable nodes</strong></li>
+<li><strong>21,621 directed edges</strong></li>
+<li>Average undirected degree: ~1.18</li>
+<li>Maximum degree: 127</li>
+<li>Largest connected component: 153 nodes, 159 edges</li>
+</ul>
+<h4>Timing Results</h4>
+<h5>Full Economics Run (7004 topics, depth 5) - Table 3, p. 22</h5>
+<table>
+<tr><th>Module</th><th>Time (seconds)</th><th>Percentage</th></tr>
+<tr><td>1: Topic graph</td><td>13,700.4</td><td>23.6%</td></tr>
+<tr><td>2: Causal questions</td><td>31,005.8</td><td>53.3%</td></tr>
+<tr><td>3: Causal statements</td><td>13,368.6</td><td>23.0%</td></tr>
+<tr><td>4: Triple extraction</td><td>4.7</td><td>0.008%</td></tr>
+<tr><td>5: GT + UMAP</td><td>44.8</td><td>0.08%</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>58,124.4</strong> (~16.1 hrs)</td><td>100%</td></tr>
+</table>
+<p>
+<strong>Key Finding</strong>: LLM calls (Modules 1-3) consume >99.9% of compute; GT and UMAP are negligible.
+</p>
+<h5>Small Run Comparison (100 topics, depth 2) - Table 1, p. 18</h5>
+<table>
+<tr><th>Module</th><th>Time</th></tr>
+<tr><td>Topic graph</td><td>13.5 s</td></tr>
+<tr><td>Causal questions</td><td>104.3 s</td></tr>
+<tr><td>Causal statements</td><td>139.6 s</td></tr>
+<tr><td>Triples</td><td>0.1 s</td></tr>
+<tr><td>Manifold</td><td>7.5 s</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>264.9 s</strong> (~4.4 min)</td></tr>
+</table>
+<h4>Geometric Transformer Performance</h4>
+<h5>Triangle Detection Task - Table 2, p. 22</h5>
+<table>
+<tr><th>Model</th><th>Accuracy</th></tr>
+<tr><td>Graph Transformer (edges only)</td><td>54.87%</td></tr>
+<tr><td>Geometric Transformer (edges + triangles)</td><td><strong>100.00%</strong></td></tr>
+</table>
+<p>
+<strong>Finding</strong>: Explicit 2-simplex channel provides decisive advantage for structural tasks.
+</p>
+<h5>Baseline Comparisons (p. 15-17)</h5>
+<ol>
+<li><strong>Modules 1-4 only (no GT)</strong>: UMAP produces "giant hairball" with no structure (Figure 12)</li>
+<li><strong>Adding GT</strong>: Structural aspects snap into sharp relief, clear domain separation (Figure 13)</li>
+<li><strong>Adding causal refinement</strong>: Edges form between major hubs representing real causal effects (Figure 14)</li>
+</ol>
+<h4>Manifold Structure</h4>
+<h5>Global Properties (p. 7-8)</h5>
+<ul>
+<li><strong>Macro-domain structure</strong>: Climate, inflation, vaccination, supply chains, mental health, AI form distinct regions</li>
+<li><strong>Causal gradients</strong>: Clear transitions (e.g., energy factors → electricity demand → carbon emissions → climate)</li>
+<li><strong>Cross-domain interactions</strong>: "Generative AI" acts as hub connecting education, productivity, misinformation, creativity</li>
+</ul>
+<h5>Degree Distribution (p. 9, Figure 9)</h5>
+<ul>
+<li><strong>Heavy-tailed distribution</strong>: Few high-degree hubs, many low-degree fringe nodes</li>
+<li><strong>Identified hubs</strong>: stress, inflation, vaccination, generative AI, exercise</li>
+<li><strong>Implication</strong>: Scale-free structure provides robustness</li>
+</ul>
+<h5>Spectral Properties (p. 19)</h5>
+<p>
+For biology slice largest connected component:
+</p>
+<ul>
+<li>λ1 ≈ 0 (connectivity)</li>
+<li>λ2 ≈ 0.056 (Fiedler value - cohesive but nontrivial community structure)</li>
+<li>λ3 ≈ 0.080</li>
+<li>λ4 ≈ 0.138</li>
+<li>λ5 ≈ 0.293</li>
+</ul>
+<h4>Local Causal Neighborhoods</h4>
+<h5>Electricity Demand (p. 8, 10, Figure 7)</h5>
+<p>
+Connected variables include:
+</p>
+<ul>
+<li>Heating/cooling demand</li>
+<li>EV charging</li>
+<li>Industrial activity</li>
+<li>Insulation quality</li>
+<li>Air temperature</li>
+<li>Data center usage</li>
+</ul>
+<h5>Minimum Wage (p. 8, 11, Figure 8)</h5>
+<p>
+Connected variables include:
+</p>
+<ul>
+<li>Employment dynamics</li>
+<li>Consumer spending</li>
+<li>Inflationary pressure</li>
+<li>Labor productivity</li>
+<li>Business closures</li>
+<li>Wage disparities among workers</li>
+</ul>
+<h5>Influencer Marketing (p. 6-7, Figure 3)</h5>
+<p>
+Focus: "Building Long-Term Influencer Partnerships vs. One-Time Campaigns"
+ Connected variables:
+</p>
+<ul>
+<li>Brand loyalty</li>
+<li>Engagement rates</li>
+<li>Perceived authenticity</li>
+<li>Repeated exposure effects</li>
+</ul>
+<h4>Indus Valley Case Study (p. 2-4)</h4>
+<h5>Generated Causal Triples</h5>
+<ul>
+<li>(tropical Pacific warming, reduces, monsoon rainfall)</li>
+<li>(reduced rainfall, decreases, Indus river discharge)</li>
+<li>(lower discharge, impedes, boat/barged river trade)</li>
+<li>(shrinkage of lakes/playas, reduces, local water storage)</li>
+<li>(multi-decade droughts, stress, agriculture and governance)</li>
+<li>(chronic water stress, leads to, relocation of Harappan settlements)</li>
+</ul>
+<h5>Value Added</h5>
+<ol>
+<li><strong>Graph connectivity</strong>: Links to other 4.2 ka event stories (Akkadian, Egyptian Old Kingdom, Caral)</li>
+<li><strong>Alternative hypotheses</strong>: River avulsion, conflict, disease, trade shifts, social stratification</li>
+<li><strong>Modern analogues</strong>: Similar causal chains in contemporary South Asia</li>
+<li><strong>Active deepening</strong>: Selective exploration of specific regions</li>
+</ol>
+<h4>Sample Causal Statements from Economics (p. 16-17)</h4>
+<pre><code>
+government spending -&gt; an increase in aggregate demand
+inflation -&gt; the purchasing power of consumers
+unemployment -&gt; overall economic growth
+increased competition -&gt; the profitability of small firms
+game theory -&gt; strategic behaviors in competitive environments
+the presence of nash equilibrium -&gt; how rational agents make decisions
+uncertainty in payoffs -&gt; the risk of suboptimal outcomes
+increased government debt -&gt; long-term economic growth
+</code></pre>
+<h4>Qualitative Observations</h4>
+<h5>Model Size Effects (p. 19-20)</h5>
+<ul>
+<li>Larger teachers (80B+): Denser, more cohesive graphs; stable local neighborhoods</li>
+<li>Smaller teachers (8B): More isolated nodes; noisier geometry</li>
+</ul>
+<h5>Robustness to Noise (p. 20, planned)</h5>
+<ul>
+<li>Injected incorrect statements expected to attach to low-degree fringe</li>
+<li>Hub nodes and core clusters should remain stable</li>
+<li>Laplacian spectrum should be largely unchanged</li>
+</ul>
+        </section>
+
+        <section id="glossary">
+            <h2>Glossary</h2>
+            <h4>Core Concepts</h4>
+<p>
+<strong>Large Causal Model (LCM)</strong>: A structured representation of causal knowledge spanning potentially hundreds of domains and millions of causal claims, embedded in a geometric manifold for navigation and visualization.
+</p>
+<p>
+<strong>DEMOCRITUS</strong>: Decentralized Extraction of Manifold Ontologies of Causal Relations Integrating Topos Universal Slices. The system presented in this paper for building LCMs from LLM queries.
+</p>
+<p>
+<strong>Causal Discovery</strong>: The process of learning causal relationships from data or knowledge, as opposed to mere correlational patterns.
+</p>
+<p>
+<strong>Causal Triple</strong>: A structured representation of a causal claim in the form (subject, relation, object), e.g., ("inflation", causes, "reduced purchasing power").
+</p>
+<p>
+<strong>Slice</strong>: A domain-specific LCM (e.g., economics slice, biology slice) that can be stored, queried, and unified with other slices.
+</p>
+<h4>Mathematical and Technical Terms</h4>
+<p>
+<strong>Manifold</strong>: A topological space that locally resembles Euclidean space. In this paper, the low-dimensional embedding space where LCM nodes are projected for visualization.
+</p>
+<p>
+<strong>Simplicial Complex</strong>: A mathematical structure built from points (0-simplices), edges (1-simplices), triangles (2-simplices), and higher-dimensional analogs. Used to represent multi-relational graphs with higher-order structure.
+</p>
+<p>
+<strong>n-Simplex</strong>: The n-dimensional analog of a triangle:
+</p>
+<ul>
+<li>0-simplex: point (node)</li>
+<li>1-simplex: edge (pair of nodes)</li>
+<li>2-simplex: filled triangle (three nodes)</li>
+<li>3-simplex: tetrahedron (four nodes)</li>
+</ul>
+<p>
+<strong>Topos</strong>: A category with special properties that supports an internal intuitionistic logic. The paper frames LCMs as slices of a larger Topos Causal Model (TCM).
+</p>
+<p>
+<strong>Topos Causal Model (TCM)</strong>: A categorical framework for representing and reasoning about causality, supporting decentralized "map-reduce" style causal discovery.
+</p>
+<p>
+<strong>Intuitionistic Logic</strong>: A form of logic that doesn't assume the law of excluded middle (that every proposition is either true or false). Used in topos theory for internal reasoning.
+</p>
+<h4>Machine Learning Terms</h4>
+<p>
+<strong>Geometric Transformer (GT)</strong>: A neural network architecture that extends standard transformers/GNNs by allowing message passing over both edges (1-simplices) and triangles (2-simplices).
+</p>
+<p>
+<strong>Message Passing</strong>: The core operation in graph neural networks where nodes exchange information with their neighbors to update their representations.
+</p>
+<p>
+<strong>Higher-Order Message Passing</strong>: Message passing that operates not just on edges but on higher-order structures like triangles, enabling capture of more complex relational patterns.
+</p>
+<p>
+<strong>Graph Neural Network (GNN)</strong>: A neural network that operates on graph-structured data, propagating information along edges.
+</p>
+<p>
+<strong>Graph Transformer</strong>: A transformer architecture adapted for graph data, typically using attention mechanisms over edges.
+</p>
+<p>
+<strong>UMAP (Uniform Manifold Approximation and Projection)</strong>: A dimensionality reduction technique that projects high-dimensional data to 2D or 3D while preserving local and global structure.
+</p>
+<p>
+<strong>Sentence-BERT</strong>: A modification of BERT that produces semantically meaningful sentence embeddings, used to initialize node representations from text.
+</p>
+<p>
+<strong>Diagrammatic Backpropagation</strong>: The paper's term for performing backpropagation through computation diagrams that include higher-order simplicial structure.
+</p>
+<h4>Causal Inference Terms</h4>
+<p>
+<strong>DAG (Directed Acyclic Graph)</strong>: A graph with directed edges and no cycles, commonly used to represent causal structures.
+</p>
+<p>
+<strong>Causal Inference</strong>: The process of drawing conclusions about causal relationships, typically from observational or experimental data.
+</p>
+<p>
+<strong>Randomized Controlled Trial (RCT)</strong>: An experimental design where subjects are randomly assigned to treatment and control groups, considered the gold standard for causal inference.
+</p>
+<p>
+<strong>Identifiability</strong>: In causal inference, the property that a causal effect can be uniquely determined from the available data and assumptions.
+</p>
+<p>
+<strong>Confounding</strong>: When a third variable influences both the cause and effect, potentially leading to spurious causal conclusions.
+</p>
+<p>
+<strong>Intervention</strong>: An action that sets a variable to a specific value, breaking its natural causal dependencies. Denoted do(X=x) in Pearl's framework.
+</p>
+<p>
+<strong>Structural Equation Model (SEM)</strong>: A mathematical framework representing causal relationships as a system of equations.
+</p>
+<h4>Graph Theory Terms</h4>
+<p>
+<strong>Degree Distribution</strong>: The probability distribution of node degrees (number of connections) in a graph.
+</p>
+<p>
+<strong>Heavy-Tailed Distribution</strong>: A distribution where extreme values are more likely than in a normal distribution. In graphs, indicates presence of hub nodes with many connections.
+</p>
+<p>
+<strong>Scale-Free Network</strong>: A network whose degree distribution follows a power law, with few hubs and many low-degree nodes.
+</p>
+<p>
+<strong>Laplacian Matrix</strong>: A matrix representation of a graph equal to the degree matrix minus the adjacency matrix, used in spectral graph theory.
+</p>
+<p>
+<strong>Normalized Laplacian</strong>: A variant of the Laplacian scaled by node degrees: L = I - D^(-1/2)AD^(-1/2).
+</p>
+<p>
+<strong>Algebraic Connectivity (λ2)</strong>: The second-smallest eigenvalue of the Laplacian, measuring how well-connected a graph is.
+</p>
+<p>
+<strong>Fiedler Value</strong>: Another name for the algebraic connectivity λ2.
+</p>
+<p>
+<strong>Connected Component</strong>: A maximal subgraph where any two nodes are connected by a path.
+</p>
+<p>
+<strong>Ego Graph</strong>: The subgraph consisting of a node and its immediate neighbors.
+</p>
+<h4>Domain-Specific Terms</h4>
+<p>
+<strong>4.2 ka Event</strong>: A severe climatic event approximately 4,200 years ago that caused widespread drought and is linked to the collapse of several Bronze Age civilizations.
+</p>
+<p>
+<strong>Harappan Civilization</strong>: The Indus Valley Civilization, one of the world's earliest urban civilizations, which flourished around 2600-1900 BCE in what is now Pakistan and northwest India.
+</p>
+<p>
+<strong>Holocene</strong>: The current geological epoch, beginning approximately 11,700 years ago after the last major ice age.
+</p>
+<p>
+<strong>Paleoclimate</strong>: The climate of past geological periods, studied through proxies like ice cores, tree rings, and sediment records.
+</p>
+<h4>System Components</h4>
+<p>
+<strong>Topic Graph</strong>: The hierarchical tree structure of topics built in Module 1 via breadth-first search expansion.
+</p>
+<p>
+<strong>Relational Graph</strong>: The directed multi-relational graph built from extracted causal triples, where nodes are phrases and edges are typed causal relations.
+</p>
+<p>
+<strong>Causal Site</strong>: The simplicial complex formed by combining the relational graph (1-simplices) with domain-induced triangles (2-simplices).
+</p>
+<h4>LLM Terms</h4>
+<p>
+<strong>LLM (Large Language Model)</strong>: A neural network trained on large amounts of text data, capable of generating and understanding natural language.
+</p>
+<p>
+<strong>Qwen3-Next-80B-A3B-Instruct</strong>: The specific 80-billion parameter LLM used in the paper's experiments, in a 6-bit quantized form.
+</p>
+<p>
+<strong>Prompt Engineering</strong>: The practice of designing input prompts to elicit desired outputs from LLMs.
+</p>
+<p>
+<strong>Hallucination</strong>: When an LLM generates plausible-sounding but factually incorrect or fabricated information.
+</p>
+<p>
+<strong>MLX</strong>: Apple's machine learning framework optimized for Apple Silicon, used to run quantized LLMs efficiently.
+</p>
+<h4>Visualization Terms</h4>
+<p>
+<strong>2D/3D Projection</strong>: The mapping of high-dimensional embeddings to 2 or 3 dimensions for visualization.
+</p>
+<p>
+<strong>Cluster</strong>: A group of points that are close together in the embedding space, typically representing related concepts.
+</p>
+<p>
+<strong>Neighborhood</strong>: The local region around a point in the manifold, showing closely related concepts.
+</p>
+<h4>Miscellaneous</h4>
+<p>
+<strong>BFS (Breadth-First Search)</strong>: A graph traversal algorithm that explores all neighbors at the current depth before moving to the next depth level.
+</p>
+<p>
+<strong>OpenIE</strong>: Open Information Extraction, a technique for extracting structured information (typically triples) from unstructured text.
+</p>
+<p>
+<strong>Judo Calculus</strong>: A calculus for causal reasoning in topos-theoretic settings, referenced as a potential reasoning system for querying LCMs.
+</p>
+        </section>
+
+        <section id="prereqs">
+            <h2>Prerequisites</h2>
+            <h4>Required Background</h4>
+<h5>1. Basic Machine Learning (Essential)</h5>
+<p>
+<strong>Concepts needed</strong>:
+</p>
+<ul>
+<li>Neural networks and backpropagation</li>
+<li>Embeddings and representation learning</li>
+<li>Training, validation, and evaluation</li>
+<li>Loss functions and optimization</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li><a href="https://www.deeplearningbook.org/">Deep Learning by Goodfellow, Bengio, Courville</a> - Chapters 1-8</li>
+<li><a href="https://cs229.stanford.edu/">Stanford CS229: Machine Learning</a></li>
+<li><a href="https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi">3Blue1Brown Neural Network Series</a></li>
+</ul>
+<h5>2. Graph Neural Networks (Essential)</h5>
+<p>
+<strong>Concepts needed</strong>:
+</p>
+<ul>
+<li>Graphs as data structures (nodes, edges, adjacency matrices)</li>
+<li>Message passing paradigm</li>
+<li>Node classification and graph-level tasks</li>
+<li>Graph Transformers</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li><a href="https://distill.pub/2021/gnn-intro/">A Gentle Introduction to GNNs (Distill)</a></li>
+<li><a href="http://web.stanford.edu/class/cs224w/">Stanford CS224W: Machine Learning with Graphs</a></li>
+<li><a href="https://www.cs.mcgill.ca/~wlh/grl_book/">Graph Representation Learning Book by Hamilton</a></li>
+</ul>
+<h5>3. Large Language Models (Essential)</h5>
+<p>
+<strong>Concepts needed</strong>:
+</p>
+<ul>
+<li>Transformer architecture basics</li>
+<li>Prompting and in-context learning</li>
+<li>Strengths and limitations of LLMs</li>
+<li>Text generation and extraction</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need (original Transformer paper)</a></li>
+<li><a href="https://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a></li>
+<li><a href="https://www.promptingguide.ai/">Prompt Engineering Guide</a></li>
+</ul>
+<h5>4. Causal Inference Fundamentals (Essential)</h5>
+<p>
+<strong>Concepts needed</strong>:
+</p>
+<ul>
+<li>Correlation vs. causation</li>
+<li>Directed Acyclic Graphs (DAGs) for causal modeling</li>
+<li>Confounding and selection bias</li>
+<li>Interventions and do-calculus (basics)</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li><a href="https://www.basicbooks.com/titles/judea-pearl/the-book-of-why/9780465097616/">The Book of Why by Judea Pearl</a> - Accessible introduction</li>
+<li><a href="https://www.wiley.com/en-us/Causal+Inference+in+Statistics%3A+A+Primer-p-9781119186847">Causal Inference in Statistics: A Primer</a> - More technical</li>
+<li><a href="https://www.bradyneal.com/causal-inference-course">Brady Neal's Causal Inference Course</a></li>
+</ul>
+<hr>
+<h4>Helpful Background</h4>
+<h5>5. Dimensionality Reduction (Helpful)</h5>
+<p>
+<strong>Concepts needed</strong>:
+</p>
+<ul>
+<li>High-dimensional data and the curse of dimensionality</li>
+<li>UMAP and t-SNE basics</li>
+<li>Interpreting 2D/3D projections</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/1802.03426">UMAP Paper</a></li>
+<li><a href="https://pair-code.github.io/understanding-umap/">Understanding UMAP</a></li>
+<li><a href="https://towardsdatascience.com/how-to-program-umap-from-scratch-e6eff67f55fe">How to Use UMAP (Towards Data Science)</a></li>
+</ul>
+<h5>6. Knowledge Graphs (Helpful)</h5>
+<p>
+<strong>Concepts needed</strong>:
+</p>
+<ul>
+<li>Triple stores and RDF basics</li>
+<li>Knowledge graph embeddings</li>
+<li>Relation extraction from text</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li><a href="https://dl.acm.org/doi/10.1145/3447772">Knowledge Graphs (ACM Computing Surveys)</a></li>
+<li><a href="https://ieeexplore.ieee.org/document/9416312">A Survey on Knowledge Graphs (IEEE)</a></li>
+</ul>
+<h5>7. Natural Language Processing (Helpful)</h5>
+<p>
+<strong>Concepts needed</strong>:
+</p>
+<ul>
+<li>Text embeddings (Word2Vec, BERT, Sentence-BERT)</li>
+<li>Information extraction</li>
+<li>Relation extraction</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li><a href="https://web.stanford.edu/~jurafsky/slp3/">Speech and Language Processing by Jurafsky & Martin</a></li>
+<li><a href="https://huggingface.co/learn/nlp-course">Hugging Face NLP Course</a></li>
+</ul>
+<hr>
+<h4>Advanced Background (For Deep Understanding)</h4>
+<h5>8. Category Theory (Advanced)</h5>
+<p>
+<strong>Why relevant</strong>: The paper uses categorical frameworks (toposes, slices) for organizing causal models.
+</p>
+<p>
+<strong>Concepts needed</strong>:
+</p>
+<ul>
+<li>Categories, functors, natural transformations</li>
+<li>Products and coproducts</li>
+<li>Basic topos theory</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li><a href="https://bartoszmilewski.com/2014/10/28/category-theory-for-programmers-the-preface/">Category Theory for Programmers</a></li>
+<li><a href="https://arxiv.org/abs/1803.05316">Seven Sketches in Compositionality</a></li>
+<li><a href="https://link.springer.com/book/10.1007/978-1-4612-0927-0">Sheaves in Geometry and Logic (MacLane & Moerdijk)</a> - Advanced</li>
+</ul>
+<h5>9. Algebraic Topology (Advanced)</h5>
+<p>
+<strong>Why relevant</strong>: Simplicial complexes and higher-order structures are central to the Geometric Transformer.
+</p>
+<p>
+<strong>Concepts needed</strong>:
+</p>
+<ul>
+<li>Simplicial complexes</li>
+<li>Homology basics</li>
+<li>Simplicial sets</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li><a href="https://www.math.cornell.edu/~hatcher/AT/AT.pdf">Algebraic Topology by Hatcher</a> - Free online</li>
+<li><a href="https://www.maths.ed.ac.uk/~v1ranick/papers/edelcomp.pdf">Computational Topology: An Introduction</a></li>
+</ul>
+<h5>10. Spectral Graph Theory (Advanced)</h5>
+<p>
+<strong>Why relevant</strong>: The paper analyzes Laplacian spectra of causal graphs.
+</p>
+<p>
+<strong>Concepts needed</strong>:
+</p>
+<ul>
+<li>Graph Laplacians</li>
+<li>Spectral clustering</li>
+<li>Cheeger inequality</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li><a href="https://mathweb.ucsd.edu/~fan/research/revised.html">Spectral Graph Theory by Fan Chung</a></li>
+<li><a href="https://arxiv.org/abs/0711.0189">A Tutorial on Spectral Clustering</a></li>
+</ul>
+<hr>
+<h4>Self-Assessment Questions</h4>
+<p>
+Before reading the paper, can you answer:
+</p>
+<h5>Essential Level</h5>
+<ol>
+<li>What is the difference between correlation and causation?</li>
+<li>How does message passing work in a GNN?</li>
+<li>What is a DAG and why is it used in causal modeling?</li>
+<li>How do LLMs generate text from prompts?</li>
+<li>What does UMAP do and why is it useful?</li>
+</ol>
+<h5>Intermediate Level</h5>
+<ol>
+<li>What is a Graph Transformer and how does it differ from a GNN?</li>
+<li>What is confounding and why does it matter for causal inference?</li>
+<li>What are sentence embeddings and how are they created?</li>
+<li>What makes degree distributions "heavy-tailed"?</li>
+</ol>
+<h5>Advanced Level</h5>
+<ol>
+<li>What is a simplicial complex and how does it extend a graph?</li>
+<li>What is a topos and what logical properties does it have?</li>
+<li>What does the second eigenvalue of the graph Laplacian tell us?</li>
+</ol>
+<hr>
+<h4>Suggested Reading Order</h4>
+<h5>If you're new to the field:</h5>
+<ol>
+<li>Start with causal inference basics (Pearl's "Book of Why")</li>
+<li>Learn GNN fundamentals (Distill tutorial)</li>
+<li>Understand LLM capabilities (Prompt Engineering Guide)</li>
+<li>Then read the paper's tutorial.md and eli5.md first</li>
+</ol>
+<h5>If you have ML background:</h5>
+<ol>
+<li>Review causal inference if needed</li>
+<li>Read the paper's summary.md</li>
+<li>Dive into tutorial.md</li>
+<li>Reference glossary.md as needed</li>
+</ol>
+<h5>If you have causal inference background:</h5>
+<ol>
+<li>Review GNN/Graph Transformer basics</li>
+<li>Read summary.md and claims.md</li>
+<li>Focus on methods.md for technical details</li>
+<li>Consider the category theory references for deeper understanding</li>
+</ol>
+        </section>
+
+        <section id="questions">
+            <h2>Questions</h2>
+            <h4>Foundational Questions</h4>
+<ol>
+<li><strong>What distinguishes DEMOCRITUS from simply asking an LLM for causal explanations?</strong> Why can't we get the same results from a single well-crafted prompt?</li>
+</ol>
+<ol>
+<li><strong>Why is the six-module pipeline necessary?</strong> What would happen if we skipped the Geometric Transformer (Module 5)?</li>
+</ol>
+<ol>
+<li><strong>What makes this approach "methodologically distinct" from traditional causal discovery?</strong> What are the fundamental assumptions being changed?</li>
+</ol>
+<h4>Technical Questions</h4>
+<ol>
+<li><strong>Why use a Geometric Transformer instead of a standard Graph Neural Network?</strong> What specific capability does the 2-simplex (triangle) channel provide?</li>
+</ol>
+<ol>
+<li><strong>How does UMAP preserve causal structure?</strong> Is there any guarantee that causally related concepts end up near each other in the manifold?</li>
+</ol>
+<ol>
+<li><strong>What determines whether a causal claim becomes a "hub" vs. a "fringe" node?</strong> Is this purely based on frequency of mention?</li>
+</ol>
+<ol>
+<li><strong>How are conflicting causal claims handled?</strong> If the LLM says "X causes Y" in one response and "Y causes X" in another, what happens?</li>
+</ol>
+<h4>Validation Questions</h4>
+<ol>
+<li><strong>How would you evaluate whether an LCM is "correct"?</strong> What would ground truth look like for a domain like Indus Valley archaeology?</li>
+</ol>
+<ol>
+<li><strong>The paper shows 100% accuracy on triangle detection, but does this translate to better causal models?</strong> What's the connection between detecting triangles and capturing causal structure?</li>
+</ol>
+<ol>
+<li><strong>How sensitive are the results to the choice of LLM?</strong> Would GPT-4, Claude, or a smaller model produce substantially different LCMs?</li>
+</ol>
+<h4>Scope Questions</h4>
+<ol>
+<li><strong>What types of causal relationships can DEMOCRITUS capture?</strong> Can it handle:</li>
+</ol>
+<p>
+    - Probabilistic causation (X increases the probability of Y)?
+     - Necessary vs. sufficient causes?
+     - Indirect causation through mediators?
+     - Feedback loops?
+</p>
+<ol>
+<li><strong>How does the system handle domain boundaries?</strong> When is "economics" distinct from "psychology" or "sociology"?</li>
+</ol>
+<ol>
+<li><strong>Can DEMOCRITUS identify causal mechanisms, or only causal associations?</strong> Does "X causes Y" capture the "how"?</li>
+</ol>
+<h4>Critical Questions</h4>
+<ol>
+<li><strong>Is the Indus Valley case study actually useful to archaeologists?</strong> Does it provide insights beyond what domain experts already know?</li>
+</ol>
+<ol>
+<li><strong>Given that LLMs conflate correlation and causation, how much of what DEMOCRITUS extracts is actually causal?</strong> Is there any filtering for this?</li>
+</ol>
+<ol>
+<li><strong>The paper acknowledges LCMs are "hypothesis spaces" not validated models. What's the actual use case then?</strong> When would a researcher prefer an LCM to a literature review?</li>
+</ol>
+<ol>
+<li><strong>How do hallucinations propagate through the system?</strong> If one false claim is generated, does the GT/UMAP pipeline amplify or dampen its influence?</li>
+</ol>
+<h4>Practical Questions</h4>
+<ol>
+<li><strong>Why does Module 2 (causal questions) take longer than Module 3 (causal statements)?</strong> Both seem to require similar LLM calls.</li>
+</ol>
+<ol>
+<li><strong>The economics slice took 16 hours on a Mac Studio. How would this scale to truly comprehensive coverage?</strong> Is active manifold building sufficient to address this?</li>
+</ol>
+<ol>
+<li><strong>What happens when you query an LCM?</strong> The paper mentions slices can be "queried" but doesn't detail the query interface.</li>
+</ol>
+<h4>Future Direction Questions</h4>
+<ol>
+<li><strong>How would DEMOCRITUS-ODE actually work?</strong> Can LLMs really propose meaningful differential equations?</li>
+</ol>
+<ol>
+<li><strong>What would it take to validate LCM edges against real data?</strong> Is this even feasible for most domains?</li>
+</ol>
+<ol>
+<li><strong>Could DEMOCRITUS be used adversarially?</strong> What if someone wanted to inject false causal beliefs into the manifold?</li>
+</ol>
+<h4>Comparative Questions</h4>
+<ol>
+<li><strong>How does DEMOCRITUS compare to existing knowledge graph approaches?</strong> What can it do that Wikidata or ConceptNet cannot?</li>
+</ol>
+<ol>
+<li><strong>Why not use a purpose-built causal knowledge base instead of extracting from LLMs?</strong> What advantages does the LLM approach provide?</li>
+</ol>
+<ol>
+<li><strong>How does this relate to other LLM-for-science approaches?</strong> Is this similar to using LLMs for hypothesis generation in chemistry or biology?</li>
+</ol>
+<h4>Meta Questions</h4>
+<ol>
+<li><strong>The paper is a preprint dated December 2025 but references papers from 2025-2026. What does this timeline suggest about the work's maturity?</strong></li>
+</ol>
+<ol>
+<li><strong>Why name the system after Democritus?</strong> Beyond the quote, what connection exists to ancient Greek atomism?</li>
+</ol>
+<ol>
+<li><strong>The paper mentions a web interface demo. How would interactive exploration change the use case?</strong></li>
+</ol>
+<ol>
+<li><strong>If you were reviewing this paper, what experiments would you request to strengthen the claims?</strong></li>
+</ol>
+        </section>
+
+        <section id="quiz">
+            <h2>Quiz</h2>
+            <p>
+Test your understanding of the paper. Answers are hidden in expandable sections.
+</p>
+<hr>
+<h4>Section 1: Core Concepts</h4>
+<h5>Q1. What does DEMOCRITUS stand for?</h5>
+<details>
+<summary>Show Answer</summary>
+<p>
+<strong>Decentralized Extraction of Manifold Ontologies of Causal Relations Integrating Topos Universal Slices</strong>
+</p>
+<p>
+The name also references the ancient Greek philosopher Democritus (460-370 B.C.) who said "I would rather discover one true cause than gain the kingdom of Persia."
+</p>
+</details>
+<h5>Q2. What is a Large Causal Model (LCM)?</h5>
+<details>
+<summary>Show Answer</summary>
+<p>
+An LCM is a structured representation of causal knowledge that:
+</p>
+<ul>
+<li>Spans potentially hundreds of distinct domains</li>
+<li>Contains millions of specific causal claims</li>
+<li>Is embedded in a geometric manifold for navigation and visualization</li>
+<li>Can be organized as "slices" within a larger topos structure</li>
+</ul>
+<p>
+Unlike traditional causal graphs focused on specific studies, LCMs aggregate broad causal knowledge from LLMs.
+</p>
+</details>
+<h5>Q3. How is DEMOCRITUS methodologically different from traditional causal discovery?</h5>
+<details>
+<summary>Show Answer</summary>
+<p>
+Traditional causal discovery:
+</p>
+<ul>
+<li>Builds causal models from controlled experiments</li>
+<li>Produces numerical data</li>
+<li>Focuses on narrow, specialized domains</li>
+</ul>
+<p>
+DEMOCRITUS:
+</p>
+<ul>
+<li>Extracts causal knowledge from LLM text generation</li>
+<li>Works with natural language statements</li>
+<li>Spans diverse domains simultaneously</li>
+<li>Enables causal modeling in domains where experiments are impossible (e.g., historical events)</li>
+</ul>
+</details>
+<hr>
+<h4>Section 2: System Architecture</h4>
+<h5>Q4. List the six modules in the DEMOCRITUS pipeline.</h5>
+<details>
+<summary>Show Answer</summary>
+<ol>
+<li><strong>Module 1: Topic Graph</strong> - BFS expansion of domain topics</li>
+<li><strong>Module 2: Causal Questions</strong> - Generate "What causes X?" questions</li>
+<li><strong>Module 3: Causal Statements</strong> - Generate "X causes Y" statements</li>
+<li><strong>Module 4: Relational Triples</strong> - Extract (subject, relation, object) triples</li>
+<li><strong>Module 5: Geometric Transformer + UMAP</strong> - Embed graph into manifold</li>
+<li><strong>Module 6: Topos Slice Storage</strong> - Store and unify domain slices</li>
+</ol>
+</details>
+<h5>Q5. Which modules consume the most computational time, and why?</h5>
+<details>
+<summary>Show Answer</summary>
+<p>
+<strong>Modules 1-3</strong> (Topic graph, Causal questions, Causal statements) consume <strong>>99.9%</strong> of compute time.
+</p>
+<p>
+Why: These modules require repeated LLM inference calls (using Qwen3-80B), which is computationally expensive.
+</p>
+<p>
+In contrast:
+</p>
+<ul>
+<li>Module 4 (Triple extraction): ~5 seconds</li>
+<li>Module 5 (GT + UMAP): ~45 seconds</li>
+</ul>
+<p>
+The full economics slice (7004 topics) takes ~16 hours, with Modules 1-3 accounting for ~58,000 of ~58,125 total seconds.
+</p>
+</details>
+<h5>Q6. What is the role of the Geometric Transformer?</h5>
+<details>
+<summary>Show Answer</summary>
+<p>
+The Geometric Transformer:
+</p>
+<ol>
+<li>Takes the raw relational graph of causal triples</li>
+<li>Refines node embeddings through higher-order message passing</li>
+<li>Operates on both <strong>1-simplices</strong> (edges) and <strong>2-simplices</strong> (triangles)</li>
+<li>Captures structural patterns that edge-only methods miss</li>
+<li>Produces embeddings that reveal coherent domain clustering when projected via UMAP</li>
+</ol>
+<p>
+It's critical for transforming a "giant hairball" of unstructured relationships into a meaningful manifold.
+</p>
+</details>
+<hr>
+<h4>Section 3: Technical Details</h4>
+<h5>Q7. What is a simplicial complex, and why does it matter for DEMOCRITUS?</h5>
+<details>
+<summary>Show Answer</summary>
+<p>
+A simplicial complex is a mathematical structure built from:
+</p>
+<ul>
+<li>0-simplices: points (nodes)</li>
+<li>1-simplices: edges (pairs of nodes)</li>
+<li>2-simplices: filled triangles (triples of nodes)</li>
+<li>Higher simplices: tetrahedra, etc.</li>
+</ul>
+<p>
+It matters because:
+</p>
+<ul>
+<li>Standard GNNs only pass messages along edges (1-simplices)</li>
+<li>The Geometric Transformer also passes messages across triangles (2-simplices)</li>
+<li>This captures higher-order causal structure that edge-only methods miss</li>
+<li>E.g., distinguishing a triangle from a path requires 2-simplex awareness</li>
+</ul>
+</details>
+<h5>Q8. On the triangle detection benchmark, what were the accuracy scores for Graph Transformer vs. Geometric Transformer?</h5>
+<details>
+<summary>Show Answer</summary>
+<table>
+<tr><th>Model</th><th>Accuracy</th></tr>
+<tr><td>Graph Transformer (edges only)</td><td><strong>54.87%</strong></td></tr>
+<tr><td>Geometric Transformer (edges + triangles)</td><td><strong>100.00%</strong></td></tr>
+</table>
+<p>
+This demonstrates that explicit 2-simplex channels are necessary for certain structural tasks.
+</p>
+</details>
+<h5>Q9. What UMAP hyperparameters are used in DEMOCRITUS?</h5>
+<details>
+<summary>Show Answer</summary>
+<ul>
+<li><strong>n_neighbors</strong> = 30 (local neighborhood size)</li>
+<li><strong>min_dist</strong> = 0.1 (how tightly points cluster)</li>
+<li><strong>n_components</strong> = 2 or 3 (output dimensionality)</li>
+<li><strong>metric</strong> = cosine (distance measure)</li>
+</ul>
+</details>
+<hr>
+<h4>Section 4: Results and Findings</h4>
+<h5>Q10. How many causal statements, unique concepts, and typed relations were extracted in the main experiments?</h5>
+<details>
+<summary>Show Answer</summary>
+<ul>
+<li><strong>90,016</strong> synthetic relational causal statements</li>
+<li><strong>54,514</strong> unique concepts extracted</li>
+<li><strong>57,390</strong> typed relations</li>
+<li><strong>9</strong> domains covered</li>
+<li><strong>~9,000</strong> 2-simplices (regime triangles) total</li>
+</ul>
+</details>
+<h5>Q11. What characteristics do the degree distributions of DEMOCRITUS graphs exhibit?</h5>
+<details>
+<summary>Show Answer</summary>
+<p>
+<strong>Heavy-tailed/scale-free distributions</strong>:
+</p>
+<ul>
+<li>A small number of high-degree hub nodes (e.g., stress, inflation, vaccination, generative AI, exercise)</li>
+<li>Many low-degree fringe nodes</li>
+<li>This structure provides robustness: injecting noise affects fringe nodes without disrupting hubs</li>
+</ul>
+</details>
+<h5>Q12. Name three interpretable local causal neighborhoods recovered by the system.</h5>
+<details>
+<summary>Show Answer</summary>
+<ol>
+<li><strong>Electricity demand</strong> → linked to heating, cooling, EV charging, industrial activity, insulation quality</li>
+</ol>
+<ol>
+<li><strong>Minimum wage</strong> → connected to employment, consumer spending, inflation, business closures, labor productivity</li>
+</ol>
+<ol>
+<li><strong>Long-term influencer partnerships</strong> → linked to brand loyalty, engagement rates, perceived authenticity, repeated exposure</li>
+</ol>
+</details>
+<hr>
+<h4>Section 5: Limitations and Critical Analysis</h4>
+<h5>Q13. List three major limitations acknowledged by the authors.</h5>
+<details>
+<summary>Show Answer</summary>
+<ol>
+<li><strong>No validation against data</strong>: LCMs are hypothesis spaces, not validated causal models; no effect sizes estimated</li>
+</ol>
+<ol>
+<li><strong>Inherits LLM biases/hallucinations</strong>: If the LLM has absorbed incorrect narratives, these appear in the LCM</li>
+</ol>
+<ol>
+<li><strong>No identifiability guarantees</strong>: Doesn't guarantee causal correctness in the Pearl/Imbens-Rubin sense</li>
+</ol>
+<ol>
+<li><strong>Static DAG limitation</strong>: Doesn't capture dynamical systems with feedback loops</li>
+</ol>
+<ol>
+<li><strong>Domain coverage gaps</strong>: Under-documented domains may have missing mechanisms</li>
+</ol>
+<p>
+(Any three of these)
+</p>
+</details>
+<h5>Q14. Why does the paper describe DEMOCRITUS as closer to "legal discovery" than to parametric causal modeling?</h5>
+<details>
+<summary>Show Answer</summary>
+<p>
+Because DEMOCRITUS:
+</p>
+<ul>
+<li><strong>Organizes and visualizes</strong> what an LLM implicitly "knows" about causality</li>
+<li><strong>Does not identify</strong> true causal effects or control for confounding</li>
+<li>Serves as a <strong>starting point</strong> for human experts to investigate further</li>
+<li>Is meant for <strong>exploration and hypothesis generation</strong>, not definitive causal claims</li>
+</ul>
+<p>
+Like legal discovery, it helps you find relevant information to consider, but doesn't prove anything.
+</p>
+</details>
+<hr>
+<h4>Section 6: Applications</h4>
+<h5>Q15. What causal triples did DEMOCRITUS extract related to the Indus Valley civilization collapse?</h5>
+<details>
+<summary>Show Answer</summary>
+<ul>
+<li>(tropical Pacific warming, reduces, monsoon rainfall)</li>
+<li>(reduced rainfall, decreases, Indus river discharge)</li>
+<li>(lower discharge, impedes, boat/barged river trade)</li>
+<li>(shrinkage of lakes/playas, reduces, local water storage)</li>
+<li>(multi-decade droughts, stress, agriculture and governance)</li>
+<li>(chronic water stress, leads to, relocation of Harappan settlements)</li>
+</ul>
+</details>
+<h5>Q16. What additional value did DEMOCRITUS provide beyond the published Indus Valley study?</h5>
+<details>
+<summary>Show Answer</summary>
+<ol>
+<li><strong>Graph connectivity</strong>: Linked Indus collapse to other 4.2 ka event collapses (Akkadian, Egyptian Old Kingdom, Caral)</li>
+</ol>
+<ol>
+<li><strong>Alternative hypotheses</strong>: Enumerated other proposed drivers (river avulsion, conflict, disease, trade shifts)</li>
+</ol>
+<ol>
+<li><strong>Modern analogues</strong>: Suggested exploring similar causal chains in contemporary South Asia</li>
+</ol>
+<ol>
+<li><strong>Active deepening</strong>: Enabled selective exploration of specific regions (e.g., "multi-century river droughts")</li>
+</ol>
+</details>
+<hr>
+<h4>Section 7: Future Directions</h4>
+<h5>Q17. What is "active manifold building" and why is it proposed?</h5>
+<details>
+<summary>Show Answer</summary>
+<p>
+Active manifold building uses a <strong>utility score</strong> to decide which topics to expand:
+</p>
+<pre><code>
+U(t) = w1·e^(-α·depth(t)) + w2·degree(t) + w3·triple_count(t) + w4·novelty(t)
+</code></pre>
+<p>
+Why it's proposed:
+</p>
+<ul>
+<li>Naive BFS expansion wastes LLM budget on irrelevant branches</li>
+<li>LLM calls are expensive (>99.9% of compute time)</li>
+<li>Active exploration focuses resources on high-utility topics</li>
+<li>Can be conditioned on user tasks/queries</li>
+</ul>
+</details>
+<h5>Q18. What is DEMOCRITUS-ODE?</h5>
+<details>
+<summary>Show Answer</summary>
+<p>
+A proposed future extension that would:
+</p>
+<ul>
+<li>Move beyond static DAGs to <strong>dynamical causal models</strong></li>
+<li>Use LLMs to propose candidate <strong>differential equations</strong></li>
+<li>Suggest coupling terms and boundary conditions</li>
+<li>Connect narrative causal knowledge to <strong>mechanistic simulators</strong></li>
+<li>Allow human experts to calibrate and validate the resulting models</li>
+</ul>
+<p>
+This would address the limitation that current DEMOCRITUS can't model feedback loops and temporal dynamics.
+</p>
+</details>
+<hr>
+<h4>Bonus Question</h4>
+<h5>Q19. Why is the system named after Democritus, and what is the quoted philosophy?</h5>
+<details>
+<summary>Show Answer</summary>
+<p>
+Democritus (460-370 B.C.) was an ancient Greek philosopher who said:
+</p>
+<blockquote>"I would rather discover one true cause than gain the kingdom of Persia"</blockquote>
+<p>
+The name reflects:
+</p>
+<ol>
+<li>The pursuit of causal knowledge as a fundamental intellectual goal</li>
+<li>The value placed on understanding causation over material wealth</li>
+<li>The system's focus on <strong>discovering</strong> causal structure (even if it can't prove causality)</li>
+</ol>
+<p>
+Additionally, Democritus was known for atomic theory—breaking the world into fundamental components—which parallels how DEMOCRITUS breaks causal knowledge into triples and simplices.
+</p>
+</details>
+        </section>
+
+        <section id="related">
+            <h2>Related Work</h2>
+            <h4>Causal Relation Extraction from Text</h4>
+<h5>Classical Pattern-Based Methods</h5>
+<p>
+Early work on identifying causal relations from natural language relied on handcrafted patterns and lexical cues such as "because" or "leads to."
+</p>
+<h5>Neural Approaches</h5>
+<ul>
+<li><strong>BERT variants for causal classification</strong>: Supervised/semi-supervised models trained to classify whether text spans have causal relations</li>
+<li><strong><a href="https://dl.acm.org/doi/10.1145/2187836.2187958">Radinsky et al. (2012)</a></strong>: Learning causality for news events prediction using pairwise classification</li>
+</ul>
+<h5>Surveys</h5>
+<ul>
+<li><strong><a href="https://link.springer.com/article/10.1007/s10115-022-01665-w">Yang et al. (2022)</a></strong>: Survey on extraction of causal relations from natural language text</li>
+<li><strong>He et al. (2025)</strong>: Survey of event causality identification covering taxonomy, resources, and challenges</li>
+</ul>
+<p>
+<strong>How DEMOCRITUS differs</strong>: Assumes the LLM can already express causal relations; focuses on wiring thousands of statements into large, multi-hop causal graphs rather than improving pairwise classification accuracy.
+</p>
+<hr>
+<h4>Causal Knowledge Bases and Graphs</h4>
+<h5>Causal KB Construction</h5>
+<ul>
+<li><strong><a href="https://ojs.aaai.org/index.php/AAAI/article/view/7092">Hassanzadeh et al. (2020)</a></strong>: Causal knowledge extraction through large-scale text mining - mining causal tuples from text and aggregating into graph-structured resources</li>
+</ul>
+<h5>Domain-Specific Causal Graphs</h5>
+<p>
+Systems have explored building causal resources from maintenance logs, scholarly articles, and evaluating on downstream tasks.
+</p>
+<p>
+<strong>How DEMOCRITUS differs</strong>:
+</p>
+<ol>
+<li>Heavily exploits LLMs rather than pattern-based/supervised models</li>
+<li>Output is not just triples but a navigable LCM with manifold embeddings</li>
+<li>Explicitly slice-based with domain-specific organization within a topos architecture</li>
+</ol>
+<hr>
+<h4>LLMs for Causal Discovery and Reasoning</h4>
+<h5>LLMs as Meta-Experts</h5>
+<ul>
+<li><strong>Shen et al. (2023)</strong>: Survey on using LLMs to propose causal directions or graph structures from textual descriptions</li>
+</ul>
+<h5>Multi-Agent LLM Approaches</h5>
+<ul>
+<li><strong>Le et al. (2024)</strong>: Multi-agent LLM setups to discuss and refine candidate DAGs</li>
+</ul>
+<h5>Probing LLM Causal Representations</h5>
+<ul>
+<li><strong>Kosoy et al. (2023)</strong>: Probing LLMs' internal representations for causal notions like interventions and counterfactuals</li>
+</ul>
+<p>
+<strong>How DEMOCRITUS differs</strong>: Rather than delegating causal discovery to the LLM directly, asks the model to articulate causal propositions in natural language, then treats these as noisy inputs to a separate causal representation pipeline.
+</p>
+<hr>
+<h4>Causality and NLP</h4>
+<h5>CausalNLP</h5>
+<ul>
+<li><strong><a href="https://arxiv.org/abs/2012.14366">Jin et al. (2021)</a></strong>: Review of causal inference and natural language processing</li>
+<li>Work on causal effects of text, counterfactual data augmentation, causal explanations for model predictions</li>
+</ul>
+<p>
+<strong>How DEMOCRITUS differs</strong>: Rather than using causal ideas to improve NLP models, uses NLP (via LLMs) to construct explicit, structured causal artifacts.
+</p>
+<hr>
+<h4>Foundational Causal Inference</h4>
+<h5>Classical Frameworks</h5>
+<ul>
+<li><strong><a href="https://www.cambridge.org/core/books/causality/B0046844FAE10CBF274D4ACBDAEB5F5B">Pearl (2009)</a></strong>: <em>Causality: Models, Reasoning and Inference</em> - Foundational work on structural causal models, do-calculus</li>
+<li><strong><a href="https://www.cambridge.org/core/books/causal-inference-for-statistics-social-and-biomedical-sciences/71126BE90C58F1A431FE9B2DD07938AB">Imbens & Rubin (2015)</a></strong>: <em>Causal Inference for Statistics, Social, and Biomedical Sciences</em> - Potential outcomes framework</li>
+</ul>
+<h5>Causal Discovery Surveys</h5>
+<ul>
+<li><strong><a href="https://arxiv.org/abs/2305.10032">Zanga & Stella (2023)</a></strong>: Survey on causal discovery covering theory and practice</li>
+</ul>
+<hr>
+<h4>Graph Neural Networks and Transformers</h4>
+<h5>Compositional/Categorical Deep Learning</h5>
+<ul>
+<li><strong><a href="https://doi.org/10.1109/LICS.2019.8785665">Fong et al. (2019)</a></strong>: Backprop as functor - compositional perspective on supervised learning</li>
+<li><strong><a href="https://arxiv.org/abs/2402.15332">Gavranović et al. (2024)</a></strong>: Position paper on categorical deep learning as algebraic theory of architectures</li>
+</ul>
+<h5>Geometric/Higher-Order Methods</h5>
+<ul>
+<li><strong><a href="https://arxiv.org/abs/2402.18732">Mahadevan (2024)</a></strong>: GAIA - Categorical foundations of generative AI; original Geometric Transformer proposal</li>
+<li><strong><a href="https://doi.org/10.3390/e25040574">Mahadevan (2023)</a></strong>: Universal Causality - simplicial sets and horn filling for backpropagation</li>
+</ul>
+<hr>
+<h4>Visualization and Dimensionality Reduction</h4>
+<h5>UMAP</h5>
+<ul>
+<li><strong><a href="https://arxiv.org/abs/1802.03426">McInnes et al. (2018)</a></strong>: Uniform Manifold Approximation and Projection for dimension reduction</li>
+</ul>
+<hr>
+<h4>Topos Theory and Categorical Causality</h4>
+<h5>Categorical Frameworks</h5>
+<ul>
+<li><strong><a href="https://link.springer.com/book/10.1007/978-1-4612-0927-0">MacLane & Moerdijk (1994)</a></strong>: <em>Sheaves in Geometry and Logic</em> - Introduction to topos theory</li>
+<li><strong><a href="https://doi.org/10.1016/j.aim.2020.107239">Fritz (2020)</a></strong>: Synthetic approach to Markov kernels, conditional independence</li>
+</ul>
+<h5>Topos Causal Models</h5>
+<ul>
+<li><strong><a href="https://arxiv.org/abs/2510.23942">Mahadevan (2025a)</a></strong>: Decentralized causal discovery using Judo Calculus</li>
+<li><strong><a href="https://arxiv.org/abs/2510.17944">Mahadevan (2025b)</a></strong>: Intuitionistic j-Do-Calculus in Topos Causal Models</li>
+</ul>
+<hr>
+<h4>Domain Applications</h4>
+<h5>Indus Valley Civilization</h5>
+<ul>
+<li><strong><a href="https://doi.org/10.1038/s43247-025-02901-1">Solanki et al. (2025)</a></strong>: River drought forcing of the Harappan metamorphosis - the study DEMOCRITUS elaborates upon</li>
+</ul>
+<h5>Foundation Models</h5>
+<ul>
+<li><strong><a href="https://arxiv.org/abs/2108.07258">Bommasani et al. (2022)</a></strong>: On the opportunities and risks of foundation models</li>
+<li><strong><a href="https://arxiv.org/abs/2501.12948">DeepSeek-AI et al. (2025)</a></strong>: DeepSeek-R1 - reasoning capabilities in LLMs via reinforcement learning</li>
+</ul>
+<hr>
+<h4>Key Distinctions from Prior Work</h4>
+<table>
+<tr><th>Aspect</th><th>Prior Work</th><th>DEMOCRITUS</th></tr>
+<tr><td><strong>Source</strong></td><td>Corpora, databases, experiments</td><td>LLM knowledge extraction</td></tr>
+<tr><td><strong>Scale</strong></td><td>Typically single domain</td><td>Multi-domain, millions of claims</td></tr>
+<tr><td><strong>Output</strong></td><td>Triples, DAGs</td><td>Navigable manifolds with slices</td></tr>
+<tr><td><strong>Structure</strong></td><td>Edge-based graphs</td><td>Simplicial complexes (triangles)</td></tr>
+<tr><td><strong>Reasoning</strong></td><td>Often none</td><td>Topos-based reasoning planned</td></tr>
+<tr><td><strong>Interaction</strong></td><td>Static</td><td>Active exploration possible</td></tr>
+</table>
+        </section>
+
+        <section id="context">
+            <h2>Research Context</h2>
+            <h4>Position in the Research Landscape</h4>
+<h5>The Convergence of Three Fields</h5>
+<p>
+DEMOCRITUS sits at the intersection of:
+</p>
+<pre><code>
+                    ┌─────────────────────┐
+                    │  Causal Inference   │
+                    │  (Pearl, Imbens,    │
+                    │   Rubin)            │
+                    └─────────┬───────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+        ▼                     ▼                     ▼
+┌───────────────┐    ┌───────────────┐    ┌───────────────┐
+│ Knowledge     │    │ DEMOCRITUS    │    │ Foundation    │
+│ Graphs &amp;      │◀──▶│               │◀──▶│ Models &amp;      │
+│ NLP           │    │               │    │ LLMs          │
+└───────────────┘    └───────────────┘    └───────────────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+                    ┌─────────▼───────────┐
+                    │ Geometric Deep      │
+                    │ Learning            │
+                    │ (GNNs, Topology)    │
+                    └─────────────────────┘
+</code></pre>
+<h5>The LLM-for-Science Movement</h5>
+<p>
+DEMOCRITUS is part of a broader trend of using LLMs to accelerate scientific discovery:
+</p>
+<table>
+<tr><th>Domain</th><th>Example Applications</th></tr>
+<tr><td>Chemistry</td><td>Molecule design, reaction prediction</td></tr>
+<tr><td>Biology</td><td>Protein structure, drug discovery</td></tr>
+<tr><td>Mathematics</td><td>Theorem proving, conjecture generation</td></tr>
+<tr><td>Physics</td><td>Symbolic regression, theory discovery</td></tr>
+<tr><td><strong>Causality</strong></td><td><strong>DEMOCRITUS: Causal model extraction</strong></td></tr>
+</table>
+<h5>The Knowledge Extraction Problem</h5>
+<p>
+Traditional knowledge graphs (Wikidata, ConceptNet, etc.) are:
+</p>
+<ul>
+<li>Manually curated or semi-automatically extracted</li>
+<li>Focused on factual/encyclopedic knowledge</li>
+<li>Limited in causal structure</li>
+</ul>
+<p>
+DEMOCRITUS proposes that LLMs are a new kind of knowledge source:
+</p>
+<ul>
+<li>Implicitly encoding vast causal reasoning from training data</li>
+<li>Accessible through targeted prompting</li>
+<li>Requiring new methods to organize and validate</li>
+</ul>
+<hr>
+<h4>Historical Context</h4>
+<h5>Evolution of Causal Discovery</h5>
+<pre><code>
+1990s-2000s: Constraint-based methods (PC, FCI algorithms)
+             │
+             ▼
+2000s-2010s: Score-based methods, Bayesian approaches
+             │
+             ▼
+2010s:       Causal discovery + deep learning
+             │
+             ▼
+2020s:       LLMs for causal reasoning
+             │
+             ▼
+2025:        DEMOCRITUS - LLMs as causal knowledge sources
+</code></pre>
+<h5>The GNN → Graph Transformer → Geometric Transformer Arc</h5>
+<pre><code>
+2017: Graph Neural Networks mature
+      │
+      ▼
+2020-2022: Graph Transformers emerge
+           │
+           ▼
+2024: Geometric Transformers (Mahadevan)
+      - Higher-order simplicial structure
+      - Triangle message passing
+           │
+           ▼
+2025: Applied to causal knowledge (DEMOCRITUS)
+</code></pre>
+<hr>
+<h4>Theoretical Foundations</h4>
+<h5>Category Theory in ML</h5>
+<p>
+DEMOCRITUS connects to a growing body of work applying category theory to machine learning:
+</p>
+<ul>
+<li><strong>Compositional machine learning</strong>: Viewing neural networks as morphisms</li>
+<li><strong>Topos theory</strong>: Providing internal logic for reasoning</li>
+<li><strong>Simplicial methods</strong>: Capturing higher-order structure</li>
+</ul>
+<p>
+This is still a niche area, but the paper suggests it may become more important for organizing complex knowledge.
+</p>
+<h5>The Topos Causal Model Framework</h5>
+<p>
+The author's broader research program (referenced but not fully developed in this paper):
+</p>
+<ol>
+<li><strong>Topos Causal Models (TCMs)</strong>: Categorical framework for causality</li>
+<li><strong>Judo Calculus</strong>: Intuitionistic do-calculus for reasoning in toposes</li>
+<li><strong>Decentralized Causal Discovery</strong>: Map-reduce approaches enabled by TCM robustness</li>
+<li><strong>DEMOCRITUS</strong>: The system instantiation of these ideas</li>
+</ol>
+<hr>
+<h4>Contemporary Debates</h4>
+<h5>Can LLMs Really "Know" Causality?</h5>
+<p>
+<strong>Skeptical view</strong>: LLMs are pattern matchers trained on text; they don't truly understand causation, just mimic causal language.
+</p>
+<p>
+<strong>Optimistic view</strong>: LLMs have absorbed causal reasoning from scientific literature, textbooks, and expert discussions; this knowledge can be extracted.
+</p>
+<p>
+<strong>DEMOCRITUS position</strong>: Pragmatic - treat LLM outputs as noisy causal hypotheses to be organized and further validated.
+</p>
+<h5>Hypothesis Generation vs. Causal Proof</h5>
+<p>
+The paper explicitly positions DEMOCRITUS as a <strong>hypothesis generation</strong> tool, not a replacement for rigorous causal inference. This is a careful epistemological stance that:
+</p>
+<ul>
+<li>Acknowledges limitations</li>
+<li>Still claims utility</li>
+<li>Leaves room for future integration with validation methods</li>
+</ul>
+<h5>The Role of Structure in Knowledge</h5>
+<p>
+Traditional knowledge graphs: (subject, predicate, object)
+ DEMOCRITUS: simplicial complexes with higher-order structure
+</p>
+<p>
+The claim that 2-simplices (triangles) capture important causal structure is an empirical hypothesis that deserves further investigation.
+</p>
+<hr>
+<h4>Impact and Implications</h4>
+<h5>If DEMOCRITUS Works Well</h5>
+<ul>
+<li><strong>Science</strong>: Could accelerate literature review, hypothesis generation in complex domains</li>
+<li><strong>AI</strong>: Demonstrates new use case for LLMs beyond chat/generation</li>
+<li><strong>Education</strong>: Interactive exploration of causal knowledge</li>
+<li><strong>Policy</strong>: Mapping causal factors in complex systems (climate, economics)</li>
+</ul>
+<h5>If DEMOCRITUS Has Limitations</h5>
+<ul>
+<li><strong>Bias amplification</strong>: LLM errors organized into plausible-looking structures</li>
+<li><strong>False confidence</strong>: Visualizations may appear more authoritative than warranted</li>
+<li><strong>Computational cost</strong>: May not scale to truly comprehensive coverage</li>
+</ul>
+<h5>Open Questions for the Field</h5>
+<ol>
+<li>How do we validate extracted causal knowledge at scale?</li>
+<li>What's the right interface between LLM extraction and formal causal inference?</li>
+<li>Can simplicial/categorical methods provide real advantages over simpler approaches?</li>
+<li>How domain-specific should causal extraction prompts be?</li>
+</ol>
+<hr>
+<h4>Related Research Programs</h4>
+<h5>Adobe Research</h5>
+<p>
+The author is at Adobe Research, which has interests in:
+</p>
+<ul>
+<li>Creative AI</li>
+<li>Knowledge management</li>
+<li>Content understanding</li>
+</ul>
+<p>
+DEMOCRITUS could potentially connect to Adobe's work on organizing creative knowledge.
+</p>
+<h5>UMass Amherst</h5>
+<p>
+The author's academic affiliation connects to:
+</p>
+<ul>
+<li>Machine learning theory</li>
+<li>Reinforcement learning</li>
+<li>Knowledge representation</li>
+</ul>
+<h5>Categorical Machine Learning Community</h5>
+<p>
+Small but growing community exploring:
+</p>
+<ul>
+<li>Applied category theory in ML</li>
+<li>Compositional approaches</li>
+<li>Geometric methods</li>
+</ul>
+<p>
+DEMOCRITUS represents one of the most ambitious applications of these ideas to date.
+</p>
+<hr>
+<h4>Future Research Directions</h4>
+<p>
+Based on this paper's positioning, likely future work includes:
+</p>
+<ol>
+<li><strong>Validation studies</strong>: Comparing LCMs to expert knowledge</li>
+<li><strong>Active exploration</strong>: Implementing utility-based deepening</li>
+<li><strong>Integration</strong>: Connecting to quantitative causal inference</li>
+<li><strong>Scaling</strong>: Building larger, more comprehensive LCMs</li>
+<li><strong>Reasoning</strong>: Implementing topos-based causal reasoning</li>
+<li><strong>Dynamics</strong>: Extending to DEMOCRITUS-ODE for dynamical models</li>
+</ol>
+        </section>
+
+        <section id="highlights">
+            <h2>Highlights</h2>
+            <h4>Opening Statement</h4>
+<blockquote>"I would rather discover one true cause than gain the kingdom of Persia" – Democritus (460 – 370 B.C.)</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 1</blockquote>
+<h4>Core Vision</h4>
+<blockquote>"We introduce a new paradigm for building large causal models (LCMs) that exploits the enormous potential latent in today's large language models (LLMs)."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 1</blockquote>
+<blockquote>"DEMOCRITUS is methodologically distinct from traditional narrow domain and hypothesis centered causal inference that builds causal models from experiments that produce numerical data."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 1</blockquote>
+<h4>System Description</h4>
+<blockquote>"The technical challenge is then to take these isolated, fragmented, potentially ambiguous and possibly conflicting causal claims, and weave them into a coherent whole, converting them into relational causal triples and embedding them into a LCM."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 1</blockquote>
+<blockquote>"Crucially, such a model cannot be learned by a single prompt to an LLM, but instead is woven together by an assembly of carefully curated prompts."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 3</blockquote>
+<h4>On Geometric Transformers</h4>
+<blockquote>"UMAP alone is unable to discover the deep structure of the global economics LCM, even given the same exact relational triples embedded in a high-dimensional space using a Sentence Transformer encoder like BERT."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 15-16</blockquote>
+<blockquote>"Now, we see the effect of the Geometric Transformer, where the structural aspects of the economics LCM snap into sharp relief."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 16</blockquote>
+<h4>Computational Cost</h4>
+<blockquote>"More than 99.9% of the compute budget is spent in LLM calls, and the cost of pushing the resulting relational graph through a Geometric Transformer layer and low-dimensional embedding is negligible by comparison."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 22</blockquote>
+<h4>On Limitations</h4>
+<blockquote>"A key limitation of the current version of DEMOCRITUS is that the LCMs it proposes are not yet validated against numerical data or controlled experiments."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 4</blockquote>
+<blockquote>"We emphasize that DEMOCRITUS does not attempt to replace formal causal inference or identification strategies. The LCMs it constructs are best viewed as structured hypothesis spaces and narrative maps."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 5</blockquote>
+<blockquote>"In this sense, DEMOCRITUS is closer to a 'legal discovery' or 'literature review' tool than to a parametric structural model."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 5</blockquote>
+<h4>On LLM Dependency</h4>
+<blockquote>"The slices that DEMOCRITUS builds reflect whatever causal beliefs and associations are implicit in the underlying LLM. If the model has never seen certain mechanisms, or if it has absorbed biased or incorrect narratives, the resulting graphs and manifolds will mirror those gaps and biases."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 23</blockquote>
+<blockquote>"Like any LLM-based system, DEMOCRITUS is vulnerable to hallucinations: some extracted triples will be factually false or overconfident. The Geometric Transformer may still organize these cleanly, giving them an appearance of coherence."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 23</blockquote>
+<h4>On Non-Experimental Domains</h4>
+<blockquote>"Even in the absence of numerical datasets, scientists routinely seek causal explanations for events that cannot be experimentally replicated (e.g., the extinction of the dinosaurs, the collapse of the Indus Valley civilization)."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 4</blockquote>
+<blockquote>"Some slices (e.g. Indus Valley archaeology) are inherently speculative; they should be treated as computational stories to be compared against expert knowledge, not as authoritative accounts."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 23</blockquote>
+<h4>What DEMOCRITUS Provides</h4>
+<blockquote>"Rather, they provide: a way to explore how different mechanisms and variables are linked in the model's knowledge, a source of candidate mechanisms and confounders for domain experts, a geometric substrate on which more formal causal discovery methods could operate."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 5</blockquote>
+<h4>On Active Exploration</h4>
+<blockquote>"In this view, Qwen3-Next-80B-A3B-Instruct-6bit is an expensive but powerful research assistant: we only call it when U(t) justifies the cost. GT serves as both a geometric organizer of causal structure and a critic that provides signals such as embedding novelty or local density."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 21</blockquote>
+<h4>On Higher-Order Structure</h4>
+<blockquote>"When higher-order structure matters, GT's explicit 2-simplicial channel provides an advantage."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 22</blockquote>
+<h4>Future Vision</h4>
+<blockquote>"In a future version of DEMOCRITUS, we envision the slices not only as DAG-like narrative maps, but also as front-ends to mechanistic simulators: LLMs could propose variables, equations, and boundary conditions; human experts and classical numerical solvers would define and calibrate the dynamical system."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 23</blockquote>
+<h4>Manifold Structure</h4>
+<blockquote>"The manifold reveals several phenomena: Macro-domain structure: climate, inflation, vaccination, supply chains, mental health, and AI each form distinct regions. Causal gradients: e.g. a clear transition from energy-related factors → electricity demand → carbon emissions → climate impacts. Cross-domain interactions: e.g. 'generative AI' lies at a hub connecting education, productivity, misinformation, and creativity domains."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 7</blockquote>
+<h4>On Robustness</h4>
+<blockquote>"From the standpoint of robustness, this scale-free, hub–fringe geometry is important. Widely supported mechanisms (hubs) are structurally central and connected to many topics; injecting or removing a small number of edges at the periphery has little effect on their degree or on the low-frequency spectrum."</blockquote>
+<p>
+>
+</p>
+<blockquote>— p. 19</blockquote>
+        </section>
+
+        <section id="limitations">
+            <h2>Limitations</h2>
+            <h4>Acknowledged by Authors</h4>
+<h5>1. No Validation Against Data (p. 4, 17, 22-23)</h5>
+<p>
+The LCMs proposed by DEMOCRITUS are <strong>not validated against numerical data or controlled experiments</strong>. The paper focuses on hypothesis generation and organization, not on estimating effect sizes or testing hypotheses using observational or interventional datasets.
+</p>
+<blockquote>"In Figure 14 all edges are drawn with a default weight of 1.0, purely for visualization." (p. 17)</blockquote>
+<h5>2. No Identifiability Guarantees (p. 5, 23)</h5>
+<p>
+The structures produced should be viewed as <strong>structured hypothesis spaces and narrative maps</strong>, not as identified causal models in the sense of Pearl (2009) or Imbens and Rubin (2015). The paper does not claim that edges correspond to true causal effects or that confounding and selection bias have been resolved.
+</p>
+<h5>3. Reliance on LLM Knowledge and Biases (p. 23)</h5>
+<p>
+The slices that DEMOCRITUS builds <strong>reflect whatever causal beliefs and associations are implicit in the underlying LLM</strong>. If the model has:
+</p>
+<ul>
+<li>Never seen certain mechanisms</li>
+<li>Absorbed biased or incorrect narratives</li>
+<li>Training data gaps</li>
+</ul>
+<p>
+...the resulting graphs and manifolds will mirror those limitations. DEMOCRITUS does not correct or debias the LLM.
+</p>
+<h5>4. Hallucinations and Factual Correctness (p. 23)</h5>
+<p>
+Like any LLM-based system, DEMOCRITUS is <strong>vulnerable to hallucinations</strong>. Some extracted triples will be factually false or overconfident. The Geometric Transformer may organize these cleanly, giving them an appearance of coherence they don't deserve.
+</p>
+<blockquote>"Human oversight and external validation are therefore essential, especially in high-stakes domains." (p. 23)</blockquote>
+<h5>5. Domain Shifts and Coverage Gaps (p. 23)</h5>
+<p>
+In domains that are:
+</p>
+<ul>
+<li>Under-documented in text</li>
+<li>Far from the LLM's training distribution</li>
+</ul>
+<p>
+DEMOCRITUS may:
+</p>
+<ul>
+<li>Miss crucial mechanisms</li>
+<li>Over-emphasize idiosyncratic anecdotes</li>
+</ul>
+<blockquote>"Some slices (e.g. Indus Valley archaeology) are inherently speculative; they should be treated as computational stories to be compared against expert knowledge, not as authoritative accounts." (p. 23)</blockquote>
+<h5>6. Computational Cost and Scalability (p. 18, 23)</h5>
+<ul>
+<li>LLM calls dominate cost (>99.9% of compute time)</li>
+<li>Naive BFS expansion is not sustainable at very large scales</li>
+<li>A full economics slice (7004 topics) takes ~16 hours on a Mac Studio</li>
+</ul>
+<h5>7. Static DAG Representation (p. 23)</h5>
+<p>
+Current version treats causal structure as a directed graph over variables, but many domains are <strong>fundamentally dynamical</strong>:
+</p>
+<ul>
+<li>Climate models with feedback loops</li>
+<li>Economic systems with cyclical behavior</li>
+<li>Biological systems with homeostasis</li>
+</ul>
+<p>
+The DAG-like view is a simplification that doesn't capture dynamical and mechanistic aspects.
+</p>
+<h5>8. Draft Status</h5>
+<p>
+The paper is explicitly marked as "Draft under revision" (p. 1), indicating the work is preliminary and subject to change.
+</p>
+<hr>
+<h4>Additional Observations (Not Explicitly Stated)</h4>
+<h5>9. Single LLM Dependency</h5>
+<p>
+The system relies heavily on a single LLM (Qwen3-80B). Different LLMs might produce substantially different causal structures, raising questions about which "knowledge" is being extracted.
+</p>
+<h5>10. Prompt Sensitivity</h5>
+<p>
+The quality and coverage of extracted knowledge likely depends significantly on prompt engineering. The paper uses specific templates, but doesn't systematically study prompt variations.
+</p>
+<h5>11. No Ground Truth Evaluation</h5>
+<p>
+While the paper shows interpretable local neighborhoods, there's no systematic comparison against expert-curated causal knowledge bases or domain-specific ground truth.
+</p>
+<h5>12. Language Limitations</h5>
+<p>
+The system operates in English. Causal knowledge in non-English sources or cultures may be underrepresented.
+</p>
+<h5>13. Temporal Limitations</h5>
+<p>
+LLMs have training data cutoffs. Causal knowledge about recent events or emerging phenomena may be absent or outdated.
+</p>
+<h5>14. Conflation of Correlation and Causation</h5>
+<p>
+LLMs are trained on text that often conflates correlation with causation. DEMOCRITUS may inherit and propagate these confusions, even when prompted for "causal" statements.
+</p>
+<h5>15. Redundancy and Deduplication</h5>
+<p>
+The paper doesn't discuss how duplicate or near-duplicate causal claims are handled. Different phrasings of the same causal relationship might appear as separate triples.
+</p>
+<h5>16. Directionality Challenges</h5>
+<p>
+Determining causal direction from text is notoriously difficult. The system assumes the LLM correctly identifies which variable causes which, but this may often be wrong or ambiguous.
+</p>
+<h5>17. Lack of Confidence Scores</h5>
+<p>
+All extracted triples are treated equally. There's no mechanism to distinguish well-supported causal claims from speculative ones.
+</p>
+<h5>18. Evaluation of Geometric Transformer</h5>
+<p>
+The GT evaluation (triangle detection) is on a synthetic task. Its value for actual causal knowledge organization is demonstrated only qualitatively.
+</p>
+        </section>
+
+        <section id="disagreements">
+            <h2>Disagreements</h2>
+            <h4>Methodological Concerns</h4>
+<h5>1. The "Causal" in Large Causal Models</h5>
+<p>
+<strong>Issue</strong>: The paper extracts statements containing causal language ("causes", "leads to") from an LLM, but this doesn't guarantee the extracted relationships are actually causal.
+</p>
+<p>
+<strong>Critique</strong>: LLMs are trained on text that frequently conflates correlation with causation. The statement "smoking causes cancer" in training data is different from "ice cream sales cause drowning deaths" (spurious correlation), but an LLM might express both with equal confidence.
+</p>
+<p>
+<strong>Question</strong>: Without any filtering mechanism, what percentage of extracted "causal" triples are actually causal vs. correlational or spurious?
+</p>
+<h5>2. Validation Gap</h5>
+<p>
+<strong>Issue</strong>: The paper explicitly acknowledges that LCMs are not validated against data, but proceeds to present them as useful artifacts.
+</p>
+<p>
+<strong>Critique</strong>: The usefulness claim is not empirically tested. Would domain experts find the economics or biology LCMs helpful? Do the "interpretable neighborhoods" actually recover known causal relationships, or just co-occurrence patterns?
+</p>
+<p>
+<strong>Missing</strong>: Any user study or expert evaluation of LCM quality.
+</p>
+<h5>3. Single LLM Dependency</h5>
+<p>
+<strong>Issue</strong>: All experiments use Qwen3-80B. Results might be specific to this model's training data and biases.
+</p>
+<p>
+<strong>Question</strong>: Would GPT-4, Claude, or Llama produce similar LCMs? If not, which "knowledge" is correct? The paper doesn't address this.
+</p>
+<hr>
+<h4>Technical Concerns</h4>
+<h5>4. Triangle Detection ≠ Causal Structure</h5>
+<p>
+<strong>Issue</strong>: The paper demonstrates that Geometric Transformers achieve 100% accuracy on triangle detection, implying this validates their use for causal knowledge.
+</p>
+<p>
+<strong>Critique</strong>: This is a significant logical leap. Detecting triangles in synthetic graphs is a structural task with a clear ground truth. It's unclear how this translates to organizing causal knowledge, where there's no ground truth.
+</p>
+<p>
+<strong>Question</strong>: What would success on causal tasks actually look like?
+</p>
+<h5>5. The Manifold Interpretation Problem</h5>
+<p>
+<strong>Issue</strong>: The paper shows UMAP projections and claims they reveal "coherent domain clustering" and "interpretable neighborhoods."
+</p>
+<p>
+<strong>Critique</strong>: UMAP can produce visually appealing clusters from almost any high-dimensional data. The "interpretability" is subjective - the paper shows a few cherry-picked neighborhoods but doesn't systematically evaluate whether the manifold structure is meaningful.
+</p>
+<p>
+<strong>Concern</strong>: Are we seeing structure in the data, or structure imposed by the visualization?
+</p>
+<h5>6. Simplicial Complexity Overhead</h5>
+<p>
+<strong>Issue</strong>: The paper argues for higher-order message passing (triangles), but the main experiments don't clearly demonstrate this is necessary for <em>causal</em> knowledge specifically.
+</p>
+<p>
+<strong>Question</strong>: Would edge-only message passing produce substantially worse causal manifolds? The triangle detection task doesn't answer this.
+</p>
+<hr>
+<h4>Epistemological Concerns</h4>
+<h5>7. The "Legal Discovery" Analogy</h5>
+<p>
+<strong>Issue</strong>: The paper compares DEMOCRITUS to legal discovery - organizing information for investigation.
+</p>
+<p>
+<strong>Critique</strong>: In legal discovery, documents are primary sources. In DEMOCRITUS, the "source" is an LLM that may have absorbed misinformation, conflated sources, or hallucinated connections. The analogy may give false confidence.
+</p>
+<h5>8. Hypothesis Space vs. Garbage In</h5>
+<p>
+<strong>Issue</strong>: The paper frames LCMs as "hypothesis spaces" for domain experts.
+</p>
+<p>
+<strong>Critique</strong>: If the hypothesis space is polluted with hallucinations, correlational claims masquerading as causal, and LLM biases, is it actually useful? Or does it create more work separating signal from noise?
+</p>
+<p>
+<strong>Unaddressed</strong>: How much curation is needed to make an LCM useful?
+</p>
+<h5>9. The Indus Valley Case Study</h5>
+<p>
+<strong>Issue</strong>: The paper uses Indus Valley civilization collapse as a showcase.
+</p>
+<p>
+<strong>Critique</strong>: This is a domain where:
+</p>
+<ul>
+<li>Ground truth is fundamentally uncertain</li>
+<li>The LLM's training data likely includes the same speculative claims</li>
+<li>"Elaborating" on existing studies may just be amplifying speculation</li>
+</ul>
+<p>
+<strong>Question</strong>: Does DEMOCRITUS add genuine value here, or just produce more text about already-discussed hypotheses?
+</p>
+<hr>
+<h4>Practical Concerns</h4>
+<h5>10. Scalability Claims</h5>
+<p>
+<strong>Issue</strong>: The paper notes that a 7000-topic economics slice takes ~16 hours on a Mac Studio.
+</p>
+<p>
+<strong>Critique</strong>: True "large" causal models spanning many domains would require orders of magnitude more compute. The "active manifold building" proposed doesn't have experimental validation showing it actually helps.
+</p>
+<h5>11. The Cost-Benefit Question</h5>
+<p>
+<strong>Issue</strong>: 16+ hours of expensive LLM inference to produce an unvalidated hypothesis space.
+</p>
+<p>
+<strong>Question</strong>: When is this actually more useful than:
+</p>
+<ul>
+<li>Reading literature reviews?</li>
+<li>Consulting domain experts?</li>
+<li>Using existing knowledge graphs?</li>
+</ul>
+<p>
+The paper doesn't make a convincing case for specific use cases where DEMOCRITUS is the right tool.
+</p>
+<h5>12. Interactive Use Not Demonstrated</h5>
+<p>
+<strong>Issue</strong>: The paper mentions a web interface and task-conditioned refinement, but these are not evaluated.
+</p>
+<p>
+<strong>Critique</strong>: The value proposition depends heavily on interactive exploration, but we only see static visualizations.
+</p>
+<hr>
+<h4>Alternative Interpretations</h4>
+<h5>13. Is This Just Semantic Similarity with Extra Steps?</h5>
+<p>
+<strong>Alternative view</strong>: The system extracts text with causal keywords, embeds it with sentence transformers, applies a GNN, and projects with UMAP. The "causal structure" might largely reflect semantic similarity in the embedding space, not genuine causal organization.
+</p>
+<h5>14. Topos Theory Overhead</h5>
+<p>
+<strong>Critique</strong>: The paper references topos theory heavily but DEMOCRITUS doesn't actually use topos reasoning - it's described as a "topos builder, but not (yet) a topos reasoner." The categorical machinery may be intellectual scaffolding for future work rather than contributing to current results.
+</p>
+<h5>15. The Benchmark Problem</h5>
+<p>
+<strong>Issue</strong>: There's no established benchmark for evaluating LCM quality.
+</p>
+<p>
+<strong>Implication</strong>: Without benchmarks, progress claims are hard to evaluate. The paper's contributions are primarily:
+</p>
+<ol>
+<li>A system (DEMOCRITUS)</li>
+<li>Visualizations that look reasonable</li>
+<li>Timing measurements</li>
+</ol>
+<p>
+This is an engineering contribution, not a scientific one, without validation.
+</p>
+<hr>
+<h4>What Would Strengthen the Paper</h4>
+<ol>
+<li><strong>Expert evaluation</strong>: Have domain experts evaluate LCM quality</li>
+<li><strong>Comparison to alternatives</strong>: Compare against knowledge graphs, literature review</li>
+<li><strong>Ground truth evaluation</strong>: Test on domains with known causal structure</li>
+<li><strong>Multi-LLM comparison</strong>: Show consistency (or not) across different LLMs</li>
+<li><strong>Causal filtering</strong>: Develop methods to distinguish causal from correlational claims</li>
+<li><strong>User studies</strong>: Demonstrate actual utility for research tasks</li>
+<li><strong>Active exploration evaluation</strong>: Show that utility-based deepening actually helps</li>
+<li><strong>Hallucination analysis</strong>: Quantify how much extracted content is fabricated</li>
+</ol>
+<hr>
+<h4>Constructive Critique Summary</h4>
+<p>
+The paper introduces an interesting system and poses important questions about extracting causal knowledge from LLMs. However:
+</p>
+<ul>
+<li>The "causal" framing may be overstated given lack of validation</li>
+<li>Key claims about interpretability and utility are not empirically supported</li>
+<li>The Geometric Transformer advantage is demonstrated on a task (triangle detection) that may not transfer to causal knowledge</li>
+<li>Important alternatives and baselines are not compared</li>
+</ul>
+<p>
+The work is best viewed as an <strong>exploration of what's possible</strong> rather than a validated methodology. Future work should focus on validation and demonstrating genuine utility over alternatives.
+</p>
+        </section>
+
+        <section id="future-work">
+            <h2>Future Work</h2>
+            <h4>Explicitly Proposed by Authors</h4>
+<h5>1. Active Manifold Building (p. 20-21)</h5>
+<p>
+Instead of naive BFS expansion, use <strong>utility-based topic selection</strong>:
+</p>
+<pre><code>
+U(t) = w1·e^(-α·depth(t)) + w2·degree(t) + w3·triple_count(t) + w4·U_novel(t)
+</code></pre>
+<p>
+Key ideas:
+</p>
+<ul>
+<li>Don't expand all nodes to same depth</li>
+<li>Use structural feedback from GT embeddings</li>
+<li>Prioritize topics with high utility scores</li>
+<li>Budget LLM calls more efficiently</li>
+</ul>
+<h5>2. Task-Conditioned Refinement (p. 21, 24)</h5>
+<p>
+Allow user queries to condition exploration:
+</p>
+<ul>
+<li>Map query to seed topics</li>
+<li>Increase U(t) for nearby nodes</li>
+<li>Deepen relevant regions</li>
+<li>Present local GT neighborhoods to user</li>
+</ul>
+<p>
+This is described as "the DEMOCRITUS analog of RLHF and task-conditioned search."
+</p>
+<h5>3. Integration with Quantitative Causal Inference (p. 4, 17, 24)</h5>
+<p>
+Future v2 system plans to:
+</p>
+<ul>
+<li>Integrate with quantitative causal inference tools</li>
+<li>Assign data-driven edge strengths</li>
+<li>Subject edges to genuine causal validation</li>
+<li>Move beyond default weight of 1.0</li>
+</ul>
+<h5>4. DEMOCRITUS-ODE: Dynamical Causal Models (p. 23-24)</h5>
+<p>
+Extend beyond static DAGs to dynamical models:
+</p>
+<ul>
+<li>Use LLMs to propose candidate ODEs</li>
+<li>Suggest coupling terms and boundary conditions</li>
+<li>Connect to mechanistic simulators</li>
+<li>Human experts calibrate and validate</li>
+</ul>
+<blockquote>"LLMs could propose variables, equations, and boundary conditions; human experts and classical numerical solvers would define and calibrate the dynamical system." (p. 23)</blockquote>
+<h5>5. Topos Reasoning Integration (p. 24)</h5>
+<p>
+Integrate with intuitionistic internal logic of Topos Causal Models:
+</p>
+<ul>
+<li>Task-conditioned controllers using Judo calculus</li>
+<li>Formal causal reasoning over slices</li>
+<li>Currently DEMOCRITUS is a "topos builder, but not (yet) a topos reasoner" (p. 2)</li>
+</ul>
+<h5>6. Richer Simplicial Patterns (p. 24)</h5>
+<p>
+Extend GT beyond triangles:
+</p>
+<ul>
+<li>Higher-order simplices (tetrahedra, etc.)</li>
+<li>Evaluate on additional benchmarks</li>
+</ul>
+<h5>7. Multi-Slice Scaling (p. 24)</h5>
+<p>
+Scale DEMOCRITUS to many slices across domains:
+</p>
+<ul>
+<li>Economics, biology, law, climate</li>
+<li>Nightly or continuous updates</li>
+<li>Cross-slice integration and querying</li>
+</ul>
+<h5>8. Formalizing Utility Functions (p. 24)</h5>
+<p>
+More rigorous treatment of:
+</p>
+<ul>
+<li>Utility function U(t) design</li>
+<li>Budget policies for LLM calls</li>
+<li>Exploration-exploitation tradeoffs</li>
+</ul>
+<hr>
+<h4>Planned Experiments (Described but Not Yet Conducted)</h4>
+<h5>Stability Across Repeated Runs (p. 19)</h5>
+<ul>
+<li>Run pipeline R times with same configuration but different seeds</li>
+<li>Measure pairwise distance correlation between embeddings</li>
+<li>Compute k-NN neighborhood overlap</li>
+<li>Assess graph-manifold consistency</li>
+</ul>
+<h5>Scaling with Teacher Model Size (p. 19-20)</h5>
+<p>
+Compare manifolds from:
+</p>
+<ul>
+<li>Qwen3-8B</li>
+<li>Qwen3-30B</li>
+<li>Qwen3-80B</li>
+<li>Qwen3-235B</li>
+</ul>
+<p>
+Hypothesis: Larger teachers produce denser, more cohesive graphs.
+</p>
+<h5>Robustness to Noisy Claims (p. 20)</h5>
+<ul>
+<li>Inject explicitly incorrect statements</li>
+<li>Compare "clean" vs "polluted" slices</li>
+<li>Measure impact on hub nodes vs fringe</li>
+<li>Assess Laplacian spectral stability</li>
+</ul>
+<h5>Spectral and Scale-Free Analysis (p. 20)</h5>
+<p>
+For each large slice:
+</p>
+<ul>
+<li>Compute normalized Laplacian spectrum</li>
+<li>Analyze degree distributions</li>
+<li>Identify hub variables</li>
+<li>Characterize scale-free structure</li>
+</ul>
+<hr>
+<h4>Logical Extensions (Implied)</h4>
+<h5>Multi-LLM Ensemble</h5>
+<p>
+Use multiple LLMs to:
+</p>
+<ul>
+<li>Cross-validate causal claims</li>
+<li>Identify disagreements</li>
+<li>Increase coverage</li>
+<li>Reduce single-model bias</li>
+</ul>
+<h5>Confidence Scoring</h5>
+<p>
+Develop mechanisms to:
+</p>
+<ul>
+<li>Weight edges by claim frequency</li>
+<li>Distinguish well-supported from speculative claims</li>
+<li>Propagate uncertainty through the graph</li>
+</ul>
+<h5>Human-in-the-Loop Validation</h5>
+<p>
+Integrate expert feedback:
+</p>
+<ul>
+<li>Flag questionable causal claims</li>
+<li>Confirm important edges</li>
+<li>Guide active exploration</li>
+<li>Iteratively improve quality</li>
+</ul>
+<h5>Temporal Causal Models</h5>
+<p>
+Extend to handle:
+</p>
+<ul>
+<li>Time-lagged causation</li>
+<li>Event sequences</li>
+<li>Historical dynamics</li>
+<li>Trend analysis</li>
+</ul>
+<h5>Multimodal Integration</h5>
+<p>
+Incorporate non-text sources:
+</p>
+<ul>
+<li>Scientific figures and diagrams</li>
+<li>Time series data</li>
+<li>Knowledge graphs</li>
+<li>Domain ontologies</li>
+</ul>
+<h5>Benchmark Development</h5>
+<p>
+Create evaluation resources:
+</p>
+<ul>
+<li>Expert-curated causal ground truth</li>
+<li>Domain-specific test sets</li>
+<li>Systematic quality metrics</li>
+<li>Reproducibility standards</li>
+</ul>
+<h5>Interactive Visualization</h5>
+<p>
+Build tools for:
+</p>
+<ul>
+<li>Real-time manifold exploration</li>
+<li>Drill-down into local neighborhoods</li>
+<li>Query-driven highlighting</li>
+<li>Comparison across slices</li>
+</ul>
+<h5>Federated/Distributed Construction</h5>
+<p>
+Enable:
+</p>
+<ul>
+<li>Parallel slice construction</li>
+<li>Distributed LLM queries</li>
+<li>Collaborative knowledge building</li>
+<li>Privacy-preserving extraction</li>
+</ul>
+        </section>
+    </main>
+</body>
+</html>

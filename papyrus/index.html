@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Papyrus - Paper Reading Notes</title>
+    <style>
+        :root {
+            --text: #1a1a1a;
+            --text-muted: #666;
+            --bg: #fafafa;
+            --bg-alt: #f0f0f0;
+            --border: #ddd;
+            --accent: #2563eb;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 52rem;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+        header {
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        header p {
+            color: var(--text-muted);
+        }
+        header .back {
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        header .back a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+        header .back a:hover {
+            color: var(--accent);
+        }
+        .papers {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .paper {
+            padding: 1.25rem 1.5rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+        .paper:hover {
+            border-color: var(--accent);
+        }
+        .paper h2 {
+            font-size: 1.15rem;
+            margin-bottom: 0.25rem;
+        }
+        .paper h2 a {
+            color: var(--text);
+            text-decoration: none;
+        }
+        .paper h2 a:hover {
+            color: var(--accent);
+        }
+        .paper .authors {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .paper .meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+        .paper .tldr {
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+        a { color: var(--accent); }
+        @media (max-width: 600px) {
+            .container { padding: 1.5rem 1rem; }
+            header h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="back"><a href="../index.html">&larr; Home</a></div>
+            <h1>Papyrus</h1>
+            <p>Structured notes and analysis for academic papers</p>
+        </header>
+        <div class="papers">
+            <article class="paper">
+                <h2><a href="fast-dllm.html">Fast-dLLM: Training-free Acceleration of Diffusion LLM by Enabling KV Cache and Parallel Decoding</a></h2>
+                <div class="authors">Chengyue Wu, Hao Zhang, Shuchen Xue, Zhijian Liu, Shizhe Diao, Ligeng Zhu, Ping Luo, Song Han, Enze Xie</div>
+                <div class="meta">2025 &middot; arXiv preprint</div>
+                <div class="tldr">Fast-dLLM enables up to 27.6× inference speedup for diffusion-based language models by introducing a block-wise approximate KV Cache mechanism and a confidence-aware parallel decoding strategy that selectively unmasks tokens above a confidence threshold, achieving practical deployment speeds with minimal accuracy loss.</div>
+            </article>
+            <article class="paper">
+                <h2><a href="large-causal-models.html">Large Causal Models from Large Language Models</a></h2>
+                <div class="authors">Sridhar Mahadevan</div>
+                <div class="meta">2025 &middot; arXiv preprint</div>
+                <div class="tldr">DEMOCRITUS is a system that extracts causal knowledge from LLMs by generating topics, causal questions, and statements, then weaves them into large, navigable causal models (LCMs) using Geometric Transformers and manifold embeddings across diverse domains like economics, biology, and archaeology.</div>
+            </article>
+            <article class="paper">
+                <h2><a href="llada.html">Large Language Diffusion Models</a></h2>
+                <div class="authors">Shen Nie, Fengqi Zhu, Zebin You, Xiaolu Zhang, Jingyang Ou, Jun Hu, Jun Zhou, Yankai Lin, Ji-Rong Wen, Chongxuan Li</div>
+                <div class="meta">2025 &middot; NeurIPS 2025 (39th Conference on Neural Information Processing Systems)</div>
+                <div class="tldr">LLaDA demonstrates that large-scale diffusion models (8B parameters) can match autoregressive LLMs like LLaMA3 on language tasks, proving that capabilities like scalability, in-context learning, and instruction-following are not unique to autoregressive models.</div>
+            </article>
+        </div>
+    </div>
+</body>
+</html>

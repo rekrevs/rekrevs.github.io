@@ -1,0 +1,2855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Large Language Diffusion Models - Papyrus</title>
+    <style>
+        :root {
+            --text: #1a1a1a;
+            --text-muted: #666;
+            --bg: #fafafa;
+            --bg-alt: #f0f0f0;
+            --border: #ddd;
+            --accent: #2563eb;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: 100vh;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 2rem 1rem;
+            background: var(--bg-alt);
+            border-right: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+        nav a {
+            display: block;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        nav a:hover { background: var(--border); color: var(--text); }
+        nav .nav-section { margin-top: 1rem; font-weight: 600; color: var(--text); padding: 0.25rem 0.5rem; }
+        nav .back { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+        main {
+            max-width: 48rem;
+            padding: 2rem 3rem 4rem;
+        }
+        header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+        header h1 { font-size: 1.75rem; line-height: 1.3; margin-bottom: 0.5rem; }
+        header .authors { color: var(--text-muted); font-size: 0.95rem; }
+        header .meta { font-size: 0.875rem; color: var(--text-muted); margin-top: 0.5rem; }
+        header .meta a { color: var(--accent); }
+        section { margin-bottom: 2.5rem; }
+        section > h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        h3 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; }
+        h4 { font-size: 1rem; margin: 1.25rem 0 0.5rem; }
+        p { margin-bottom: 1rem; }
+        ul, ol { margin: 0 0 1rem 1.5rem; }
+        li { margin-bottom: 0.25rem; }
+        code {
+            font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.875em;
+            background: var(--bg-alt);
+            padding: 0.125rem 0.375rem;
+            border-radius: 3px;
+        }
+        pre {
+            background: var(--bg-alt);
+            padding: 1rem;
+            overflow-x: auto;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        pre code { background: none; padding: 0; }
+        blockquote {
+            border-left: 3px solid var(--border);
+            padding-left: 1rem;
+            color: var(--text-muted);
+            margin: 1rem 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+        th { background: var(--bg-alt); font-weight: 600; }
+        details { margin: 0.5rem 0; }
+        summary { cursor: pointer; color: var(--accent); }
+        a { color: var(--accent); }
+        .tldr {
+            background: var(--bg-alt);
+            padding: 1rem 1.25rem;
+            border-radius: 6px;
+            font-size: 1.05rem;
+            border-left: 4px solid var(--accent);
+        }
+        .glossary-term { font-weight: 600; }
+        @media (max-width: 768px) {
+            body { grid-template-columns: 1fr; }
+            nav {
+                position: relative;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            main { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="back"><a href="index.html">&larr; All Papers</a></div>
+        <div class="nav-section">Overview</div>
+        <a href="#tldr">TL;DR</a>
+        <a href="#summary">Summary</a>
+        <a href="#eli5">ELI5</a>
+        <div class="nav-section">Deep Dive</div>
+        <a href="#tutorial">Tutorial</a>
+        <a href="#claims">Claims</a>
+        <a href="#methods">Methods</a>
+        <a href="#findings">Findings</a>
+        <div class="nav-section">Learning</div>
+        <a href="#glossary">Glossary</a>
+        <a href="#prereqs">Prerequisites</a>
+        <a href="#questions">Questions</a>
+        <a href="#quiz">Quiz</a>
+        <div class="nav-section">Context</div>
+        <a href="#related">Related Work</a>
+        <a href="#context">Research Context</a>
+        <a href="#highlights">Highlights</a>
+        <div class="nav-section">Critical</div>
+        <a href="#limitations">Limitations</a>
+        <a href="#disagreements">Disagreements</a>
+        <a href="#future-work">Future Work</a>
+    </nav>
+    <main>
+        <header>
+            <h1>Large Language Diffusion Models</h1>
+            <div class="authors">Shen Nie, Fengqi Zhu, Zebin You, Xiaolu Zhang, Jingyang Ou, Jun Hu, Jun Zhou, Yankai Lin, Ji-Rong Wen, Chongxuan Li</div>
+            <div class="meta">2025 &middot; NeurIPS 2025 (39th Conference on Neural Information Processing Systems) &middot; <a href="https://arxiv.org/abs/2502.09992v3">arXiv</a> &middot; <a href="https://ml-gsai.github.io/LLaDA-demo/">Project</a></div>
+        </header>
+
+        <section id="tldr">
+            <h2>TL;DR</h2>
+            <div class="tldr">LLaDA demonstrates that large-scale diffusion models (8B parameters) can match autoregressive LLMs like LLaMA3 on language tasks, proving that capabilities like scalability, in-context learning, and instruction-following are not unique to autoregressive models.</div>
+        </section>
+
+        <section id="summary">
+            <h2>Summary</h2>
+            <h4>Abstract (Clarified)</h4>
+<p>
+The paper introduces <strong>LLaDA</strong> (Large Language Diffusion with mAsking), an 8B parameter diffusion model trained from scratch that challenges the assumption that autoregressive models (ARMs) are necessary for LLM capabilities. LLaDA uses a forward masking process and a reverse prediction process (instead of left-to-right token prediction) and achieves competitive performance with LLaMA3 8B.
+</p>
+<h4>Key Contributions</h4>
+<ol>
+<li><strong>First large-scale language diffusion model</strong>: LLaDA 8B is the first diffusion-based language model scaled to 8 billion parameters, trained on 2.3 trillion tokens.</li>
+</ol>
+<ol>
+<li><strong>Competitive performance</strong>: Matches or exceeds LLaMA3 8B on multiple benchmarks including MMLU, GSM8K, and Chinese tasks (CMMLU, C-Eval).</li>
+</ol>
+<ol>
+<li><strong>Principled generative approach</strong>: Unlike heuristic approaches, LLaDA optimizes a variational lower bound of log-likelihood, providing theoretical grounding.</li>
+</ol>
+<ol>
+<li><strong>Reversal curse solution</strong>: LLaDA naturally handles bidirectional reasoning, outperforming GPT-4o on reversal poem completion tasks.</li>
+</ol>
+<ol>
+<li><strong>Instruction following</strong>: After SFT on 4.5M pairs, demonstrates strong instruction-following and multi-turn dialogue capabilities.</li>
+</ol>
+<h4>Main Results</h4>
+<h5>Pre-trained Model (Base)</h5>
+<table>
+<tr><th>Benchmark</th><th>LLaDA 8B</th><th>LLaMA3 8B</th><th>LLaMA2 7B</th></tr>
+<tr><td>MMLU (5-shot)</td><td><strong>65.9</strong></td><td>65.4</td><td>45.9</td></tr>
+<tr><td>GSM8K (4-shot)</td><td><strong>70.3</strong></td><td>48.7</td><td>13.1</td></tr>
+<tr><td>Math (4-shot)</td><td><strong>31.4</strong></td><td>16.0</td><td>4.3</td></tr>
+<tr><td>CMMLU (5-shot)</td><td><strong>69.9</strong></td><td>50.7</td><td>32.5</td></tr>
+<tr><td>HumanEval (0-shot)</td><td><strong>35.4</strong></td><td>34.8</td><td>12.8</td></tr>
+</table>
+<h5>Reversal Reasoning</h5>
+<table>
+<tr><th>Model</th><th>Forward</th><th>Reversal</th></tr>
+<tr><td>GPT-4o</td><td><strong>82.7</strong></td><td>34.3</td></tr>
+<tr><td>LLaDA 8B</td><td>51.8</td><td><strong>45.6</strong></td></tr>
+</table>
+<h4>Significance</h4>
+<p>
+This work fundamentally challenges the assumption that autoregressive modeling is the only path to powerful LLMs. It demonstrates that:
+</p>
+<ul>
+<li>Scalability emerges from generative modeling principles + Transformers, not specifically from autoregression</li>
+<li>In-context learning and instruction-following are properties of conditional generative models generally</li>
+<li>Bidirectional architectures can solve problems that autoregressive models struggle with (reversal curse)</li>
+</ul>
+<h4>Technical Innovation</h4>
+<ul>
+<li><strong>Masked Diffusion Model (MDM)</strong>: Forward process masks tokens randomly, reverse process predicts all masked tokens simultaneously</li>
+<li><strong>No causal mask</strong>: Unlike GPT-style models, LLaDA sees the entire input for predictions</li>
+<li><strong>Variable masking ratio</strong>: Unlike BERT's fixed 15%, uses t ~ U[0,1] with theoretical justification</li>
+<li><strong>Low-confidence remasking</strong>: During generation, re-masks tokens with lowest prediction confidence</li>
+</ul>
+        </section>
+
+        <section id="eli5">
+            <h2>ELI5</h2>
+            <h4>The Simple Version</h4>
+<p>
+You know how when you write a story, you write one word after another from left to right? That's how most AI text generators work too - they guess the next word, then the next word, and so on.
+</p>
+<p>
+But LLaDA is different! Imagine you have a sentence with some words hidden (like a fill-in-the-blank game):
+</p>
+<pre><code>
+The ___ jumped over the lazy ___
+</code></pre>
+<p>
+LLaDA learns to guess ALL the hidden words at once, not one by one. It's like doing a puzzle where you can see all the pieces and figure out what goes where, instead of only being allowed to place one piece at a time.
+</p>
+<h4>Why Does This Matter?</h4>
+<ol>
+<li><strong>Reading Backwards</strong>: Regular AI is like reading a book from start to finish - it can't look ahead. LLaDA can look at the whole picture at once, so it's better at understanding things that go both ways.</li>
+</ol>
+<ol>
+<li><strong>It Works Just as Well</strong>: People thought you HAD to write one word at a time to make really smart AI. This paper shows that's not true!</li>
+</ol>
+<ol>
+<li><strong>It's Big</strong>: This is the first time someone made this "fill-in-the-blank" style AI as big as the most famous AI models.</li>
+</ol>
+<h4>A Fun Example</h4>
+<p>
+If I ask a normal AI: "What comes BEFORE 'jumped over the lazy dog'?"
+</p>
+<p>
+It might struggle because it's used to thinking forward.
+</p>
+<p>
+But LLaDA can answer: "The quick brown fox" because it can think in both directions!
+</p>
+<h4>The Magic Trick</h4>
+<p>
+Instead of:
+</p>
+<pre><code>
+The -&gt; quick -&gt; brown -&gt; fox -&gt; jumped -&gt; ...
+</code></pre>
+<p>
+LLaDA does:
+</p>
+<pre><code>
+Step 1: [???] [???] [???] [???] [???] [???] [???] [???]
+Step 2: [???] quick [???] fox [???] [???] the [???]
+Step 3: The quick brown fox jumped over the lazy dog
+</code></pre>
+<p>
+It gradually reveals the whole sentence by making better and better guesses about the hidden words!
+</p>
+        </section>
+
+        <section id="tutorial">
+            <h2>Tutorial</h2>
+            <h4>Part 1: The Big Picture - Why This Paper Matters</h4>
+<h5>1.1 The Current Landscape of Language Models</h5>
+<p>
+Before diving into LLaDA, let's understand the context. Since GPT-2 (2019) and GPT-3 (2020), the entire field of large language models has been dominated by a single paradigm: <strong>autoregressive modeling</strong>.
+</p>
+<pre><code>
+Autoregressive Generation:
+┌─────────────────────────────────────────────────────────┐
+│  "The"  →  "cat"  →  "sat"  →  "on"  →  "the"  →  "mat" │
+│    ↓        ↓        ↓        ↓        ↓        ↓      │
+│  Step 1  Step 2   Step 3   Step 4   Step 5   Step 6    │
+└─────────────────────────────────────────────────────────┘
+Each token is predicted conditioned on ALL previous tokens
+</code></pre>
+<p>
+This approach has worked remarkably well:
+</p>
+<ul>
+<li>GPT-4, Claude, LLaMA, Gemini - all autoregressive</li>
+<li>Trillion-parameter models</li>
+<li>Emergent capabilities like reasoning and coding</li>
+</ul>
+<p>
+But a fundamental question remained: <strong>Is autoregression necessary for these capabilities, or is it just one possible approach?</strong>
+</p>
+<h5>1.2 The Diffusion Alternative</h5>
+<p>
+Meanwhile, in computer vision, a different paradigm was revolutionizing image generation: <strong>diffusion models</strong>.
+</p>
+<pre><code>
+Diffusion Process (Images):
+┌─────────────────────────────────────────────────────────┐
+│  Clean Image  →  Noisy  →  Noisier  →  Pure Noise      │
+│       ↓            ↓          ↓            ↓           │
+│  t = 0         t = 0.3    t = 0.7       t = 1.0        │
+└─────────────────────────────────────────────────────────┘
+
+Generation (Reverse):
+┌─────────────────────────────────────────────────────────┐
+│  Pure Noise  →  Less Noisy  →  Cleaner  →  Clean Image │
+│       ↓            ↓             ↓            ↓        │
+│  t = 1.0       t = 0.7        t = 0.3       t = 0      │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+<p>
+Stable Diffusion, DALL-E 2, Midjourney - all diffusion models. They achieved state-of-the-art image generation without any notion of "left-to-right" generation.
+</p>
+<h5>1.3 The Key Insight</h5>
+<p>
+The authors of LLaDA make a crucial observation:
+</p>
+<blockquote>"It is the <strong>generative modeling principles</strong> (Eq. 1), rather than the <strong>autoregressive formulation</strong> (Eq. 2) itself, that fundamentally underpin the essential properties of LLMs."</blockquote>
+<p>
+In other words: What makes LLMs work is:
+</p>
+<ol>
+<li>Transformers</li>
+<li>Scale (data + parameters)</li>
+<li>Maximum likelihood estimation (learning the true data distribution)</li>
+</ol>
+<p>
+<strong>NOT</strong> specifically the left-to-right token prediction.
+</p>
+<hr>
+<h4>Part 2: How LLaDA Works</h4>
+<h5>2.1 The Core Mechanism: Masked Diffusion</h5>
+<p>
+Instead of adding continuous noise (like in image diffusion), LLaDA uses <strong>discrete masking</strong>.
+</p>
+<pre><code>
+Forward Process (Training):
+┌──────────────────────────────────────────────────────────────┐
+│ Original:  "The quick brown fox jumps over the lazy dog"    │
+│                           ↓                                  │
+│ t = 0.3:   "The [M] brown fox [M] over [M] lazy dog"        │
+│                           ↓                                  │
+│ t = 0.7:   "[M] [M] [M] fox [M] [M] [M] [M] dog"            │
+│                           ↓                                  │
+│ t = 1.0:   "[M] [M] [M] [M] [M] [M] [M] [M] [M]"            │
+└──────────────────────────────────────────────────────────────┘
+
+[M] = Mask token
+Each token is independently masked with probability t
+</code></pre>
+<h5>2.2 The Training Objective</h5>
+<p>
+The model learns to predict ALL masked tokens simultaneously:
+</p>
+<pre><code>
+Input:   "[M] quick [M] fox [M] over the [M] dog"
+Target:  "The"  -    "brown" -  "jumps"  -   -  "lazy"  -
+
+Loss = Cross-entropy only on masked positions
+</code></pre>
+<p>
+<strong>Critical detail</strong>: The loss is weighted by <code>1/t</code>:
+</p>
+<pre><code class="python">
+L(θ) = -E[t, x₀, xₜ][ (1/t) * Σᵢ 1[xᵢₜ = M] * log pθ(xᵢ₀|xₜ) ]
+</code></pre>
+<p>
+Why <code>1/t</code>? When <code>t</code> is small (few masks), each masked token carries more information. This weighting makes the loss an upper bound on negative log-likelihood.
+</p>
+<h5>2.3 Architecture: Transformer Without Causal Mask</h5>
+<pre><code>
+Standard GPT (Causal/Autoregressive):
+┌─────────────────────────────────────────┐
+│ Token 1 can see: [Token 1]              │
+│ Token 2 can see: [Token 1, Token 2]     │
+│ Token 3 can see: [Token 1, 2, 3]        │
+│ Token 4 can see: [Token 1, 2, 3, 4]     │
+└─────────────────────────────────────────┘
+
+LLaDA (Bidirectional):
+┌─────────────────────────────────────────┐
+│ Token 1 can see: [All tokens]           │
+│ Token 2 can see: [All tokens]           │
+│ Token 3 can see: [All tokens]           │
+│ Token 4 can see: [All tokens]           │
+└─────────────────────────────────────────┘
+</code></pre>
+<p>
+This is similar to BERT, but with a crucial difference: LLaDA is trained as a <strong>generative model</strong> with a proper likelihood objective, not just for masked language modeling.
+</p>
+<h5>2.4 Generation Process</h5>
+<pre><code>
+Generation (Reverse Diffusion):
+┌──────────────────────────────────────────────────────────────┐
+│ Step 1 (t=1.0): "[M] [M] [M] [M] [M] [M] [M] [M] [M]"       │
+│     Model predicts ALL positions simultaneously              │
+│     Keep most confident, remask low-confidence              │
+│                           ↓                                  │
+│ Step 2 (t=0.8): "[M] quick [M] fox [M] [M] the [M] [M]"     │
+│     Model predicts remaining masks                           │
+│     Keep most confident, remask low-confidence              │
+│                           ↓                                  │
+│ Step 3 (t=0.6): "The quick [M] fox jumps [M] the lazy [M]"  │
+│                           ↓                                  │
+│ ...continue until t=0...                                     │
+│                           ↓                                  │
+│ Final (t=0): "The quick brown fox jumps over the lazy dog"  │
+└──────────────────────────────────────────────────────────────┘
+</code></pre>
+<p>
+<strong>Key innovation: Low-confidence remasking</strong>
+</p>
+<p>
+At each step, instead of keeping all predictions:
+</p>
+<ol>
+<li>Predict all masked tokens</li>
+<li>Compute confidence (probability) for each prediction</li>
+<li>Keep the highest-confidence predictions</li>
+<li>Re-mask the lowest-confidence ones</li>
+<li>Repeat</li>
+</ol>
+<p>
+This is analogous to temperature sampling in autoregressive models.
+</p>
+<hr>
+<h4>Part 3: The Mathematics (Simplified)</h4>
+<h5>3.1 Forward Process</h5>
+<p>
+For each token position <code>i</code> at time <code>t</code>:
+</p>
+<pre><code>
+q(xᵢₜ | xᵢ₀) = {
+    1-t,  if xᵢₜ = xᵢ₀  (token unchanged)
+    t,    if xᵢₜ = [M]   (token masked)
+}
+</code></pre>
+<p>
+All positions are masked <strong>independently</strong> with the same probability <code>t</code>.
+</p>
+<h5>3.2 Reverse Process</h5>
+<p>
+The reverse process factors across positions:
+</p>
+<pre><code>
+q(xᵢₛ | xₜ) = {
+    1,              if xᵢₜ ≠ [M] and xᵢₛ = xᵢₜ     (unmasked stays)
+    s/t,            if xᵢₜ = [M] and xᵢₛ = [M]      (stays masked)
+    (t-s)/t × q(xᵢₛ|xₜ),  if xᵢₜ = [M] and xᵢₛ ≠ [M]  (becomes unmasked)
+}
+</code></pre>
+<h5>3.3 Why This Is a Valid Generative Model</h5>
+<p>
+The training loss is provably an upper bound on negative log-likelihood:
+</p>
+<pre><code>
+-E[log pθ(x₀)] ≤ L(θ)
+</code></pre>
+<p>
+This means minimizing the training loss is equivalent to (approximately) maximizing likelihood - the same principle that makes GPT work!
+</p>
+<h5>3.4 Connection to Any-Order Autoregressive Models</h5>
+<p>
+A beautiful theoretical result: LLaDA's training objective is <strong>equivalent</strong> to training an any-order autoregressive model (AO-ARM).
+</p>
+<pre><code>
+Standard ARM: P(x) = P(x₁) × P(x₂|x₁) × P(x₃|x₁,x₂) × ...
+              (fixed left-to-right order)
+
+AO-ARM: P(x) = P(xπ(1)) × P(xπ(2)|xπ(1)) × P(xπ(3)|xπ(1),xπ(2)) × ...
+        (ANY permutation π)
+</code></pre>
+<p>
+LLaDA is trained to model ALL possible orderings simultaneously. This explains why it can handle reversal tasks!
+</p>
+<hr>
+<h4>Part 4: Training LLaDA at Scale</h4>
+<h5>4.1 Pre-training Setup</h5>
+<table>
+<tr><th>Aspect</th><th>Detail</th></tr>
+<tr><td>Model sizes</td><td>1B and 8B parameters</td></tr>
+<tr><td>Training data</td><td>2.3 trillion tokens</td></tr>
+<tr><td>Compute</td><td>0.13 million H800 GPU hours</td></tr>
+<tr><td>Sequence length</td><td>4096 tokens</td></tr>
+<tr><td>Batch size</td><td>1280</td></tr>
+</table>
+<h5>4.2 Architecture Details (8B)</h5>
+<pre><code>
+┌────────────────────────────────────────┐
+│ Layers:              32                │
+│ Model dimension:     4096              │
+│ Attention heads:     32                │
+│ FFN dimension:       12,288            │
+│ Vocabulary size:     126,464           │
+│ Total parameters:    8.02B             │
+└────────────────────────────────────────┘
+</code></pre>
+<p>
+Key differences from LLaMA3 8B:
+</p>
+<ul>
+<li><strong>No grouped query attention</strong> (GQA) - uses vanilla multi-head attention</li>
+<li>Smaller FFN dimension (12,288 vs 14,336) to compensate for more attention params</li>
+<li><strong>No KV cache</strong> - since generation isn't left-to-right, KV cache doesn't apply</li>
+</ul>
+<h5>4.3 Learning Rate Schedule</h5>
+<pre><code>
+Learning Rate over Training:
+
+     4×10⁻⁴ ├────────────────┐
+            │                │
+            │   Warmup       │   Stable
+     1×10⁻⁴ ├                └─────────────┐
+            │                              │ Decay
+     1×10⁻⁵ ├                              └────┤
+            └────────────────────────────────────┤
+            0    0.5T   1.2T        2.0T    2.3T
+                      Training Tokens
+</code></pre>
+<h5>4.4 Supervised Fine-Tuning (SFT)</h5>
+<pre><code>
+Pre-training:  Mask ANY token in the sequence
+               "[M] quick [M] fox [M] over [M] lazy [M]"
+
+SFT:           Only mask RESPONSE tokens (prompt unchanged)
+               "User: What jumps? [M] quick [M] fox [M]"
+                ↑ Never masked ↑   ↑ Response: can be masked ↑
+</code></pre>
+<p>
+SFT dataset: 4.5M pairs (1M human-annotated + 3.5M synthetic)
+</p>
+<hr>
+<h4>Part 5: Results Deep Dive</h4>
+<h5>5.1 Scalability</h5>
+<pre><code>
+Performance vs Compute (MMLU):
+
+    65% ┤                                    ●  LLaDA 8B
+        │                               ▲
+    55% ┤                          ●
+        │                     ▲
+    45% ┤                ●
+        │           ▲
+    35% ┤      ●
+        │ ▲
+    25% ┤
+        └────────────────────────────────────────
+         10²⁰    10²¹    10²²    10²³  FLOPs
+
+● LLaDA    ▲ ARM Baseline
+</code></pre>
+<p>
+Key observation: LLaDA scales comparably to autoregressive models across all tasks.
+</p>
+<h5>5.2 The Reversal Curse</h5>
+<p>
+Autoregressive models famously suffer from the "reversal curse":
+</p>
+<ul>
+<li>Trained on "A is B" → Can answer "What is A?" → "B"</li>
+<li>But struggles with "What is B?" → "A"</li>
+</ul>
+<pre><code>
+Chinese Poem Completion Task:
+┌─────────────────────────────────────────────────────────┐
+│ Forward:  Given line 1, predict line 2                  │
+│ Reversal: Given line 2, predict line 1                  │
+├─────────────────────────────────────────────────────────┤
+│ Model            │ Forward  │ Reversal │                │
+├─────────────────────────────────────────────────────────┤
+│ GPT-4o           │   82.7%  │   34.3%  │ ← Big gap!     │
+│ Qwen2.5-7B       │   75.9%  │   38.0%  │ ← Big gap!     │
+│ LLaDA 8B         │   51.8%  │   45.6%  │ ← Balanced!    │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+<p>
+LLaDA's bidirectional nature means it doesn't have an inherent forward bias.
+</p>
+<h5>5.3 Generation Quality Visualization</h5>
+<pre><code>
+Sampling Process (from paper):
+┌────────────────────────────────────────────────────────────────┐
+│ Prompt: "Lily can run 12 kilometers per hour for 4 hours.     │
+│         After that, she runs 6 kilometers per hour.           │
+│         How many kilometers can she run in 8 hours?"          │
+├────────────────────────────────────────────────────────────────┤
+│ Generation (darker = later in process):                        │
+│                                                                │
+│ ░In░ 4  hours , Lily runs  12  *  4  =  48  kilometers .      │
+│ After  4  hours  she  runs  6  *  4  =  24  kilometers .      │
+│ In  total  she  runs  48 + 24 = 72  kilometers  in  8  hours  │
+│                                                                │
+│ Light gray: predicted early (high confidence)                  │
+│ Dark gray: predicted late (filled in last)                     │
+└────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p>
+Notice: Numbers and structure words often predicted early, specific details filled in later.
+</p>
+<hr>
+<h4>Part 6: Sampling Strategies</h4>
+<h5>6.1 Pure Diffusion (Default)</h5>
+<p>
+All positions start masked, iteratively unmask:
+</p>
+<pre><code>
+t=1.0: [M][M][M][M][M][M][M][M]
+t=0.8: [M][M][M]fox[M][M][M][M]
+t=0.6: The[M][M]fox[M]over[M][M]
+t=0.4: The quick[M]fox jumps over the[M]
+t=0.2: The quick brown fox jumps over the lazy
+t=0.0: The quick brown fox jumps over the lazy dog
+</code></pre>
+<h5>6.2 Block Diffusion</h5>
+<p>
+Combines autoregressive (across blocks) with diffusion (within blocks):
+</p>
+<pre><code>
+Block 1: [M][M][M][M] → "The quick brown fox"
+Block 2: [M][M][M][M] → "jumps over the lazy"  (sees Block 1)
+Block 3: [M][M]       → "dog."                  (sees Blocks 1-2)
+</code></pre>
+<h5>6.3 Performance Comparison</h5>
+<pre><code>
+┌────────────────────────────────────────────────────┐
+│ Strategy              │ BBH   │ GSM8K │ HumanEval │
+├────────────────────────────────────────────────────┤
+│ Autoregressive        │ 38.1  │ 63.1  │ 18.3      │
+│ Block Diffusion (L=32)│ 45.7  │ 68.6  │ 29.9      │
+│ Pure Diffusion        │ 49.7  │ 70.3  │ 35.4      │ ← Best
+└────────────────────────────────────────────────────┘
+</code></pre>
+<p>
+Pure diffusion consistently wins!
+</p>
+<hr>
+<h4>Part 7: Practical Implications</h4>
+<h5>7.1 Speed vs Quality Trade-off</h5>
+<p>
+Unlike autoregressive models (1 token per forward pass), LLaDA can trade:
+</p>
+<pre><code>
+More steps = Higher quality, Slower
+Fewer steps = Lower quality, Faster
+
+Steps  │ Tokens/forward │ GSM8K │ Throughput
+───────┼────────────────┼───────┼───────────
+256    │ 1              │ 70%   │ ~10 tok/s
+128    │ 2              │ 68%   │ ~20 tok/s
+64     │ 4              │ 65%   │ ~40 tok/s
+32     │ 8              │ 60%   │ ~65 tok/s
+</code></pre>
+<h5>7.2 Memory Characteristics</h5>
+<p>
+Without KV cache, LLaDA has:
+</p>
+<ul>
+<li><strong>Constant memory</strong> regardless of generation length</li>
+<li>Comparable to ARM without KV cache</li>
+<li>Slightly higher than ARM with KV cache</li>
+</ul>
+<h5>7.3 Limitations</h5>
+<ol>
+<li><strong>Generation length is a hyperparameter</strong>: Must specify output length upfront</li>
+<li><strong>No KV cache</strong>: Can't leverage this standard optimization</li>
+<li><strong>Compute parity unclear</strong>: Direct comparison with same compute budget limited to <10²³ FLOPs</li>
+<li><strong>No RL alignment yet</strong>: Only SFT, no RLHF/DPO</li>
+</ol>
+<hr>
+<h4>Part 8: The Bigger Picture</h4>
+<h5>8.1 What This Means for the Field</h5>
+<pre><code>
+Before LLaDA:
+┌─────────────────────────────────────────────────────────┐
+│ LLM Capabilities = Autoregressive + Transformer + Scale │
+└─────────────────────────────────────────────────────────┘
+
+After LLaDA:
+┌─────────────────────────────────────────────────────────┐
+│ LLM Capabilities = Generative Principles + Transformer  │
+│                  + Scale                                │
+│                                                         │
+│ Autoregression is ONE valid approach, not THE approach  │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+<h5>8.2 Future Directions</h5>
+<ol>
+<li><strong>Scaling further</strong>: What happens at 70B, 400B parameters?</li>
+<li><strong>RL alignment</strong>: Can RLHF/DPO work with diffusion models?</li>
+<li><strong>Multimodal</strong>: Can this approach unify text, image, audio?</li>
+<li><strong>Efficiency</strong>: Custom attention mechanisms, caching strategies</li>
+<li><strong>O1-style reasoning</strong>: Can diffusion models do chain-of-thought?</li>
+</ol>
+<h5>8.3 Open Questions</h5>
+<ul>
+<li>Why does LLaDA outperform on math (GSM8K, MATH) specifically?</li>
+<li>What's the optimal number of diffusion steps for different tasks?</li>
+<li>Can we get the best of both worlds (AR + Diffusion)?</li>
+</ul>
+<hr>
+<h4>Summary</h4>
+<p>
+LLaDA represents a paradigm shift in our understanding of language models:
+</p>
+<ol>
+<li><strong>Diffusion works for language at scale</strong> - 8B parameters, competitive with LLaMA3</li>
+<li><strong>Bidirectional beats unidirectional for some tasks</strong> - especially reversal reasoning</li>
+<li><strong>The future is not necessarily autoregressive</strong> - opens new research directions</li>
+<li><strong>Theoretical foundations matter</strong> - proper likelihood bounds enable scaling</li>
+</ol>
+<p>
+This paper doesn't claim diffusion is better than autoregression - it claims both are valid paths to capable language models, and the choice depends on the application.
+</p>
+        </section>
+
+        <section id="claims">
+            <h2>Claims</h2>
+            <h4>Central Thesis</h4>
+<p>
+<strong>The capabilities of LLMs (scalability, in-context learning, instruction-following) emerge from generative modeling principles combined with Transformers and scale - NOT specifically from autoregressive formulation.</strong>
+</p>
+<h4>Specific Claims</h4>
+<h5>Claim 1: Scalability</h5>
+<blockquote>"Scalability is primarily a consequence of the interplay between Transformers, model size, data size, and Fisher consistency induced by the generative principles... rather than a unique result of the ARMs." (p. 2)</blockquote>
+<p>
+<strong>Evidence</strong>: Figure 3 shows LLaDA scales comparably to ARM baselines from 10²⁰ to 10²³ FLOPs across 6 benchmarks.
+</p>
+<h5>Claim 2: In-Context Learning</h5>
+<blockquote>"The instruction-following and in-context learning capabilities appear to be intrinsic properties of all conditional generative models on structurally consistent linguistic tasks, rather than exclusive advantages of ARMs." (p. 2)</blockquote>
+<p>
+<strong>Evidence</strong>: LLaDA 8B Base matches LLaMA3 8B Base on few-shot learning tasks (Table 1).
+</p>
+<h5>Claim 3: Instruction Following</h5>
+<blockquote>"LLaDA significantly enhances the ability to follow instructions after SFT, as demonstrated in case studies such as multi-turn dialogue." (p. 3)</blockquote>
+<p>
+<strong>Evidence</strong>: Table 3 shows multi-turn dialogue examples with coherent context retention.
+</p>
+<h5>Claim 4: Reversal Curse Solution</h5>
+<blockquote>"LLaDA effectively breaks the reversal curse with consistent performance across forward and reversal tasks." (p. 3)</blockquote>
+<p>
+<strong>Evidence</strong>: Table 4 - LLaDA achieves 51.8% forward / 45.6% reversal (balanced), while GPT-4o shows 82.7% / 34.3% (huge gap).
+</p>
+<h5>Claim 5: Principled Generative Approach</h5>
+<blockquote>"The loss function in Eq. (3) has been proven to be an upper bound on the negative log-likelihood of the model distribution, making it a principled objective for generative modeling." (p. 3)</blockquote>
+<p>
+<strong>Evidence</strong>: Mathematical proof in Appendix A, referencing prior work [18-20].
+</p>
+<h5>Claim 6: Competitive Performance</h5>
+<blockquote>"LLaDA 8B is competitive with strong LLMs like LLaMA3 8B in in-context learning." (p. 1)</blockquote>
+<p>
+<strong>Evidence</strong>: Table 1 shows LLaDA outperforms on MMLU (65.9 vs 65.4), GSM8K (70.3 vs 48.7), Math (31.4 vs 16.0), and Chinese tasks.
+</p>
+<h4>Implicit Claims</h4>
+<h5>On Data Distribution</h5>
+<p>
+The paper implicitly claims that differences in performance on some tasks (e.g., PIQA, BBH) are due to data distribution differences rather than fundamental model limitations.
+</p>
+<h5>On Efficiency</h5>
+<p>
+The paper does NOT claim LLaDA is faster than ARMs - only that it enables a quality-speed trade-off.
+</p>
+<h4>Claims NOT Made</h4>
+<p>
+The authors are careful NOT to claim:
+</p>
+<ul>
+<li>Diffusion is strictly better than autoregression</li>
+<li>LLaDA is more efficient than ARMs</li>
+<li>All LLM capabilities can be replicated</li>
+</ul>
+        </section>
+
+        <section id="methods">
+            <h2>Methods</h2>
+            <h4>Overview</h4>
+<p>
+LLaDA uses Masked Diffusion Models (MDM) with three main phases:
+</p>
+<ol>
+<li>Pre-training with random masking</li>
+<li>Supervised Fine-Tuning (SFT)</li>
+<li>Inference via reverse diffusion</li>
+</ol>
+<hr>
+<h4>1. Probabilistic Formulation (Section 2.1)</h4>
+<h5>Forward Process</h5>
+<ul>
+<li>Gradually masks tokens independently</li>
+<li>At time t ∈ [0,1]: each token masked with probability t</li>
+<li>At t=0: fully observed data</li>
+<li>At t=1: fully masked sequence</li>
+</ul>
+<pre><code>
+q(xᵢₜ|xᵢ₀) = {1-t if xᵢₜ=xᵢ₀, t if xᵢₜ=M}
+</code></pre>
+<h5>Reverse Process</h5>
+<ul>
+<li>Recovers data by iteratively predicting masked tokens</li>
+<li>Factorizes across all tokens (unlike AR which chains)</li>
+</ul>
+<h5>Training Objective</h5>
+<pre><code>
+L(θ) = -E[t,x₀,xₜ][ (1/t) Σᵢ 1[xᵢₜ=M] log pθ(xᵢ₀|xₜ) ]
+</code></pre>
+<p>
+Key features:
+</p>
+<ul>
+<li>Loss computed ONLY on masked positions</li>
+<li>1/t weighting: upweights low-mask-ratio samples</li>
+<li>Provable upper bound on negative log-likelihood (Eq. 4)</li>
+</ul>
+<hr>
+<h4>2. Pre-training (Section 2.2)</h4>
+<h5>Architecture</h5>
+<ul>
+<li>Standard Transformer (like LLaMA)</li>
+<li><strong>NO causal mask</strong> - sees entire input</li>
+<li>Vanilla multi-head attention (no GQA)</li>
+<li>RMSNorm, SwiGLU, RoPE</li>
+</ul>
+<table>
+<tr><th>Component</th><th>LLaDA 8B</th><th>LLaMA3 8B</th></tr>
+<tr><td>Layers</td><td>32</td><td>32</td></tr>
+<tr><td>Dimension</td><td>4096</td><td>4096</td></tr>
+<tr><td>Heads</td><td>32</td><td>32</td></tr>
+<tr><td>FFN dim</td><td>12,288</td><td>14,336</td></tr>
+<tr><td>KV heads</td><td>32</td><td>8</td></tr>
+</table>
+<h5>Training Data</h5>
+<ul>
+<li>2.3 trillion tokens</li>
+<li>Sources: web, books, papers, social media, encyclopedias, math, code</li>
+<li>Distribution: 11% Chinese, 61% English, 28% code</li>
+<li>Filtering: deduplication, harmful content removal, quality scoring via BERT</li>
+</ul>
+<h5>Training Protocol</h5>
+<ul>
+<li>Sequence length: 4096 tokens</li>
+<li>Batch size: 1280</li>
+<li>Optimizer: AdamW (weight decay 0.1)</li>
+<li>1% of data uses random length [1, 4096] (for variable-length handling)</li>
+</ul>
+<h5>Learning Rate Schedule (p. 4)</h5>
+<ol>
+<li>Warmup: 0 → 4×10⁻⁴ over 2000 iterations</li>
+<li>Stable: 4×10⁻⁴ until 1.2T tokens</li>
+<li>Decay: 4×10⁻⁴ → 1×10⁻⁴, held for 0.8T tokens</li>
+<li>Final decay: 1×10⁻⁴ → 1×10⁻⁵ for last 0.3T tokens</li>
+</ol>
+<h5>Compute</h5>
+<ul>
+<li>0.13 million H800 GPU hours</li>
+<li>~10²³ FLOPs total</li>
+</ul>
+<hr>
+<h4>3. Supervised Fine-Tuning (Section 2.3)</h4>
+<h5>Key Difference from Pre-training</h5>
+<ul>
+<li>Pre-training: mask ANY token in sequence</li>
+<li>SFT: mask ONLY response tokens (prompt unchanged)</li>
+</ul>
+<pre><code>
+Training pair: (p₀, r₀) where p₀=prompt, r₀=response
+
+Loss = -E[t,p₀,r₀,rₜ][ (1/t) Σᵢ 1[rᵢₜ=M] log pθ(rᵢ₀|p₀,rₜ) ]
+</code></pre>
+<h5>SFT Data</h5>
+<ul>
+<li>4.5 million pairs total</li>
+<li>1M human-annotated</li>
+<li>3.5M synthetic (Magpie-style)</li>
+<li>Domains: code, math, instruction-following</li>
+</ul>
+<h5>Dynamic Length Strategy</h5>
+<ul>
+<li>Pad short responses with |EOS| tokens</li>
+<li>|EOS| treated as normal token during training</li>
+<li>Removed during generation</li>
+</ul>
+<h5>Multi-turn Handling</h5>
+<ul>
+<li>n-turn dialogue → n single-turn pairs</li>
+<li>Each pair: (full history, next response)</li>
+<li>Randomly sample one per batch</li>
+</ul>
+<h5>SFT Hyperparameters</h5>
+<ul>
+<li>3 epochs</li>
+<li>LR: 0 → 2.5×10⁻⁵ (warmup 50 iters), then constant</li>
+<li>Final 10%: decay to 2.5×10⁻⁶</li>
+<li>Batch size: 256</li>
+</ul>
+<hr>
+<h4>4. Inference (Section 2.4)</h4>
+<h5>Generation (Reverse Process)</h5>
+<ol>
+<li>Start with fully masked response</li>
+<li>Discretize time: t = 1, 1-1/N, ..., 1/N, 0</li>
+<li>At each step:</li>
+</ol>
+<p>
+   - Predict all masked tokens simultaneously
+    - Remask s/t of predictions (maintaining forward process alignment)
+</p>
+<h5>Remasking Strategies</h5>
+<p>
+<strong>Random Remasking</strong> (Algorithm 4):
+</p>
+<ul>
+<li>Randomly select s/t tokens to remask</li>
+<li>Theoretically correct</li>
+</ul>
+<p>
+<strong>Low-Confidence Remasking</strong> (Algorithm 5):
+</p>
+<ul>
+<li>Remask tokens with LOWEST prediction confidence</li>
+<li>Analogous to annealing in AR sampling</li>
+<li>Better empirical performance</li>
+</ul>
+<h5>Likelihood Evaluation (Eq. 6)</h5>
+<pre><code>
+-E[l,r₀,rₗ][ (L/l) Σᵢ 1[rᵢₗ=M] log pθ(rᵢ₀|p₀,rₗ) ]
+</code></pre>
+<ul>
+<li>l uniformly sampled from {1,2,...,L}</li>
+<li>Lower variance than Eq. (5)</li>
+<li>128 Monte Carlo samples sufficient for stability</li>
+</ul>
+<h5>Hyperparameters</h5>
+<ul>
+<li>Generation length: user-specified (but insensitive per Appendix B.5)</li>
+<li>Sampling steps: trade-off between quality and speed</li>
+<li>CFG scale: optional (not used in main results for fair comparison)</li>
+</ul>
+<hr>
+<h4>5. Evaluation Protocol (Appendix B.6)</h4>
+<h5>Benchmark Categories</h5>
+<ol>
+<li><strong>General</strong>: MMLU, BBH, ARC-C, Hellaswag, TruthfulQA, WinoGrande, PIQA</li>
+<li><strong>Math/Science</strong>: GSM8K, Math, GPQA</li>
+<li><strong>Code</strong>: HumanEval, HumanEval-FIM, MBPP</li>
+<li><strong>Chinese</strong>: CMMLU, C-Eval</li>
+</ol>
+<h5>Evaluation Methods</h5>
+<ul>
+<li><strong>Likelihood-based</strong>: MMLU, CMMLU, C-Eval, ARC-C, Hellaswag, TruthfulQA, WinoGrande, PIQA, GPQA</li>
+<li><strong>Generation-based</strong>: BBH, GSM8K, Math, HumanEval, MBPP</li>
+</ul>
+<h5>Implementation</h5>
+<ul>
+<li>lm-evaluation-harness for base model</li>
+<li>Internal library for instruct model (better alignment with reported results)</li>
+</ul>
+        </section>
+
+        <section id="findings">
+            <h2>Findings</h2>
+            <h4>1. Scalability (Section 3.1, Figure 3)</h4>
+<h5>Finding</h5>
+<p>
+LLaDA scales comparably to autoregressive baselines across 10²⁰ to 10²³ FLOPs.
+</p>
+<h5>Data</h5>
+<table>
+<tr><th>FLOPs</th><th>LLaDA MMLU</th><th>ARM MMLU</th></tr>
+<tr><td>~10²¹</td><td>32%</td><td>34%</td></tr>
+<tr><td>~10²²</td><td>50%</td><td>47%</td></tr>
+<tr><td>~10²³</td><td>59%</td><td>50%</td></tr>
+</table>
+<h5>Key Observations</h5>
+<ul>
+<li>On GSM8K and MMLU: LLaDA shows <strong>stronger</strong> scaling</li>
+<li>On PIQA: LLaDA slightly weaker, but gap narrows at scale</li>
+<li>No evidence of scaling plateau for diffusion models</li>
+</ul>
+<hr>
+<h4>2. Benchmark Performance (Section 3.2, Tables 1-2)</h4>
+<h5>Pre-trained (Base) Model - Table 1</h5>
+<p>
+<strong>LLaDA 8B vs LLaMA3 8B vs LLaMA2 7B</strong>
+</p>
+<table>
+<tr><th>Task</th><th>LLaDA 8B</th><th>LLaMA3 8B</th><th>LLaMA2 7B</th></tr>
+<tr><td>MMLU (5-shot)</td><td><strong>65.9</strong></td><td>65.4</td><td>45.9</td></tr>
+<tr><td>BBH (3-shot)</td><td>49.7</td><td><strong>62.1</strong></td><td>39.4</td></tr>
+<tr><td>ARC-C (0-shot)</td><td>45.9</td><td><strong>53.1</strong></td><td>46.3</td></tr>
+<tr><td>Hellaswag (0-shot)</td><td>70.5</td><td><strong>79.1</strong></td><td>76.0</td></tr>
+<tr><td>GSM8K (4-shot)</td><td><strong>70.3</strong></td><td>48.7</td><td>13.1</td></tr>
+<tr><td>Math (4-shot)</td><td><strong>31.4</strong></td><td>16.0</td><td>4.3</td></tr>
+<tr><td>HumanEval (0-shot)</td><td><strong>35.4</strong></td><td>34.8</td><td>12.8</td></tr>
+<tr><td>CMMLU (5-shot)</td><td><strong>69.9</strong></td><td>50.7</td><td>32.5</td></tr>
+<tr><td>C-Eval (5-shot)</td><td><strong>70.5</strong></td><td>51.7</td><td>34.0</td></tr>
+</table>
+<p>
+<strong>Key insight</strong>: LLaDA excels at math (+21 on GSM8K) and Chinese (+19 on CMMLU) while matching on code.
+</p>
+<h5>Post-trained (Instruct) Model - Table 2</h5>
+<table>
+<tr><th>Task</th><th>LLaDA 8B</th><th>LLaMA3 8B</th><th>LLaMA2 7B</th></tr>
+<tr><td>MMLU (5-shot)</td><td>65.5</td><td><strong>68.4</strong></td><td>44.1</td></tr>
+<tr><td>MMLU-pro (0-shot)</td><td>37.0</td><td><strong>41.9</strong></td><td>4.6</td></tr>
+<tr><td>GSM8K (4-shot)</td><td>69.4</td><td><strong>78.3</strong></td><td>29.0</td></tr>
+<tr><td>Math (0-shot)</td><td><strong>31.9</strong></td><td>29.6</td><td>3.8</td></tr>
+<tr><td>ARC-C (0-shot)</td><td><strong>88.5</strong></td><td>82.4</td><td>57.3</td></tr>
+<tr><td>HumanEval (0-shot)</td><td>49.4</td><td><strong>59.8</strong></td><td>16.5</td></tr>
+</table>
+<p>
+<strong>Note</strong>: LLaMA3 uses SFT+RL, LLaDA uses SFT only.
+</p>
+<hr>
+<h4>3. Reversal Reasoning (Section 3.3, Table 4)</h4>
+<h5>Task</h5>
+<p>
+Chinese poem completion: given one line, predict the adjacent line.
+</p>
+<h5>Results</h5>
+<table>
+<tr><th>Model</th><th>Forward</th><th>Reversal</th><th>Gap</th></tr>
+<tr><td>GPT-4o</td><td><strong>82.7</strong></td><td>34.3</td><td>48.4</td></tr>
+<tr><td>Qwen2.5-7B</td><td>75.9</td><td>38.0</td><td>37.9</td></tr>
+<tr><td>LLaDA 8B</td><td>51.8</td><td><strong>45.6</strong></td><td>6.2</td></tr>
+</table>
+<h5>Key Finding</h5>
+<p>
+LLaDA has near-symmetric performance (6.2 point gap vs 48.4 for GPT-4o).
+</p>
+<hr>
+<h4>4. Sampling Strategies (Section 3.3, Appendix B.4)</h4>
+<h5>Comparison (Table 7 - Base Model)</h5>
+<table>
+<tr><th>Strategy</th><th>BBH</th><th>GSM8K</th><th>HumanEval</th></tr>
+<tr><td>Autoregressive</td><td>38.1</td><td>63.1</td><td>18.3</td></tr>
+<tr><td>Block Diffusion (L=32)</td><td>45.7</td><td>68.6</td><td>29.9</td></tr>
+<tr><td>Pure Diffusion</td><td><strong>49.7</strong></td><td><strong>70.3</strong></td><td><strong>35.4</strong></td></tr>
+</table>
+<h5>Finding</h5>
+<p>
+Pure diffusion consistently outperforms hybrid approaches.
+</p>
+<h5>Remasking Strategy (Table 9)</h5>
+<table>
+<tr><th>Strategy</th><th>BBH</th><th>GSM8K</th><th>HumanEval</th></tr>
+<tr><td>Random</td><td>32.1</td><td>21.3</td><td>11.6</td></tr>
+<tr><td>Low-confidence</td><td><strong>45.0</strong></td><td><strong>70.0</strong></td><td><strong>32.9</strong></td></tr>
+</table>
+<p>
+<strong>Finding</strong>: Low-confidence remasking dramatically improves results.
+</p>
+<hr>
+<h4>5. Generation Length Sensitivity (Table 10)</h4>
+<table>
+<tr><th>Length</th><th>BBH</th><th>GSM8K</th><th>HumanEval</th></tr>
+<tr><td>256</td><td>45.0</td><td>70.0</td><td>32.9</td></tr>
+<tr><td>512</td><td><strong>50.4</strong></td><td><strong>70.8</strong></td><td>32.9</td></tr>
+<tr><td>1024</td><td>49.7</td><td>70.3</td><td><strong>35.4</strong></td></tr>
+</table>
+<p>
+<strong>Finding</strong>: Results are relatively insensitive to generation length hyperparameter.
+</p>
+<hr>
+<h4>6. Efficiency Trade-offs (Figure 5, Table 11)</h4>
+<h5>Speed vs Quality</h5>
+<table>
+<tr><th>Steps</th><th>Tokens/forward</th><th>GSM8K</th><th>Throughput</th></tr>
+<tr><td>256</td><td>1</td><td>70%</td><td>~10 tok/s</td></tr>
+<tr><td>128</td><td>2</td><td>~68%</td><td>~20 tok/s</td></tr>
+<tr><td>64</td><td>4</td><td>~65%</td><td>~40 tok/s</td></tr>
+<tr><td>32</td><td>8</td><td>~60%</td><td>~65 tok/s</td></tr>
+</table>
+<p>
+<strong>Finding</strong>: LLaDA can be 1.5-1.8x faster than LLaMA3 (with KV cache) at comparable performance.
+</p>
+<h5>Memory (Table 11)</h5>
+<table>
+<tr><th>Model</th><th>512 in / 1024 out</th></tr>
+<tr><td>LLaDA 8B</td><td>17.53 GB</td></tr>
+<tr><td>LLaMA3 w/o KV</td><td>17.49 GB</td></tr>
+<tr><td>LLaMA3 w/ KV</td><td>16.43 GB</td></tr>
+</table>
+<p>
+<strong>Finding</strong>: Memory comparable without optimizations, slightly higher than KV-cached LLaMA3.
+</p>
+<hr>
+<h4>7. Classifier-Free Guidance (Table 6)</h4>
+<table>
+<tr><th>Metric</th><th>w/o CFG</th><th>w/ CFG</th></tr>
+<tr><td>ARC-C</td><td>45.9</td><td><strong>47.9</strong></td></tr>
+<tr><td>Hellaswag</td><td>70.5</td><td><strong>72.5</strong></td></tr>
+<tr><td>GPQA</td><td>25.2</td><td><strong>26.1</strong></td></tr>
+</table>
+<p>
+<strong>Finding</strong>: CFG consistently improves LLaDA (but not used in main results for fair comparison).
+</p>
+<hr>
+<h4>8. iGSM (Unseen Math) Results (Table 12)</h4>
+<table>
+<tr><th>Model</th><th>4 steps</th><th>5 steps</th><th>6 steps</th></tr>
+<tr><td>LLaMA3 8B</td><td>38.0</td><td>35.0</td><td>34.0</td></tr>
+<tr><td>LLaDA 8B</td><td><strong>64.0</strong></td><td><strong>41.0</strong></td><td><strong>44.0</strong></td></tr>
+</table>
+<p>
+<strong>Finding</strong>: LLaDA maintains advantage on completely unseen math problems, ruling out data leakage.
+</p>
+<hr>
+<h4>Summary of Key Findings</h4>
+<ol>
+<li><strong>Diffusion scales</strong>: No fundamental barrier to scaling diffusion LMs</li>
+<li><strong>Math advantage</strong>: +21 points on GSM8K vs LLaMA3 (same tokens)</li>
+<li><strong>Chinese advantage</strong>: +19 points on CMMLU</li>
+<li><strong>Reversal symmetry</strong>: 6-point gap vs 48-point gap for GPT-4o</li>
+<li><strong>Pure diffusion wins</strong>: Better than hybrid AR+diffusion approaches</li>
+<li><strong>Low-confidence remasking</strong>: Critical for good performance</li>
+<li><strong>Flexible speed/quality</strong>: Can trade computation for quality smoothly</li>
+</ol>
+        </section>
+
+        <section id="glossary">
+            <h2>Glossary</h2>
+            <h4>Core Concepts</h4>
+<h5>Autoregressive Model (ARM)</h5>
+<p>
+A model that generates sequences one token at a time, left-to-right. Each token is predicted conditioned on all previous tokens: P(x) = P(x₁)·P(x₂|x₁)·P(x₃|x₁,x₂)·...
+ <strong>Examples</strong>: GPT, LLaMA, Claude
+</p>
+<h5>Diffusion Model</h5>
+<p>
+A generative model that learns to reverse a gradual corruption process. In images: add noise → learn to denoise. In text: mask tokens → learn to unmask.
+ <strong>Key property</strong>: Can generate all positions simultaneously rather than sequentially.
+</p>
+<h5>Masked Diffusion Model (MDM)</h5>
+<p>
+A diffusion model for discrete data (like text) that uses masking instead of continuous noise. The forward process masks tokens; the reverse process predicts masked tokens.
+</p>
+<h5>LLaDA (Large Language Diffusion with mAsking)</h5>
+<p>
+The specific 8B parameter masked diffusion model introduced in this paper. Trained from scratch on 2.3T tokens.
+</p>
+<h5>Mask Predictor</h5>
+<p>
+The neural network (Transformer) that takes a partially masked sequence and predicts all masked tokens simultaneously. Core component of LLaDA.
+</p>
+<hr>
+<h4>Architecture Terms</h4>
+<h5>Transformer</h5>
+<p>
+The neural network architecture using self-attention. Foundation of modern LLMs. Introduced in "Attention is All You Need" (2017).
+</p>
+<h5>Causal Mask</h5>
+<p>
+In autoregressive Transformers, prevents tokens from attending to future positions. Creates left-to-right dependency.
+ <strong>LLaDA difference</strong>: No causal mask - all positions can attend to all others.
+</p>
+<h5>Multi-Head Attention (MHA)</h5>
+<p>
+Attention mechanism with multiple parallel attention heads. Each head can learn different attention patterns.
+</p>
+<h5>Grouped Query Attention (GQA)</h5>
+<p>
+Optimization where multiple query heads share key/value heads. Reduces memory for KV cache.
+ <strong>LLaDA</strong>: Uses vanilla MHA, not GQA.
+</p>
+<h5>KV Cache</h5>
+<p>
+Stores computed key/value vectors from previous tokens to avoid recomputation during autoregressive generation.
+ <strong>LLaDA</strong>: Cannot use KV cache due to bidirectional nature.
+</p>
+<h5>RMSNorm</h5>
+<p>
+Root Mean Square Layer Normalization. Simpler alternative to LayerNorm, used in modern LLMs.
+</p>
+<h5>SwiGLU</h5>
+<p>
+Activation function combining Swish and Gated Linear Unit. Used in LLaMA and LLaDA.
+</p>
+<h5>RoPE (Rotary Position Embedding)</h5>
+<p>
+Position encoding method that rotates embeddings based on position. Enables length extrapolation.
+</p>
+<hr>
+<h4>Training Terms</h4>
+<h5>Pre-training</h5>
+<p>
+First phase of LLM training on large unlabeled text corpus. Learns general language understanding.
+</p>
+<h5>Supervised Fine-Tuning (SFT)</h5>
+<p>
+Training on labeled (prompt, response) pairs after pre-training. Teaches instruction-following.
+</p>
+<h5>Reinforcement Learning from Human Feedback (RLHF)</h5>
+<p>
+Post-training method using human preferences to align model behavior.
+ <strong>LLaDA status</strong>: Not yet applied.
+</p>
+<h5>Direct Preference Optimization (DPO)</h5>
+<p>
+Alternative to RLHF that directly optimizes on preference data without reward model.
+</p>
+<h5>Fisher Consistency</h5>
+<p>
+Statistical property ensuring a model can recover true distribution with infinite data and capacity.
+</p>
+<h5>Maximum Likelihood Estimation (MLE)</h5>
+<p>
+Training objective that maximizes probability of training data under the model.
+</p>
+<h5>Evidence Lower Bound (ELBO)</h5>
+<p>
+Lower bound on log-likelihood used as training objective in variational methods. LLaDA's loss is an ELBO.
+</p>
+<hr>
+<h4>Diffusion-Specific Terms</h4>
+<h5>Forward Process</h5>
+<p>
+In diffusion models, the process that gradually corrupts data. For LLaDA: randomly masking tokens with increasing probability.
+</p>
+<h5>Reverse Process</h5>
+<p>
+The learned process that undoes corruption. For LLaDA: predicting masked tokens and gradually unmasking.
+</p>
+<h5>Timestep (t)</h5>
+<p>
+In diffusion, parameter indicating corruption level. t=0: clean data, t=1: fully corrupted.
+</p>
+<h5>Mask Ratio</h5>
+<p>
+Probability that each token is masked at a given timestep. In LLaDA: equals t (uniform in [0,1]).
+</p>
+<h5>Remasking</h5>
+<p>
+During generation, re-masking some predicted tokens before the next step. Allows iterative refinement.
+</p>
+<h5>Low-Confidence Remasking</h5>
+<p>
+Strategy that re-masks tokens with lowest prediction confidence. Better than random remasking.
+</p>
+<h5>Classifier-Free Guidance (CFG)</h5>
+<p>
+Technique to improve generation quality by amplifying conditional signal. Formula: p̃(x|c) ∝ p(x|c)^(1+w) / p(x)^w
+</p>
+<h5>Block Diffusion</h5>
+<p>
+Hybrid approach: autoregressive across blocks, diffusion within blocks.
+</p>
+<hr>
+<h4>Evaluation Terms</h4>
+<h5>Few-Shot Learning</h5>
+<p>
+Evaluation with small number of examples in prompt. E.g., "5-shot" = 5 examples provided.
+</p>
+<h5>Zero-Shot</h5>
+<p>
+Evaluation without any examples - just task description.
+</p>
+<h5>In-Context Learning (ICL)</h5>
+<p>
+Model's ability to learn from examples in the prompt without weight updates.
+</p>
+<h5>Reversal Curse</h5>
+<p>
+Phenomenon where AR models trained on "A is B" can answer "What is A?" but not "What is B?"
+</p>
+<hr>
+<h4>Benchmarks</h4>
+<h5>MMLU (Massive Multitask Language Understanding)</h5>
+<p>
+Multiple-choice questions across 57 subjects. Tests world knowledge.
+</p>
+<h5>GSM8K (Grade School Math 8K)</h5>
+<p>
+8,500 grade school math word problems. Tests basic mathematical reasoning.
+</p>
+<h5>MATH</h5>
+<p>
+Competition-level math problems. Much harder than GSM8K.
+</p>
+<h5>HumanEval</h5>
+<p>
+Code generation benchmark. Model writes Python functions from docstrings.
+</p>
+<h5>MBPP (Mostly Basic Programming Problems)</h5>
+<p>
+974 crowd-sourced Python programming problems.
+</p>
+<h5>BBH (BIG-Bench Hard)</h5>
+<p>
+23 challenging tasks from BIG-Bench requiring multi-step reasoning.
+</p>
+<h5>CMMLU / C-Eval</h5>
+<p>
+Chinese versions of MMLU. Test Chinese language understanding.
+</p>
+<h5>TruthfulQA</h5>
+<p>
+Tests model's tendency to generate false but plausible answers.
+</p>
+<h5>GPQA (Graduate-Level Google-Proof Q&A)</h5>
+<p>
+PhD-level science questions designed to be difficult even with Google access.
+</p>
+<hr>
+<h4>Metrics</h4>
+<h5>Accuracy</h5>
+<p>
+Percentage of correct answers. Used for multiple-choice tasks.
+</p>
+<h5>Pass@k</h5>
+<p>
+In code generation, probability that at least one of k samples passes all tests.
+</p>
+<h5>Throughput</h5>
+<p>
+Tokens generated per second. Measures inference speed.
+</p>
+<h5>FLOPs (Floating Point Operations)</h5>
+<p>
+Measure of computational cost. 10²³ FLOPs ≈ training LLaDA 8B.
+</p>
+<hr>
+<h4>Related Models</h4>
+<h5>LLaMA (Large Language Model Meta AI)</h5>
+<p>
+Meta's open-source LLM family. LLaMA3 8B is main comparison point.
+</p>
+<h5>GPT-4o</h5>
+<p>
+OpenAI's multimodal model. Comparison point for reversal task.
+</p>
+<h5>Qwen</h5>
+<p>
+Alibaba's LLM family. Qwen2.5 used for reversal comparison.
+</p>
+<h5>BERT</h5>
+<p>
+Bidirectional Encoder from Transformers. Uses masked language modeling but fixed 15% mask ratio and not generative.
+</p>
+<h5>MaskGIT</h5>
+<p>
+Masked image generation model using similar principles to LLaDA but for images.
+</p>
+        </section>
+
+        <section id="prereqs">
+            <h2>Prerequisites</h2>
+            <p>
+Knowledge needed to fully understand this paper, organized by importance.
+</p>
+<hr>
+<h4>Essential Prerequisites</h4>
+<h5>1. Transformer Architecture</h5>
+<p>
+<strong>Why needed</strong>: LLaDA uses a Transformer as its backbone.
+</p>
+<p>
+<strong>What to know</strong>:
+</p>
+<ul>
+<li>Self-attention mechanism</li>
+<li>Multi-head attention</li>
+<li>Positional encoding (specifically RoPE)</li>
+<li>Causal vs bidirectional attention masks</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li><a href="https://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a></li>
+<li>Original paper: "Attention Is All You Need" (Vaswani et al., 2017)</li>
+</ul>
+<hr>
+<h5>2. Large Language Models Basics</h5>
+<p>
+<strong>Why needed</strong>: Paper compares to LLaMA, GPT, assumes familiarity.
+</p>
+<p>
+<strong>What to know</strong>:
+</p>
+<ul>
+<li>Pre-training vs fine-tuning paradigm</li>
+<li>Next-token prediction objective</li>
+<li>In-context learning</li>
+<li>Tokenization (BPE, vocabulary)</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li><a href="https://bbycroft.net/llm">LLM Visualization</a></li>
+<li>GPT-2/3 papers for historical context</li>
+</ul>
+<hr>
+<h5>3. Maximum Likelihood Estimation</h5>
+<p>
+<strong>Why needed</strong>: Core training objective is likelihood-based.
+</p>
+<p>
+<strong>What to know</strong>:
+</p>
+<ul>
+<li>What likelihood means for probabilistic models</li>
+<li>KL divergence minimization equivalence</li>
+<li>Why MLE leads to good generative models</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li>Any ML textbook chapter on probabilistic models</li>
+<li>Bishop's Pattern Recognition, Chapter 1-2</li>
+</ul>
+<hr>
+<h4>Important Prerequisites</h4>
+<h5>4. Diffusion Models (Continuous)</h5>
+<p>
+<strong>Why needed</strong>: LLaDA is a discrete analog of image diffusion models.
+</p>
+<p>
+<strong>What to know</strong>:
+</p>
+<ul>
+<li>Forward process (adding noise)</li>
+<li>Reverse process (denoising)</li>
+<li>Score matching / denoising objective</li>
+<li>Sampling via reverse process</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li><a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/">What are Diffusion Models?</a></li>
+<li>DDPM paper (Ho et al., 2020)</li>
+</ul>
+<hr>
+<h5>5. BERT and Masked Language Modeling</h5>
+<p>
+<strong>Why needed</strong>: LLaDA's masking is related to BERT.
+</p>
+<p>
+<strong>What to know</strong>:
+</p>
+<ul>
+<li>Masked language modeling objective</li>
+<li>Why BERT uses 15% masking</li>
+<li>Difference: BERT is discriminative, LLaDA is generative</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li>BERT paper (Devlin et al., 2018)</li>
+<li><a href="https://jalammar.github.io/illustrated-bert/">The Illustrated BERT</a></li>
+</ul>
+<hr>
+<h5>6. Basic Probability Theory</h5>
+<p>
+<strong>Why needed</strong>: Paper involves probabilistic formulations.
+</p>
+<p>
+<strong>What to know</strong>:
+</p>
+<ul>
+<li>Conditional probability: P(A|B)</li>
+<li>Marginalization</li>
+<li>Expectation and variance</li>
+<li>Monte Carlo estimation</li>
+</ul>
+<hr>
+<h4>Helpful But Optional</h4>
+<h5>7. Variational Inference</h5>
+<p>
+<strong>Why needed</strong>: Training loss is an evidence lower bound (ELBO).
+</p>
+<p>
+<strong>What to know</strong>:
+</p>
+<ul>
+<li>Variational bounds on likelihood</li>
+<li>Why ELBO is useful for intractable likelihoods</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li>Kingma & Welling's VAE tutorial</li>
+</ul>
+<hr>
+<h5>8. Scaling Laws for LLMs</h5>
+<p>
+<strong>Why needed</strong>: Paper discusses scalability claims.
+</p>
+<p>
+<strong>What to know</strong>:
+</p>
+<ul>
+<li>Chinchilla scaling laws</li>
+<li>Compute-optimal training</li>
+<li>Emergent capabilities</li>
+</ul>
+<p>
+<strong>Resources</strong>:
+</p>
+<ul>
+<li>"Scaling Laws for Neural Language Models" (Kaplan et al., 2020)</li>
+<li>"Training Compute-Optimal Large Language Models" (Hoffmann et al., 2022)</li>
+</ul>
+<hr>
+<h5>9. Evaluation Benchmarks</h5>
+<p>
+<strong>Why needed</strong>: Results are reported on standard benchmarks.
+</p>
+<p>
+<strong>What to know</strong>:
+</p>
+<ul>
+<li>MMLU: Knowledge testing</li>
+<li>GSM8K: Math reasoning</li>
+<li>HumanEval: Code generation</li>
+<li>Few-shot evaluation protocol</li>
+</ul>
+<hr>
+<h5>10. Discrete Diffusion Models</h5>
+<p>
+<strong>Why needed</strong>: LLaDA builds on this line of work.
+</p>
+<p>
+<strong>Key papers</strong>:
+</p>
+<ul>
+<li>D3PM (Austin et al., 2021)</li>
+<li>MDLM (Sahoo et al., 2024)</li>
+<li>"Simplified and Generalized Masked Diffusion" (Shi et al., 2024)</li>
+</ul>
+<hr>
+<h4>Quick Refresher Formulas</h4>
+<h5>Autoregressive Factorization</h5>
+<pre><code>
+P(x₁, x₂, ..., xₙ) = P(x₁) · P(x₂|x₁) · P(x₃|x₁,x₂) · ... · P(xₙ|x₁,...,xₙ₋₁)
+</code></pre>
+<h5>KL Divergence</h5>
+<pre><code>
+KL(p||q) = E_p[log(p/q)] = E_p[log p] - E_p[log q]
+</code></pre>
+<h5>Maximum Likelihood = KL Minimization</h5>
+<pre><code>
+max_θ E_data[log p_θ(x)] ⟺ min_θ KL(p_data || p_θ)
+</code></pre>
+<h5>Cross-Entropy Loss</h5>
+<pre><code>
+L = -Σᵢ y_i · log(p_i)
+</code></pre>
+<hr>
+<h4>Estimated Background Study Time</h4>
+<table>
+<tr><th>Topic</th><th>If unfamiliar</th><th>If rusty</th></tr>
+<tr><td>Transformers</td><td>4-6 hours</td><td>1-2 hours</td></tr>
+<tr><td>LLM basics</td><td>3-4 hours</td><td>1 hour</td></tr>
+<tr><td>Diffusion models</td><td>4-6 hours</td><td>2 hours</td></tr>
+<tr><td>BERT</td><td>2 hours</td><td>30 min</td></tr>
+<tr><td>Probability review</td><td>2-3 hours</td><td>30 min</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>15-21 hours</strong></td><td><strong>5-6 hours</strong></td></tr>
+</table>
+<hr>
+<h4>Minimum Viable Understanding</h4>
+<p>
+To grasp the main contributions, you need at least:
+</p>
+<ol>
+<li>What autoregressive LLMs do (next-token prediction)</li>
+<li>Basic idea of diffusion (corrupt → learn to uncorrupt)</li>
+<li>What a Transformer is (attention-based neural network)</li>
+</ol>
+<p>
+Everything else enhances understanding but isn't strictly required for the high-level message.
+</p>
+        </section>
+
+        <section id="questions">
+            <h2>Questions</h2>
+            <h4>Foundational Questions</h4>
+<ol>
+<li><strong>Why might autoregression have dominated?</strong> What made left-to-right generation seem like the "obvious" choice for language models?</li>
+</ol>
+<ol>
+<li><strong>What's the key insight?</strong> The paper argues that generative modeling principles matter more than the specific formulation. Can you articulate why this distinction matters?</li>
+</ol>
+<ol>
+<li><strong>What does "Fisher consistency" mean for LLMs?</strong> Why is this statistical property relevant to scalability?</li>
+</ol>
+<h4>Technical Questions</h4>
+<ol>
+<li><strong>Why does LLaDA use a variable mask ratio (t ~ U[0,1]) instead of BERT's fixed 15%?</strong> What's the theoretical justification?</li>
+</ol>
+<ol>
+<li><strong>Why is the loss weighted by 1/t?</strong> What happens if you remove this weighting?</li>
+</ol>
+<ol>
+<li><strong>How does the "reverse process" relate to the "forward process" mathematically?</strong> Why must they be aligned?</li>
+</ol>
+<ol>
+<li><strong>Why can't LLaDA use KV cache?</strong> What architectural changes would be needed?</li>
+</ol>
+<ol>
+<li><strong>How does low-confidence remasking improve results so dramatically?</strong> (Table 9: 21.3% → 70.0% on GSM8K)</li>
+</ol>
+<h4>Comparative Questions</h4>
+<ol>
+<li><strong>Why might LLaDA outperform on math tasks specifically?</strong> (+21 points on GSM8K vs LLaMA3)</li>
+</ol>
+<ol>
+<li><strong>What explains LLaDA's weaker performance on BBH and Hellaswag?</strong> Is it fundamental or fixable?</li>
+</ol>
+<ol>
+<li><strong>How does LLaDA's training compute (0.13M H800 hours) compare to LLaMA3?</strong> Is this a fair comparison?</li>
+</ol>
+<ol>
+<li><strong>Why doesn't the paper use RLHF?</strong> Is this a limitation or a fair baseline choice?</li>
+</ol>
+<h4>Critical Questions</h4>
+<ol>
+<li><strong>Is the reversal task a meaningful benchmark?</strong> How often do real applications need reversal reasoning?</li>
+</ol>
+<ol>
+<li><strong>The paper compares different training data sizes</strong> (LLaDA: 2.3T vs LLaMA3: 15T). How does this affect conclusions?</li>
+</ol>
+<ol>
+<li><strong>What would happen if LLaDA was trained with AR sampling during training?</strong> Would it learn similar representations?</li>
+</ol>
+<h4>Implications Questions</h4>
+<ol>
+<li><strong>What does this mean for future LLM architectures?</strong> Should new models consider diffusion?</li>
+</ol>
+<ol>
+<li><strong>Could the bidirectional nature help with tasks like:</strong></li>
+</ol>
+<p>
+    - Code infilling?
+     - Machine translation?
+     - Dialogue coherence?
+</p>
+<ol>
+<li><strong>How might RL alignment work for diffusion models?</strong> What's fundamentally different?</li>
+</ol>
+<h4>Meta Questions</h4>
+<ol>
+<li><strong>Why was this paper accepted to NeurIPS 2025?</strong> What makes it scientifically significant?</li>
+</ol>
+<ol>
+<li><strong>What's the most surprising finding?</strong> What did you not expect before reading?</li>
+</ol>
+<ol>
+<li><strong>What's missing from this paper?</strong> What experiments would strengthen the claims?</li>
+</ol>
+<hr>
+<h4>Questions for Discussion</h4>
+<ul>
+<li>If diffusion models can match autoregressive models, why hasn't this been done before at this scale?</li>
+</ul>
+<ul>
+<li>Does this paper change how we should think about the "scaling laws" literature?</li>
+</ul>
+<ul>
+<li>What would it take for industry to adopt diffusion language models?</li>
+</ul>
+<ul>
+<li>Is there a principled way to combine the best of both paradigms?</li>
+</ul>
+        </section>
+
+        <section id="quiz">
+            <h2>Quiz</h2>
+            <p>
+Test your understanding of the LLaDA paper. Try to answer before revealing.
+</p>
+<hr>
+<h4>Basic Understanding</h4>
+<h5>Q1: What does LLaDA stand for?</h5>
+<details>
+<summary>Answer</summary>
+<p>
+<strong>Large Language Diffusion with mAsking</strong>
+</p>
+<p>
+The "A" in "mAsking" gives the stylized capitalization.
+</p>
+</details>
+<hr>
+<h5>Q2: How many parameters does the largest LLaDA model have?</h5>
+<details>
+<summary>Answer</summary>
+<p>
+<strong>8 billion (8B) parameters</strong>
+</p>
+<p>
+They also trained a 1B version for scaling studies.
+</p>
+</details>
+<hr>
+<h5>Q3: What is the main difference between LLaDA's forward process and BERT's masking?</h5>
+<details>
+<summary>Answer</summary>
+<p>
+<strong>BERT uses a fixed 15% mask ratio, while LLaDA uses a variable ratio t ~ U[0,1]</strong>
+</p>
+<p>
+This variable ratio is crucial because:
+</p>
+<ol>
+<li>It makes the loss an upper bound on negative log-likelihood</li>
+<li>The model learns to predict at all corruption levels</li>
+<li>It enables proper generative modeling (not just discriminative)</li>
+</ol>
+</details>
+<hr>
+<h4>Technical Questions</h4>
+<h5>Q4: Why is the training loss weighted by 1/t?</h5>
+<details>
+<summary>Answer</summary>
+<p>
+<strong>Because when t is small (few masks), each masked token carries more information.</strong>
+</p>
+<p>
+The weighting ensures the loss is an upper bound on negative log-likelihood:
+ <code>-E[log pθ(x₀)] ≤ L(θ)</code>
+</p>
+<p>
+Without this weighting (like MaskGIT), there's no theoretical link to maximum likelihood.
+</p>
+</details>
+<hr>
+<h5>Q5: What is "low-confidence remasking" and why is it important?</h5>
+<details>
+<summary>Answer</summary>
+<p>
+<strong>A sampling strategy that re-masks the tokens with lowest prediction confidence at each step.</strong>
+</p>
+<p>
+Instead of randomly choosing which tokens to remask, it keeps the most confident predictions and resamples the uncertain ones.
+</p>
+<p>
+Importance: Improves GSM8K from 21.3% (random) to 70.0% (low-confidence) - a 3x improvement!
+</p>
+<p>
+It's analogous to temperature/nucleus sampling in autoregressive models.
+</p>
+</details>
+<hr>
+<h5>Q6: Why can't LLaDA use KV cache?</h5>
+<details>
+<summary>Answer</summary>
+<p>
+<strong>Because LLaDA is bidirectional - each position attends to ALL other positions.</strong>
+</p>
+<p>
+KV cache works for autoregressive models because:
+</p>
+<ul>
+<li>Token N only needs keys/values from tokens 1 to N-1</li>
+<li>These don't change when generating token N+1</li>
+</ul>
+<p>
+In LLaDA:
+</p>
+<ul>
+<li>Every token attends to every other token</li>
+<li>When any token changes, all attention patterns change</li>
+<li>Cannot reuse previous computations</li>
+</ul>
+</details>
+<hr>
+<h4>Results Questions</h4>
+<h5>Q7: On which task does LLaDA most dramatically outperform LLaMA3 8B?</h5>
+<details>
+<summary>Answer</summary>
+<p>
+<strong>GSM8K (math): 70.3% vs 48.7% - a 21.6 point advantage</strong>
+</p>
+<p>
+Also strong on:
+</p>
+<ul>
+<li>MATH: 31.4% vs 16.0% (+15.4)</li>
+<li>CMMLU: 69.9% vs 50.7% (+19.2)</li>
+<li>C-Eval: 70.5% vs 51.7% (+18.8)</li>
+</ul>
+</details>
+<hr>
+<h5>Q8: What is the "reversal curse" and how does LLaDA address it?</h5>
+<details>
+<summary>Answer</summary>
+<p>
+<strong>The reversal curse</strong>: AR models trained on "A is B" can answer "What is A?" → "B" but struggle with "What is B?" → "A"
+</p>
+<p>
+<strong>How LLaDA addresses it</strong>: Its bidirectional nature means it has no inherent forward bias.
+</p>
+<p>
+Evidence (Chinese poem completion):
+</p>
+<ul>
+<li>GPT-4o: 82.7% forward, 34.3% reversal (48.4 point gap)</li>
+<li>LLaDA: 51.8% forward, 45.6% reversal (6.2 point gap)</li>
+</ul>
+<p>
+LLaDA is nearly symmetric!
+</p>
+</details>
+<hr>
+<h5>Q9: Which sampling strategy performs best for LLaDA: autoregressive, block diffusion, or pure diffusion?</h5>
+<details>
+<summary>Answer</summary>
+<p>
+<strong>Pure diffusion</strong> performs best overall.
+</p>
+<p>
+Results on BBH / GSM8K / HumanEval:
+</p>
+<ul>
+<li>Autoregressive: 38.1 / 63.1 / 18.3</li>
+<li>Block Diffusion (L=32): 45.7 / 68.6 / 29.9</li>
+<li>Pure Diffusion: 49.7 / 70.3 / 35.4</li>
+</ul>
+<p>
+Interestingly, LLaDA can do AR sampling without retraining - but diffusion is better.
+</p>
+</details>
+<hr>
+<h4>Critical Thinking</h4>
+<h5>Q10: The paper compares LLaDA (2.3T tokens) to LLaMA3 (15T tokens). Is this fair?</h5>
+<details>
+<summary>Answer</summary>
+<p>
+<strong>It's complicated.</strong>
+</p>
+<p>
+Arguments it's unfair to LLaDA:
+</p>
+<ul>
+<li>LLaMA3 has 6.5x more training data</li>
+<li>Data quality may also differ</li>
+<li>LLaMA3 uses SFT+RL, LLaDA uses SFT only</li>
+</ul>
+<p>
+Arguments it's fair:
+</p>
+<ul>
+<li>Both are trained to convergence</li>
+<li>The scaling analysis (Figure 3) uses same data for both</li>
+<li>The paper's claim is "diffusion CAN work" not "diffusion is better"</li>
+</ul>
+<p>
+The most rigorous comparison is Figure 3, which controls for data.
+</p>
+</details>
+<hr>
+<h4>Bonus Question</h4>
+<h5>Q11: What is the theoretical connection between LLaDA and Any-Order Autoregressive Models (AO-ARM)?</h5>
+<details>
+<summary>Answer</summary>
+<p>
+<strong>LLaDA's training objective is mathematically equivalent to training an any-order autoregressive model.</strong>
+</p>
+<p>
+An AO-ARM models all possible factorization orders:
+</p>
+<ul>
+<li>Standard AR: P(x₁)P(x₂|x₁)P(x₃|x₁,x₂)... (fixed order)</li>
+<li>AO-ARM: P(xπ(1))P(xπ(2)|xπ(1))... for ANY permutation π</li>
+</ul>
+<p>
+The masked input xₜ in LLaDA can be thought of as the prefix x^{π(<i)} in some order.
+</p>
+<p>
+This explains why LLaDA handles reversal tasks well - it's trained on ALL orderings, not just left-to-right.
+</p>
+</details>
+<hr>
+<h4>Scoring</h4>
+<ul>
+<li>8-11 correct: Excellent understanding! Ready for deep dive</li>
+<li>5-7 correct: Good grasp of main concepts</li>
+<li>2-4 correct: Review the summary and tutorial</li>
+<li>0-1 correct: Start with eli5.md</li>
+</ul>
+        </section>
+
+        <section id="related">
+            <h2>Related Work</h2>
+            <p>
+Key papers from the references, organized by relevance.
+</p>
+<hr>
+<h4>Foundational: Masked Diffusion Models</h4>
+<h5><a href="https://arxiv.org/abs/2107.03006">Austin et al., 2021 - D3PM</a></h5>
+<p>
+"Structured denoising diffusion models in discrete state-spaces"
+</p>
+<ul>
+<li><strong>Contribution</strong>: First discrete diffusion models for language</li>
+<li><strong>Relevance</strong>: Theoretical foundation for LLaDA</li>
+<li><strong>Key idea</strong>: Absorbing state (mask) transition kernels</li>
+</ul>
+<h5><a href="https://arxiv.org/abs/2406.04329">Shi et al., 2024</a></h5>
+<p>
+"Simplified and generalized masked diffusion for discrete data"
+</p>
+<ul>
+<li><strong>Contribution</strong>: Simplified training objective, theoretical analysis</li>
+<li><strong>Relevance</strong>: Directly motivates LLaDA's loss function</li>
+<li><strong>Key idea</strong>: Time-free parameterization</li>
+</ul>
+<h5><a href="https://arxiv.org/abs/2406.07524">Sahoo et al., 2024 - MDLM</a></h5>
+<p>
+"Simple and effective masked diffusion language models"
+</p>
+<ul>
+<li><strong>Contribution</strong>: Practical masked diffusion at GPT-2 scale</li>
+<li><strong>Relevance</strong>: Shows masked diffusion can work for language</li>
+<li><strong>Key idea</strong>: Simplified implementation details</li>
+</ul>
+<h5><a href="https://arxiv.org/abs/2406.03736">Ou et al., 2024</a></h5>
+<p>
+"Your absorbing discrete diffusion secretly models the conditional distributions of clean data"
+</p>
+<ul>
+<li><strong>Contribution</strong>: Theoretical insight on what MDMs actually learn</li>
+<li><strong>Relevance</strong>: Explains LLaDA's bidirectional capabilities</li>
+<li><strong>Key idea</strong>: MDM = any-order autoregressive model</li>
+</ul>
+<h5><a href="https://arxiv.org/abs/2410.18514">Nie et al., 2024</a></h5>
+<p>
+"Scaling up masked diffusion models on text"
+</p>
+<ul>
+<li><strong>Contribution</strong>: Scaling laws for MDM, GPT-2 scale experiments</li>
+<li><strong>Relevance</strong>: Precursor to LLaDA, same first author</li>
+<li><strong>Key idea</strong>: MDM needs ~16x compute to match ARM likelihood</li>
+</ul>
+<hr>
+<h4>Autoregressive Baselines</h4>
+<h5><a href="https://arxiv.org/abs/2407.21783">Dubey et al., 2024 - LLaMA 3</a></h5>
+<p>
+"The llama 3 herd of models"
+</p>
+<ul>
+<li><strong>Relevance</strong>: Main comparison point for LLaDA</li>
+<li><strong>Key stats</strong>: 8B model, 15T tokens, SFT+RLHF</li>
+</ul>
+<h5><a href="https://arxiv.org/abs/2307.09288">Touvron et al., 2023 - LLaMA 2</a></h5>
+<p>
+"Llama 2: Open foundation and fine-tuned chat models"
+</p>
+<ul>
+<li><strong>Relevance</strong>: Secondary comparison, 7B/2T tokens</li>
+</ul>
+<h5><a href="https://arxiv.org/abs/2005.14165">Brown et al., 2020 - GPT-3</a></h5>
+<p>
+"Language models are few-shot learners"
+</p>
+<ul>
+<li><strong>Relevance</strong>: Established AR paradigm, in-context learning</li>
+<li><strong>Key insight</strong>: Scale enables emergent capabilities</li>
+</ul>
+<hr>
+<h4>Diffusion Models for Images</h4>
+<h5><a href="https://arxiv.org/abs/2212.09748">Peebles & Xie, 2023 - DiT</a></h5>
+<p>
+"Scalable diffusion models with transformers"
+</p>
+<ul>
+<li><strong>Relevance</strong>: Shows diffusion + Transformers scale for images</li>
+<li><strong>Key insight</strong>: Architecture matters less than scale</li>
+</ul>
+<h5><a href="https://arxiv.org/abs/2202.04200">Chang et al., 2022 - MaskGIT</a></h5>
+<p>
+"Masked generative image transformer"
+</p>
+<ul>
+<li><strong>Relevance</strong>: Parallel work on masked generation for images</li>
+<li><strong>Key difference</strong>: MaskGIT lacks 1/t weighting (heuristic objective)</li>
+</ul>
+<h5><a href="https://arxiv.org/abs/2207.12598">Ho & Salimans, 2022</a></h5>
+<p>
+"Classifier-free diffusion guidance"
+</p>
+<ul>
+<li><strong>Relevance</strong>: CFG technique used in LLaDA (Appendix B.3)</li>
+<li><strong>Key idea</strong>: Amplify conditional signal without classifier</li>
+</ul>
+<hr>
+<h4>Reversal Curse</h4>
+<h5><a href="https://arxiv.org/abs/2309.12288">Berglund et al., 2023</a></h5>
+<p>
+"The reversal curse: LLMs trained on 'A is B' fail to learn 'B is A'"
+</p>
+<ul>
+<li><strong>Relevance</strong>: Identifies problem LLaDA naturally solves</li>
+<li><strong>Key finding</strong>: AR models have asymmetric knowledge</li>
+</ul>
+<h5><a href="https://arxiv.org/abs/2311.09677">Allen-Zhu & Li, 2023</a></h5>
+<p>
+"Physics of Language Models: Part 3.2, Knowledge Manipulation"
+</p>
+<ul>
+<li><strong>Relevance</strong>: Evaluation protocol for reversal tasks</li>
+<li><strong>Key contribution</strong>: Chinese poem completion benchmark</li>
+</ul>
+<hr>
+<h4>Alternative Approaches to Language Diffusion</h4>
+<h5><a href="https://arxiv.org/abs/2205.14217">Li et al., 2022 - Diffusion-LM</a></h5>
+<p>
+"Diffusion-LM improves controllable text generation"
+</p>
+<ul>
+<li><strong>Approach</strong>: Continuous embeddings, not discrete tokens</li>
+<li><strong>Limitation</strong>: Doesn't scale well</li>
+</ul>
+<h5><a href="https://arxiv.org/abs/2305.18619">Gulrajani & Hashimoto, 2024</a></h5>
+<p>
+"Likelihood-based diffusion language models"
+</p>
+<ul>
+<li><strong>Key finding</strong>: Continuous diffusion needs 64x compute vs ARM</li>
+<li><strong>Implication</strong>: Discrete (masked) diffusion is more efficient</li>
+</ul>
+<h5><a href="https://arxiv.org/abs/2503.09573">Arriola et al., 2025 - Block Diffusion</a></h5>
+<p>
+"Block diffusion: Interpolating between autoregressive and diffusion"
+</p>
+<ul>
+<li><strong>Relevance</strong>: Hybrid approach tested in LLaDA</li>
+<li><strong>Finding</strong>: LLaDA with pure diffusion still beats block diffusion</li>
+</ul>
+<hr>
+<h4>Training Techniques</h4>
+<h5><a href="https://arxiv.org/abs/2404.06395">Hu et al., 2024 - MiniCPM</a></h5>
+<p>
+"Unveiling the potential of small language models with scalable training strategies"
+</p>
+<ul>
+<li><strong>Relevance</strong>: Warmup-Stable-Decay learning rate schedule</li>
+<li><strong>Adopted by</strong>: LLaDA</li>
+</ul>
+<h5><a href="https://arxiv.org/abs/1711.05101">Loshchilov & Hutter, 2017 - AdamW</a></h5>
+<p>
+"Decoupled weight decay regularization"
+</p>
+<ul>
+<li><strong>Relevance</strong>: Optimizer used for LLaDA</li>
+</ul>
+<h5>Architecture Components</h5>
+<ul>
+<li><a href="https://arxiv.org/abs/1910.07467">RMSNorm</a> (Zhang & Sennrich)</li>
+<li><a href="https://arxiv.org/abs/2002.05202">SwiGLU</a> (Shazeer)</li>
+<li><a href="https://arxiv.org/abs/2104.09864">RoPE</a> (Su et al.)</li>
+</ul>
+<hr>
+<h4>Evaluation Benchmarks</h4>
+<h5><a href="https://arxiv.org/abs/2009.03300">Hendrycks et al., 2020 - MMLU</a></h5>
+<p>
+"Measuring massive multitask language understanding"
+</p>
+<h5><a href="https://arxiv.org/abs/2110.14168">Cobbe et al., 2021 - GSM8K</a></h5>
+<p>
+"Training verifiers to solve math word problems"
+</p>
+<h5><a href="https://arxiv.org/abs/2107.03374">Chen et al., 2021 - HumanEval</a></h5>
+<p>
+"Evaluating large language models trained on code"
+</p>
+<h5><a href="https://arxiv.org/abs/2407.20311">Ye et al., 2024 - iGSM</a></h5>
+<p>
+"Physics of Language Models: Part 2.1, Grade-School Math"
+</p>
+<ul>
+<li><strong>Relevance</strong>: Unseen math benchmark used to verify no data leakage</li>
+</ul>
+<hr>
+<h4>Future Directions (Referenced)</h4>
+<h5><a href="https://arxiv.org/abs/2203.02155">Ouyang et al., 2022 - RLHF</a></h5>
+<p>
+"Training language models to follow instructions with human feedback"
+</p>
+<ul>
+<li><strong>Relevance</strong>: Alignment method LLaDA hasn't used yet</li>
+</ul>
+<h5><a href="https://arxiv.org/abs/2305.18290">Rafailov et al., 2024 - DPO</a></h5>
+<p>
+"Direct preference optimization"
+</p>
+<ul>
+<li><strong>Relevance</strong>: Alternative alignment approach</li>
+</ul>
+<h5><a href="https://openai.com/index/learning-to-reason-with-llms/">OpenAI, 2024 - o1</a></h5>
+<p>
+"Learning to reason with LLMs"
+</p>
+<ul>
+<li><strong>Relevance</strong>: Reasoning systems LLaDA could potentially enable</li>
+</ul>
+<hr>
+<h4>Quick Reference Table</h4>
+<table>
+<tr><th>Paper</th><th>Year</th><th>Key Contribution</th><th>Relevance to LLaDA</th></tr>
+<tr><td><a href="https://arxiv.org/abs/2107.03006">D3PM</a></td><td>2021</td><td>Discrete diffusion</td><td>Theoretical foundation</td></tr>
+<tr><td><a href="https://arxiv.org/abs/2202.04200">MaskGIT</a></td><td>2022</td><td>Masked image generation</td><td>Parallel approach</td></tr>
+<tr><td><a href="https://arxiv.org/abs/2407.21783">LLaMA 3</a></td><td>2024</td><td>8B AR baseline</td><td>Main comparison</td></tr>
+<tr><td><a href="https://arxiv.org/abs/2406.04329">Shi et al.</a></td><td>2024</td><td>Simplified MDM theory</td><td>Training objective</td></tr>
+<tr><td><a href="https://arxiv.org/abs/2406.07524">Sahoo et al.</a></td><td>2024</td><td>Practical MDLM</td><td>Implementation insights</td></tr>
+<tr><td><a href="https://arxiv.org/abs/2410.18514">Nie et al.</a></td><td>2024</td><td>MDM scaling laws</td><td>Scaling analysis</td></tr>
+<tr><td><a href="https://arxiv.org/abs/2503.09573">Block Diffusion</a></td><td>2025</td><td>Hybrid AR+diffusion</td><td>Alternative approach</td></tr>
+</table>
+        </section>
+
+        <section id="context">
+            <h2>Research Context</h2>
+            <h4>The Research Landscape</h4>
+<h5>Timeline of Relevant Work</h5>
+<pre><code>
+2017: Transformers (Vaswani et al.)
+      └─&gt; Foundation for all modern LLMs
+
+2018: GPT-1 + BERT
+      ├─&gt; GPT: Autoregressive pre-training
+      └─&gt; BERT: Bidirectional, masked LM (but not generative)
+
+2019-2020: GPT-2, GPT-3, Scaling Laws
+      └─&gt; Established autoregression as THE paradigm
+
+2020: DDPM (Ho et al.)
+      └─&gt; Modern diffusion models for images
+
+2021: D3PM (Austin et al.)
+      └─&gt; Discrete diffusion for text (first serious attempt)
+
+2022: Stable Diffusion, DALL-E 2
+      └─&gt; Diffusion dominates image generation
+
+2023: LLaMA, GPT-4, Claude
+      └─&gt; 7B-70B+ autoregressive models everywhere
+      └─&gt; Reversal curse identified (Berglund et al.)
+
+2024: MDLM, Simplified Masked Diffusion
+      └─&gt; Theoretical foundations for masked diffusion
+      └─&gt; Small-scale (&lt;1B) language experiments
+
+2025: LLaDA (This Paper)
+      └─&gt; First 8B diffusion language model
+      └─&gt; Challenges ARM necessity assumption
+</code></pre>
+<hr>
+<h4>Positioning in the Literature</h4>
+<h5>What Came Before</h5>
+<p>
+<strong>Discrete Diffusion for Language (Small Scale)</strong>
+</p>
+<ul>
+<li>D3PM (Austin et al., 2021): First discrete diffusion, complex transitions</li>
+<li>MDLM (Sahoo et al., 2024): Simplified to masked diffusion</li>
+<li>Shi et al., 2024: Theoretical foundations</li>
+<li>Nie et al., 2024: Scaling laws for MDM (up to 10²⁰ FLOPs)</li>
+</ul>
+<p>
+<strong>Continuous Diffusion for Language</strong>
+</p>
+<ul>
+<li>Diffusion-LM (Li et al., 2022): Continuous embeddings</li>
+<li>PLANNER, SSD-LM, etc.: Various continuous approaches</li>
+<li>Problem: 64x compute overhead vs ARM at 1B scale (Gulrajani & Hashimoto, 2024)</li>
+</ul>
+<p>
+<strong>Why Previous Work Was Limited</strong>
+</p>
+<ol>
+<li>Small scale (≤1B parameters)</li>
+<li>Heuristic objectives (MaskGIT-style)</li>
+<li>No proper maximum likelihood connection</li>
+<li>Limited benchmark evaluation</li>
+</ol>
+<h5>What LLaDA Adds</h5>
+<ol>
+<li><strong>Scale</strong>: First 8B diffusion LM (10x previous)</li>
+<li><strong>Rigor</strong>: Principled likelihood-bound objective</li>
+<li><strong>Comprehensiveness</strong>: Full LLM pipeline (pre-train + SFT + eval)</li>
+<li><strong>Performance</strong>: Matches LLaMA3 8B on many tasks</li>
+</ol>
+<hr>
+<h4>Parallel Research Threads</h4>
+<h5>Bidirectional Models</h5>
+<ul>
+<li>BERT (2018): Bidirectional but not generative</li>
+<li>XLNet (2019): Permutation language modeling</li>
+<li>LLaDA: Bidirectional AND generative</li>
+</ul>
+<h5>Non-Autoregressive Generation</h5>
+<ul>
+<li>NAT (2018): Machine translation</li>
+<li>Insertion Transformer (2019)</li>
+<li>CTC-based models</li>
+<li>LLaDA: First competitive NAR language model at scale</li>
+</ul>
+<h5>Diffusion in Other Domains</h5>
+<ul>
+<li>Images: Stable Diffusion, DALL-E 2/3</li>
+<li>Video: Sora (OpenAI)</li>
+<li>Audio: AudioLDM</li>
+<li>Protein: ESM-IF</li>
+<li>LLaDA: Brings diffusion to language at competitive scale</li>
+</ul>
+<hr>
+<h4>Competing Paradigms</h4>
+<pre><code>
+┌─────────────────────────────────────────────────────────┐
+│                Language Model Paradigms                  │
+├──────────────┬──────────────┬────────────┬──────────────┤
+│ Autoregress  │  Diffusion   │ Retrieval  │   Hybrid     │
+│              │              │  Augment   │              │
+├──────────────┼──────────────┼────────────┼──────────────┤
+│ GPT-4        │ LLaDA        │ RAG        │ Block        │
+│ LLaMA        │ (This paper) │ RETRO      │ Diffusion    │
+│ Claude       │              │            │              │
+│ Gemini       │              │            │              │
+├──────────────┼──────────────┼────────────┼──────────────┤
+│ Dominant     │ Emerging     │ Practical  │ Experimental │
+│ (99%+ usage) │ (research)   │ (deployed) │              │
+└──────────────┴──────────────┴────────────┴──────────────┘
+</code></pre>
+<hr>
+<h4>Why This Paper Matters Now</h4>
+<h5>Theoretical Significance</h5>
+<ul>
+<li>Disproves: "AR is necessary for LLM capabilities"</li>
+<li>Proves: "Generative principles + Transformers + Scale suffice"</li>
+</ul>
+<h5>Practical Implications</h5>
+<ol>
+<li><strong>Bidirectional tasks</strong>: Code infilling, translation</li>
+<li><strong>No reversal curse</strong>: Knowledge retrieval from any direction</li>
+<li><strong>Speed-quality tradeoff</strong>: Fewer steps for faster inference</li>
+<li><strong>New research direction</strong>: Diffusion LLM techniques</li>
+</ol>
+<h5>Industry Context</h5>
+<ul>
+<li>No major lab has deployed diffusion LLMs</li>
+<li>OpenAI, Anthropic, Google all use autoregressive</li>
+<li>This paper suggests they might be missing opportunities</li>
+</ul>
+<hr>
+<h4>Citation Network</h4>
+<h5>Key Papers LLaDA Builds On</h5>
+<ul>
+<li>[16] Austin et al., D3PM (discrete diffusion foundations)</li>
+<li>[17] Lou et al., MDLM (ratio estimation approach)</li>
+<li>[18] Shi et al. (simplified masked diffusion)</li>
+<li>[19] Sahoo et al. (effective masked diffusion)</li>
+<li>[20] Ou et al. (conditional distribution insight)</li>
+<li>[27] Nie et al. (scaling laws for MDM)</li>
+</ul>
+<h5>Papers That Will Cite LLaDA</h5>
+<ul>
+<li>Future diffusion LLM work</li>
+<li>Hybrid AR-diffusion models</li>
+<li>Bidirectional reasoning research</li>
+<li>LLM efficiency research</li>
+<li>Alignment for non-AR models</li>
+</ul>
+<hr>
+<h4>Open Questions in the Field</h4>
+<ol>
+<li><strong>What's the optimal paradigm?</strong></li>
+</ol>
+<p>
+   - Pure AR? Pure diffusion? Hybrid?
+</p>
+<ol>
+<li><strong>Can diffusion scale to 100B+?</strong></li>
+</ol>
+<p>
+   - No fundamental barrier identified
+</p>
+<ol>
+<li><strong>How does RL alignment work for diffusion?</strong></li>
+</ol>
+<p>
+   - Unexplored territory
+</p>
+<ol>
+<li><strong>Will industry adopt diffusion LLMs?</strong></li>
+</ol>
+<p>
+   - Depends on demonstrating clear advantages
+</p>
+<hr>
+<h4>Reading Order Suggestion</h4>
+<h5>Before This Paper</h5>
+<ol>
+<li>Original Transformer paper (skim attention section)</li>
+<li>GPT-2/3 paper (understand AR paradigm)</li>
+<li>DDPM paper (understand diffusion intuition)</li>
+<li>Shi et al., 2024 (masked diffusion theory)</li>
+</ol>
+<h5>After This Paper</h5>
+<ol>
+<li>Block Diffusion (Arriola et al., 2025)</li>
+<li>Mercury (concurrent work on diffusion for code)</li>
+<li>Any RLHF paper (to understand what LLaDA is missing)</li>
+</ol>
+        </section>
+
+        <section id="highlights">
+            <h2>Highlights</h2>
+            <p>
+Page references based on arXiv version 2502.09992v3.
+</p>
+<hr>
+<h4>Central Thesis</h4>
+<blockquote>"We argue that the answer is not a simple 'yes'. The key insight overlooked previously is: It is the <strong>generative modeling principles</strong> (i.e., Eq. (1)), rather than the <strong>autoregressive formulation</strong> (i.e., Eq. (2)) itself, that fundamentally underpin the essential properties of LLMs."</blockquote>
+<blockquote>— p. 2</blockquote>
+<hr>
+<h4>On Scalability</h4>
+<blockquote>"We argue that scalability is primarily a consequence of the interplay between Transformers, model size, data size, and Fisher consistency induced by the generative principles in Eq. (1), rather than a unique result of the ARMs in Eq. (2)."</blockquote>
+<blockquote>— p. 2</blockquote>
+<blockquote>"LLaDA scales effectively to a compute budget of 10²³ FLOPs, achieving comparable results to ARM baselines trained on the same data across six tasks."</blockquote>
+<blockquote>— p. 2</blockquote>
+<hr>
+<h4>On In-Context Learning</h4>
+<blockquote>"The instruction-following and in-context learning capabilities appear to be intrinsic properties of all conditional generative models on structurally consistent linguistic tasks, rather than exclusive advantages of ARMs."</blockquote>
+<blockquote>— p. 2</blockquote>
+<hr>
+<h4>On the Reversal Curse</h4>
+<blockquote>"Certain inherent limitations of LLMs can be directly attributed to their autoregressive nature. For instance, the left-to-right generation process restricts their ability to handle reversal reasoning tasks."</blockquote>
+<blockquote>— p. 2</blockquote>
+<blockquote>"We did not design anything special for reversal tasks. Intuitively, LLaDA treats tokens uniformly without inductive bias, leading to balanced performance."</blockquote>
+<blockquote>— p. 9</blockquote>
+<hr>
+<h4>On the Training Objective</h4>
+<blockquote>"The loss function in Eq. (3) has been proven to be an upper bound on the negative log-likelihood of the model distribution, making it a principled objective for generative modeling."</blockquote>
+<blockquote>— p. 3</blockquote>
+<blockquote>"MaskGIT adopts a heuristic training objective, which misses the 1/t term compared to Eq. (3), and lacks a theoretical link to maximum likelihood. We emphasize that it is precisely the theoretical foundation of maximum likelihood estimation that motivated us to scale discrete diffusion models."</blockquote>
+<blockquote>— p. 4</blockquote>
+<hr>
+<h4>On Architecture Choices</h4>
+<blockquote>"LLaDA does not use a causal mask, as its formulation allows it to see the entire input for predictions."</blockquote>
+<blockquote>— p. 4</blockquote>
+<blockquote>"We use vanilla multi-head attention instead of grouped query attention for simplicity, as LLaDA is incompatible with KV caching."</blockquote>
+<blockquote>— p. 4</blockquote>
+<hr>
+<h4>On Sampling Strategies</h4>
+<blockquote>"The low-confidence remasking strategy, where s/t of predicted tokens with the lowest confidence are remasked based on the predictions."</blockquote>
+<blockquote>— p. 5</blockquote>
+<blockquote>"Nevertheless, the diffusion sampling (i.e., the reverse generation process) yields the best performance and is adopted as the default throughout this paper."</blockquote>
+<blockquote>— p. 5</blockquote>
+<hr>
+<h4>On Results</h4>
+<blockquote>"Remarkably, LLaDA 8B is competitive with strong LLMs like LLaMA3 8B in in-context learning and, after SFT, exhibits impressive instruction-following abilities."</blockquote>
+<blockquote>— p. 1</blockquote>
+<blockquote>"LLaDA 8B Base demonstrates remarkable performance, surpassing LLaMA2 7B Base on nearly all tasks, and is overall competitive with LLaMA3 8B Base."</blockquote>
+<blockquote>— p. 6</blockquote>
+<blockquote>"Notably, it outperforms GPT-4o in a reversal poem completion task."</blockquote>
+<blockquote>— p. 1</blockquote>
+<hr>
+<h4>On Efficiency</h4>
+<blockquote>"LLaDA enables a flexible trade-off between generation quality and speed."</blockquote>
+<blockquote>— p. 9</blockquote>
+<blockquote>"On the GSM8K and Math datasets, LLaDA 8B Base achieves comparable performance to LLaMA3 8B Base while delivering 1.5 and 1.8 times higher throughput, even though LLaMA3 uses KV Cache and LLaDA operates without any inference optimization techniques."</blockquote>
+<blockquote>— p. 27</blockquote>
+<hr>
+<h4>On Limitations</h4>
+<blockquote>"The generation length is a user-specified hyperparameter. Although LLaDA is insensitive to this hyperparameter... we believe that adopting an adaptive generation length would offer a more efficient solution."</blockquote>
+<blockquote>— p. 10</blockquote>
+<blockquote>"LLaDA has yet to undergo alignment with reinforcement learning, which is crucial for improving its performance and alignment with human intent."</blockquote>
+<blockquote>— p. 10</blockquote>
+<hr>
+<h4>On Future Impact</h4>
+<blockquote>"Our findings show the promise of diffusion models for language modeling at scale and challenge the common assumption that core LLM capabilities discussed above inherently depend on ARMs."</blockquote>
+<blockquote>— p. 1</blockquote>
+<blockquote>"These results represent a new paradigm for language modeling and uncover novel insights, demonstrating a high degree of scientific innovation."</blockquote>
+<blockquote>— p. 10</blockquote>
+<hr>
+<h4>Notable Statistics</h4>
+<blockquote>"LLaDA 8B was pre-trained from scratch on 2.3 trillion tokens using 0.13 million H800 GPU hours."</blockquote>
+<blockquote>— p. 2</blockquote>
+<blockquote>"The SFT experiment was executed once, without any hyperparameter tuning."</blockquote>
+<blockquote>— p. 5</blockquote>
+<blockquote>"Pure diffusion sampling achieves the best overall performance."</blockquote>
+<blockquote>— p. 9 (Table 7)</blockquote>
+<hr>
+<h4>Memorable Examples</h4>
+<h5>Chinese Poem Completion (p. 8)</h5>
+<table>
+<tr><th>Model</th><th>Forward</th><th>Reversal</th></tr>
+<tr><td>GPT-4o</td><td>82.7%</td><td>34.3%</td></tr>
+<tr><td>LLaDA 8B</td><td>51.8%</td><td><strong>45.6%</strong></td></tr>
+</table>
+<h5>Math Performance (p. 7)</h5>
+<table>
+<tr><th>Model</th><th>GSM8K</th></tr>
+<tr><td>LLaMA3 8B</td><td>48.7%</td></tr>
+<tr><td>LLaDA 8B</td><td><strong>70.3%</strong></td></tr>
+</table>
+<h5>Remasking Strategy Impact (p. 25)</h5>
+<table>
+<tr><th>Strategy</th><th>GSM8K</th></tr>
+<tr><td>Random</td><td>21.3%</td></tr>
+<tr><td>Low-confidence</td><td><strong>70.0%</strong></td></tr>
+</table>
+        </section>
+
+        <section id="limitations">
+            <h2>Limitations</h2>
+            <h4>Author-Acknowledged Limitations (Section 5)</h4>
+<h5>1. Generation Length as Hyperparameter</h5>
+<blockquote>"The generation length is a user-specified hyperparameter. Although LLaDA is insensitive to this hyperparameter... we believe that adopting an adaptive generation length would offer a more efficient solution."</blockquote>
+<p>
+<strong>Impact</strong>: Users must guess appropriate output length upfront. Too short → truncated output. Too long → wasted computation.
+</p>
+<h5>2. Limited Direct Comparison at Scale</h5>
+<blockquote>"Due to computational constraints, direct comparisons between LLaDA and ARMs—such as training on identical datasets—were restricted to a computational budget of less than 10²³ FLOPs."</blockquote>
+<p>
+<strong>Impact</strong>: The 8B comparison uses different data for ARM baselines (LLaMA3 trained on 15T tokens vs LLaDA on 2.3T).
+</p>
+<h5>3. No ARM Baseline at Same Scale</h5>
+<blockquote>"To allocate resources for training the largest possible LLaDA model and showcasing its potential, we were unable to scale the ARM baseline to the same extent."</blockquote>
+<p>
+<strong>Impact</strong>: Direct apples-to-apples comparison at 8B scale is missing.
+</p>
+<h5>4. No Specialized Architecture Optimizations</h5>
+<blockquote>"No specialized attention mechanisms or position embeddings were designed for LLaDA, nor were any system-level architectural optimizations such as KV cache applied."</blockquote>
+<p>
+<strong>Impact</strong>:
+</p>
+<ul>
+<li>No KV cache → potentially slower inference</li>
+<li>Generic architecture → room for diffusion-specific improvements</li>
+</ul>
+<h5>5. Preliminary Sampling Algorithms</h5>
+<blockquote>"On the inference side, more efficient and controllable sampling algorithms remain preliminary."</blockquote>
+<p>
+<strong>Impact</strong>: Current sampling may not be optimal; better algorithms could improve both quality and speed.
+</p>
+<h5>6. No Reinforcement Learning Alignment</h5>
+<blockquote>"LLaDA has yet to undergo alignment with reinforcement learning, which is crucial for improving its performance and alignment with human intent."</blockquote>
+<p>
+<strong>Impact</strong>: Instruct model performance gap vs LLaMA3 may partly be due to missing RLHF/DPO.
+</p>
+<hr>
+<h4>Limitations Identified by Reader</h4>
+<h5>7. Inference Speed Claims Need Context</h5>
+<ul>
+<li>Speed comparisons show LLaDA can be faster, but only when trading quality</li>
+<li>At same quality, unclear if actually faster</li>
+<li>No batched inference comparison</li>
+</ul>
+<h5>8. Task-Specific Performance Gaps</h5>
+<ul>
+<li>BBH: 49.7 vs 62.1 (LLaMA3) - significant gap</li>
+<li>Hellaswag: 70.5 vs 79.1 - notable gap</li>
+<li>PIQA: 73.6 vs 80.6 - consistent underperformance</li>
+</ul>
+<p>
+These aren't explained beyond "data differences."
+</p>
+<h5>9. |EOS| Token Handling Complexity</h5>
+<ul>
+<li>Heavy padding with |EOS| in SFT data causes generation issues</li>
+<li>Requires confidence-zeroing hack for some tasks</li>
+<li>More elegant solution needed</li>
+</ul>
+<h5>10. Multi-turn Dialogue Evaluation</h5>
+<ul>
+<li>Only qualitative examples provided</li>
+<li>No systematic multi-turn benchmark results</li>
+<li>Unclear how well context retention scales</li>
+</ul>
+<h5>11. Code Generation Gap</h5>
+<ul>
+<li>HumanEval instruct: 49.4 vs 59.8 (LLaMA3)</li>
+<li>MBPP: 41.0 vs 57.6</li>
+<li>Significant gap not fully explained</li>
+</ul>
+<h5>12. Reproducibility Concerns</h5>
+<ul>
+<li>Training data not public</li>
+<li>Internal evaluation library for some metrics</li>
+<li>Some hyperparameters selected "without tuning" but results may still be lucky</li>
+</ul>
+<h5>13. Theoretical Limitations</h5>
+<ul>
+<li>Sampling is approximate (discretized reverse process)</li>
+<li>Gap between training objective and true likelihood unknown</li>
+<li>Optimal number of diffusion steps task-dependent</li>
+</ul>
+<hr>
+<h4>Future Work Needed (per authors)</h4>
+<ol>
+<li>Scale beyond 8B parameters</li>
+<li>Apply RLHF/DPO alignment</li>
+<li>Explore multimodal capabilities</li>
+<li>Design diffusion-specific architectures</li>
+<li>Investigate O1-style reasoning</li>
+<li>Integration into agent systems</li>
+<li>Study impact on prompt tuning techniques</li>
+</ol>
+        </section>
+
+        <section id="disagreements">
+            <h2>Disagreements</h2>
+            <p>
+Critical analysis of claims, methodology, and conclusions.
+</p>
+<hr>
+<h4>Methodological Concerns</h4>
+<h5>1. Unfair Data Comparison</h5>
+<p>
+<strong>Issue</strong>: LLaDA (2.3T tokens) vs LLaMA3 (15T tokens)
+</p>
+<p>
+The headline comparisons in Tables 1-2 compare models trained on vastly different amounts of data. LLaMA3 has 6.5x more training tokens.
+</p>
+<p>
+<strong>Counter-argument</strong>: The scaling analysis (Figure 3) uses identical data. But the most cited results are from tables with different data.
+</p>
+<p>
+<strong>Question</strong>: Would LLaDA match LLaMA3 if trained on 15T tokens? We don't know.
+</p>
+<hr>
+<h5>2. Missing ARM Baseline at 8B Scale</h5>
+<p>
+<strong>Issue</strong>: No autoregressive model was trained with identical setup at 8B.
+</p>
+<p>
+The 7B ARM baseline uses different hyperparameters (batch size 4224 vs 1280, selected via grid search). The claim that "no hyperparameter tuning" was done for LLaDA loses meaning when the comparison isn't apples-to-apples.
+</p>
+<p>
+<strong>Question</strong>: Is the ARM scaling curve in Figure 3 optimal? Would tuned ARM do better?
+</p>
+<hr>
+<h5>3. Cherry-Picked Benchmarks?</h5>
+<p>
+<strong>Issue</strong>: Strong results highlighted, weak results downplayed.
+</p>
+<p>
+LLaDA shines on:
+</p>
+<ul>
+<li>GSM8K (+21 vs LLaMA3)</li>
+<li>Chinese tasks (+19)</li>
+</ul>
+<p>
+LLaDA struggles on:
+</p>
+<ul>
+<li>BBH (-12 vs LLaMA3)</li>
+<li>Hellaswag (-9)</li>
+<li>PIQA (-7)</li>
+</ul>
+<p>
+The paper attributes weaknesses to "data differences" without evidence.
+</p>
+<p>
+<strong>Question</strong>: Are the strong results due to LLaDA or due to training data having more math/Chinese?
+</p>
+<hr>
+<h5>4. No RLHF is a Significant Gap</h5>
+<p>
+<strong>Issue</strong>: Comparing SFT-only LLaDA to SFT+RLHF LLaMA3/GPT-4.
+</p>
+<p>
+The instruct model comparisons are unfair because LLaMA3 has additional RL alignment. The paper acknowledges this but still draws conclusions about relative performance.
+</p>
+<p>
+<strong>Question</strong>: How much of the instruct gap would close with proper alignment?
+</p>
+<hr>
+<h4>Statistical Concerns</h4>
+<h5>5. Single Training Run</h5>
+<p>
+<strong>Issue</strong>: "The 8B experiment was executed once, without any hyperparameter tuning."
+</p>
+<p>
+While this is admirable honesty, it means we have no error bars. The results could be lucky or unlucky.
+</p>
+<p>
+<strong>Question</strong>: How much variance is there across seeds at this scale?
+</p>
+<hr>
+<h5>6. iGSM Results Need More Samples</h5>
+<p>
+<strong>Issue</strong>: Only 100 samples per difficulty level in Table 12.
+</p>
+<p>
+100 samples gives ±10% confidence intervals. The differences (64% vs 38%) are significant, but the variance is unknown.
+</p>
+<hr>
+<h4>Theoretical Questions</h4>
+<h5>7. The 1/t Weighting Story</h5>
+<p>
+<strong>Issue</strong>: The paper emphasizes the importance of 1/t weighting (vs MaskGIT), but doesn't show ablation.
+</p>
+<p>
+<strong>Question</strong>: How much does performance drop without 1/t weighting? Is it as crucial as claimed?
+</p>
+<hr>
+<h5>8. Why Does Math Work So Well?</h5>
+<p>
+<strong>Issue</strong>: The paper hypothesizes bidirectional context helps math but doesn't prove it.
+</p>
+<p>
+Alternative explanations:
+</p>
+<ul>
+<li>Training data has more math</li>
+<li>Random variation</li>
+<li>Something about tokenization</li>
+</ul>
+<p>
+<strong>Question</strong>: Can we isolate why math improves? Controlled experiments needed.
+</p>
+<hr>
+<h4>Presentation Concerns</h4>
+<h5>9. Reversal Task May Be Niche</h5>
+<p>
+<strong>Issue</strong>: The Chinese poem completion task is very specific.
+</p>
+<p>
+While it demonstrates the reversal curse, most real applications don't require reversal reasoning. The practical impact may be limited.
+</p>
+<p>
+<strong>Question</strong>: Are there more realistic reversal scenarios where LLaDA helps?
+</p>
+<hr>
+<h5>10. Speed Claims Need Context</h5>
+<p>
+<strong>Issue</strong>: "1.5-1.8x faster than LLaMA3" but at reduced quality.
+</p>
+<p>
+The speed comparison cherry-picks favorable settings. At equal quality, is LLaDA actually faster? Probably not.
+</p>
+<p>
+<strong>Question</strong>: What's the Pareto frontier for speed vs quality?
+</p>
+<hr>
+<h4>Reproducibility Concerns</h4>
+<h5>11. Training Data Not Released</h5>
+<p>
+<strong>Issue</strong>: "Data are derived from online corpora" with filtering described vaguely.
+</p>
+<p>
+Without data release, results cannot be fully reproduced. The strength on Chinese/math could be entirely data-driven.
+</p>
+<hr>
+<h5>12. Internal Evaluation Library</h5>
+<p>
+<strong>Issue</strong>: Some metrics use an internal evaluation library "that better aligns with reported results."
+</p>
+<p>
+This is concerning - why do different libraries give different results? Which is correct?
+</p>
+<hr>
+<h4>Open Questions for Authors</h4>
+<ol>
+<li><strong>Data ablation</strong>: Train LLaDA and ARM on identical data at 8B scale?</li>
+</ol>
+<ol>
+<li><strong>Component importance</strong>: Ablate 1/t weighting, low-confidence remasking, etc.?</li>
+</ol>
+<ol>
+<li><strong>Math investigation</strong>: Why specifically does math improve? Can you prove causation?</li>
+</ol>
+<ol>
+<li><strong>Alignment path</strong>: What's the plan for RLHF? Any preliminary results?</li>
+</ol>
+<ol>
+<li><strong>Speed parity</strong>: At what quality level does LLaDA match ARM speed?</li>
+</ol>
+<hr>
+<h4>What Would Change My Mind</h4>
+<p>
+<strong>Stronger positive evidence:</strong>
+</p>
+<ul>
+<li>Same training data, same compute, still competitive</li>
+<li>70B+ scale with maintained advantages</li>
+<li>RLHF-aligned version matching RLHF ARMs</li>
+</ul>
+<p>
+<strong>Weaker claims:</strong>
+</p>
+<ul>
+<li>"Diffusion CAN work" (proven) vs "Diffusion is BETTER" (not proven)</li>
+<li>The paper mostly makes the weaker claim, which is fair</li>
+</ul>
+<hr>
+<h4>Overall Assessment</h4>
+<p>
+The paper makes a <strong>valid and important contribution</strong>: showing diffusion can scale for language.
+</p>
+<p>
+However, the <strong>stronger interpretation</strong> (LLaDA matches/beats ARMs) relies on:
+</p>
+<ul>
+<li>Favorable benchmark selection</li>
+<li>Ignoring data differences</li>
+<li>Comparing apples to oranges (SFT vs SFT+RLHF)</li>
+</ul>
+<p>
+The <strong>weaker interpretation</strong> (diffusion is viable at scale) is well-supported.
+</p>
+        </section>
+
+        <section id="future-work">
+            <h2>Future Work</h2>
+            <h4>Directions Suggested by Authors (Section 5)</h4>
+<h5>1. Scaling Studies</h5>
+<blockquote>"Both the model scale and the amount of training data for LLaDA remain smaller than those of leading ARM counterparts [6, 26, 92–95], highlighting the need for further scaling to fully evaluate its capabilities."</blockquote>
+<p>
+<strong>Questions to answer:</strong>
+</p>
+<ul>
+<li>Does LLaDA continue to scale at 70B, 400B parameters?</li>
+<li>What's the optimal compute allocation (model size vs data)?</li>
+<li>Are there emergent capabilities unique to diffusion LLMs?</li>
+</ul>
+<h5>2. Reinforcement Learning Alignment</h5>
+<blockquote>"LLaDA has yet to undergo alignment with reinforcement learning [90, 91], which is crucial for improving its performance and alignment with human intent."</blockquote>
+<p>
+<strong>Research needed:</strong>
+</p>
+<ul>
+<li>Adapt RLHF for non-autoregressive models</li>
+<li>Design reward models compatible with bidirectional generation</li>
+<li>Explore DPO (Direct Preference Optimization) for diffusion</li>
+</ul>
+<h5>3. Multimodal Extension</h5>
+<blockquote>"LLaDA's ability to process multi-modal data remains unexplored."</blockquote>
+<p>
+<strong>Potential directions:</strong>
+</p>
+<ul>
+<li>Unified text-image diffusion (like CM3Leon)</li>
+<li>Audio-text models</li>
+<li>Video understanding/generation</li>
+</ul>
+<h5>4. Architectural Optimizations</h5>
+<blockquote>"No specialized attention mechanisms or position embeddings were designed for LLaDA, nor were any system-level architectural optimizations such as KV cache applied."</blockquote>
+<p>
+<strong>Ideas:</strong>
+</p>
+<ul>
+<li>Design diffusion-specific attention patterns</li>
+<li>Explore alternatives to KV cache for bidirectional models</li>
+<li>Investigate Flash Attention compatibility</li>
+</ul>
+<h5>5. Efficient Sampling</h5>
+<blockquote>"More efficient and controllable [37, 88, 89] sampling algorithms remain preliminary."</blockquote>
+<p>
+<strong>Research directions:</strong>
+</p>
+<ul>
+<li>Consistency models for LLaDA (single-step generation)</li>
+<li>Adaptive timestep scheduling</li>
+<li>Distillation for fewer steps</li>
+</ul>
+<h5>6. Agent Integration</h5>
+<blockquote>"Its impact on prompt tuning techniques [96] and integration into agent-based systems [97, 98] is still not fully understood."</blockquote>
+<p>
+<strong>Questions:</strong>
+</p>
+<ul>
+<li>How does bidirectional generation affect chain-of-thought?</li>
+<li>Can LLaDA be used in tool-using agents?</li>
+<li>Implications for retrieval-augmented generation?</li>
+</ul>
+<h5>7. O1-Style Reasoning</h5>
+<blockquote>"A systematic investigation into post-training for LLaDA (e.g., O1-like systems [99, 100]) is needed to further unlock the potential of diffusion language models."</blockquote>
+<p>
+<strong>Key question:</strong> Can diffusion models do extended reasoning with thinking tokens?
+</p>
+<hr>
+<h4>Reader-Proposed Research Directions</h4>
+<h5>8. Hybrid Architectures</h5>
+<p>
+Combine benefits of AR and diffusion:
+</p>
+<ul>
+<li>AR for prefix, diffusion for suffix</li>
+<li>Dynamic switching based on task</li>
+<li>Speculative decoding with diffusion verification</li>
+</ul>
+<h5>9. Theoretical Understanding</h5>
+<ul>
+<li>Why does LLaDA excel at math specifically?</li>
+<li>What is the relationship between mask ratio and learned representations?</li>
+<li>Can we prove tighter bounds on the training objective?</li>
+</ul>
+<h5>10. Application-Specific Optimization</h5>
+<ul>
+<li>Code generation: leverage bidirectional context for infilling</li>
+<li>Machine translation: natural fit for non-monotonic alignment</li>
+<li>Dialogue: use bidirectionality for better coherence</li>
+</ul>
+<h5>11. Controllable Generation</h5>
+<ul>
+<li>How does guidance (CFG) affect different capabilities?</li>
+<li>Can we steer generation direction more precisely?</li>
+<li>Attribute control via partial masking</li>
+</ul>
+<h5>12. Efficiency Research</h5>
+<ul>
+<li>Sparse attention for long sequences</li>
+<li>Pruning strategies for diffusion transformers</li>
+<li>Quantization impact on diffusion sampling</li>
+</ul>
+<h5>13. Robustness Studies</h5>
+<ul>
+<li>Adversarial robustness of diffusion vs AR models</li>
+<li>Hallucination rates comparison</li>
+<li>Out-of-distribution generalization</li>
+</ul>
+<h5>14. Training Dynamics</h5>
+<ul>
+<li>What does the loss curve look like for diffusion LLMs?</li>
+<li>How do different layers contribute to denoising?</li>
+<li>Curriculum learning for mask ratios?</li>
+</ul>
+<hr>
+<h4>High-Impact Open Problems</h4>
+<ol>
+<li><strong>Adaptive generation length</strong>: Dynamically determine output length without user specification</li>
+</ol>
+<ol>
+<li><strong>Unified pre-training</strong>: Single objective that naturally handles both understanding and generation</li>
+</ol>
+<ol>
+<li><strong>Diffusion-native alignment</strong>: RL methods designed for bidirectional models from scratch</li>
+</ol>
+<ol>
+<li><strong>Real-time applications</strong>: Make diffusion LLMs fast enough for interactive use</li>
+</ol>
+<ol>
+<li><strong>Interpretability</strong>: Understand how diffusion models "think" compared to AR models</li>
+</ol>
+        </section>
+    </main>
+</body>
+</html>
