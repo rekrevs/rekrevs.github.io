@@ -1128,19 +1128,19 @@ Pure diffusion consistently outperforms hybrid approaches.
         <section id="glossary">
             <h2>Glossary</h2>
             <h4>Core Concepts</h4>
-<h5>Autoregressive Model (ARM)</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Autoregressive_model">Autoregressive Model</a> (ARM)</h5>
 <p>
 A model that generates sequences one token at a time, left-to-right. Each token is predicted conditioned on all previous tokens: P(x) = P(x₁)·P(x₂|x₁)·P(x₃|x₁,x₂)·...
- <strong>Examples</strong>: GPT, LLaMA, Claude
+ <strong>Examples</strong>: <a href="https://en.wikipedia.org/wiki/Generative_pre-trained_transformer">GPT</a>, <a href="https://en.wikipedia.org/wiki/Llama_(language_model">LLaMA</a>), <a href="https://en.wikipedia.org/wiki/Claude_(language_model">Claude</a>)
 </p>
-<h5>Diffusion Model</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Diffusion_model">Diffusion Model</a></h5>
 <p>
-A generative model that learns to reverse a gradual corruption process. In images: add noise → learn to denoise. In text: mask tokens → learn to unmask.
+A <a href="https://en.wikipedia.org/wiki/Generative_model">generative model</a> that learns to reverse a gradual corruption process. In images: add <a href="https://en.wikipedia.org/wiki/Gaussian_noise">noise</a> → learn to <a href="https://en.wikipedia.org/wiki/Noise_reduction">denoise</a>. In text: mask tokens → learn to unmask.
  <strong>Key property</strong>: Can generate all positions simultaneously rather than sequentially.
 </p>
 <h5>Masked Diffusion Model (MDM)</h5>
 <p>
-A diffusion model for discrete data (like text) that uses masking instead of continuous noise. The forward process masks tokens; the reverse process predicts masked tokens.
+A <a href="https://en.wikipedia.org/wiki/Diffusion_model">diffusion model</a> for discrete data (like text) that uses masking instead of continuous noise. The forward process masks tokens; the reverse process predicts masked tokens.
 </p>
 <h5>LLaDA (Large Language Diffusion with mAsking)</h5>
 <p>
@@ -1148,81 +1148,81 @@ The specific 8B parameter masked diffusion model introduced in this paper. Train
 </p>
 <h5>Mask Predictor</h5>
 <p>
-The neural network (Transformer) that takes a partially masked sequence and predicts all masked tokens simultaneously. Core component of LLaDA.
+The <a href="https://en.wikipedia.org/wiki/Artificial_neural_network">neural network</a> (<a href="https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture">Transformer</a>)) that takes a partially masked sequence and predicts all masked tokens simultaneously. Core component of LLaDA.
 </p>
 <hr>
 <h4>Architecture Terms</h4>
-<h5>Transformer</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture">Transformer</a>)</h5>
 <p>
-The neural network architecture using self-attention. Foundation of modern LLMs. Introduced in "Attention is All You Need" (2017).
+The neural network architecture using <a href="https://en.wikipedia.org/wiki/Attention_(machine_learning">self-attention</a>). Foundation of modern LLMs. Introduced in "<a href="https://arxiv.org/abs/1706.03762">Attention is All You Need</a>" (2017).
 </p>
 <h5>Causal Mask</h5>
 <p>
-In autoregressive Transformers, prevents tokens from attending to future positions. Creates left-to-right dependency.
+In <a href="https://en.wikipedia.org/wiki/Autoregressive_model">autoregressive</a> Transformers, prevents tokens from attending to future positions. Creates left-to-right dependency.
  <strong>LLaDA difference</strong>: No causal mask - all positions can attend to all others.
 </p>
-<h5>Multi-Head Attention (MHA)</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Attention_(machine_learning">Multi-Head Attention</a>#Multi-head_attention) (MHA)</h5>
 <p>
-Attention mechanism with multiple parallel attention heads. Each head can learn different attention patterns.
+<a href="https://en.wikipedia.org/wiki/Attention_(machine_learning">Attention mechanism</a>) with multiple parallel attention heads. Each head can learn different attention patterns.
 </p>
-<h5>Grouped Query Attention (GQA)</h5>
+<h5><a href="https://arxiv.org/abs/2305.13245">Grouped Query Attention</a> (GQA)</h5>
 <p>
 Optimization where multiple query heads share key/value heads. Reduces memory for KV cache.
  <strong>LLaDA</strong>: Uses vanilla MHA, not GQA.
 </p>
-<h5>KV Cache</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Cache_(computing">KV Cache</a>)</h5>
 <p>
 Stores computed key/value vectors from previous tokens to avoid recomputation during autoregressive generation.
  <strong>LLaDA</strong>: Cannot use KV cache due to bidirectional nature.
 </p>
-<h5>RMSNorm</h5>
+<h5><a href="https://arxiv.org/abs/1910.07467">RMSNorm</a></h5>
 <p>
-Root Mean Square Layer Normalization. Simpler alternative to LayerNorm, used in modern LLMs.
+Root Mean Square <a href="https://en.wikipedia.org/wiki/Layer_normalization">Layer Normalization</a>. Simpler alternative to LayerNorm, used in modern LLMs.
 </p>
-<h5>SwiGLU</h5>
+<h5><a href="https://arxiv.org/abs/2002.05202">SwiGLU</a></h5>
 <p>
-Activation function combining Swish and Gated Linear Unit. Used in LLaMA and LLaDA.
+<a href="https://en.wikipedia.org/wiki/Activation_function">Activation function</a> combining <a href="https://en.wikipedia.org/wiki/Swish_function">Swish</a> and Gated Linear Unit. Used in LLaMA and LLaDA.
 </p>
-<h5>RoPE (Rotary Position Embedding)</h5>
+<h5><a href="https://arxiv.org/abs/2104.09864">RoPE</a> (Rotary Position Embedding)</h5>
 <p>
-Position encoding method that rotates embeddings based on position. Enables length extrapolation.
+<a href="https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture">Position encoding</a>#Positional_encoding) method that rotates embeddings based on position. Enables length extrapolation.
 </p>
 <hr>
 <h4>Training Terms</h4>
-<h5>Pre-training</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Pre-training">Pre-training</a></h5>
 <p>
 First phase of LLM training on large unlabeled text corpus. Learns general language understanding.
 </p>
-<h5>Supervised Fine-Tuning (SFT)</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Fine-tuning_(deep_learning">Supervised Fine-Tuning</a>) (SFT)</h5>
 <p>
 Training on labeled (prompt, response) pairs after pre-training. Teaches instruction-following.
 </p>
-<h5>Reinforcement Learning from Human Feedback (RLHF)</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Reinforcement_learning_from_human_feedback">Reinforcement Learning from Human Feedback</a> (RLHF)</h5>
 <p>
 Post-training method using human preferences to align model behavior.
  <strong>LLaDA status</strong>: Not yet applied.
 </p>
-<h5>Direct Preference Optimization (DPO)</h5>
+<h5><a href="https://arxiv.org/abs/2305.18290">Direct Preference Optimization</a> (DPO)</h5>
 <p>
 Alternative to RLHF that directly optimizes on preference data without reward model.
 </p>
-<h5>Fisher Consistency</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Fisher_consistency">Fisher Consistency</a></h5>
 <p>
 Statistical property ensuring a model can recover true distribution with infinite data and capacity.
 </p>
-<h5>Maximum Likelihood Estimation (MLE)</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Maximum_likelihood_estimation">Maximum Likelihood Estimation</a> (MLE)</h5>
 <p>
 Training objective that maximizes probability of training data under the model.
 </p>
-<h5>Evidence Lower Bound (ELBO)</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Evidence_lower_bound">Evidence Lower Bound</a> (ELBO)</h5>
 <p>
-Lower bound on log-likelihood used as training objective in variational methods. LLaDA's loss is an ELBO.
+Lower bound on <a href="https://en.wikipedia.org/wiki/Likelihood_function">log-likelihood</a> used as training objective in <a href="https://en.wikipedia.org/wiki/Variational_Bayesian_methods">variational methods</a>. LLaDA's loss is an ELBO.
 </p>
 <hr>
 <h4>Diffusion-Specific Terms</h4>
 <h5>Forward Process</h5>
 <p>
-In diffusion models, the process that gradually corrupts data. For LLaDA: randomly masking tokens with increasing probability.
+In <a href="https://en.wikipedia.org/wiki/Diffusion_model">diffusion models</a>, the process that gradually corrupts data. For LLaDA: randomly masking tokens with increasing probability.
 </p>
 <h5>Reverse Process</h5>
 <p>
@@ -1244,55 +1244,55 @@ During generation, re-masking some predicted tokens before the next step. Allows
 <p>
 Strategy that re-masks tokens with lowest prediction confidence. Better than random remasking.
 </p>
-<h5>Classifier-Free Guidance (CFG)</h5>
+<h5><a href="https://arxiv.org/abs/2207.12598">Classifier-Free Guidance</a> (CFG)</h5>
 <p>
 Technique to improve generation quality by amplifying conditional signal. Formula: p̃(x|c) ∝ p(x|c)^(1+w) / p(x)^w
 </p>
 <h5>Block Diffusion</h5>
 <p>
-Hybrid approach: autoregressive across blocks, diffusion within blocks.
+Hybrid approach: <a href="https://en.wikipedia.org/wiki/Autoregressive_model">autoregressive</a> across blocks, diffusion within blocks.
 </p>
 <hr>
 <h4>Evaluation Terms</h4>
-<h5>Few-Shot Learning</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Few-shot_learning">Few-Shot Learning</a></h5>
 <p>
 Evaluation with small number of examples in prompt. E.g., "5-shot" = 5 examples provided.
 </p>
-<h5>Zero-Shot</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Zero-shot_learning">Zero-Shot Learning</a></h5>
 <p>
 Evaluation without any examples - just task description.
 </p>
-<h5>In-Context Learning (ICL)</h5>
+<h5><a href="https://en.wikipedia.org/wiki/In-context_learning_(machine_learning">In-Context Learning</a>) (ICL)</h5>
 <p>
 Model's ability to learn from examples in the prompt without weight updates.
 </p>
-<h5>Reversal Curse</h5>
+<h5><a href="https://arxiv.org/abs/2309.12288">Reversal Curse</a></h5>
 <p>
 Phenomenon where AR models trained on "A is B" can answer "What is A?" but not "What is B?"
 </p>
 <hr>
 <h4>Benchmarks</h4>
-<h5>MMLU (Massive Multitask Language Understanding)</h5>
+<h5><a href="https://arxiv.org/abs/2009.03300">MMLU</a> (Massive Multitask Language Understanding)</h5>
 <p>
 Multiple-choice questions across 57 subjects. Tests world knowledge.
 </p>
-<h5>GSM8K (Grade School Math 8K)</h5>
+<h5><a href="https://arxiv.org/abs/2110.14168">GSM8K</a> (Grade School Math 8K)</h5>
 <p>
 8,500 grade school math word problems. Tests basic mathematical reasoning.
 </p>
-<h5>MATH</h5>
+<h5><a href="https://arxiv.org/abs/2103.03874">MATH</a></h5>
 <p>
 Competition-level math problems. Much harder than GSM8K.
 </p>
-<h5>HumanEval</h5>
+<h5><a href="https://arxiv.org/abs/2107.03374">HumanEval</a></h5>
 <p>
-Code generation benchmark. Model writes Python functions from docstrings.
+Code generation benchmark. Model writes <a href="https://en.wikipedia.org/wiki/Python_(programming_language">Python</a>) functions from docstrings.
 </p>
-<h5>MBPP (Mostly Basic Programming Problems)</h5>
+<h5><a href="https://arxiv.org/abs/2108.07732">MBPP</a> (Mostly Basic Programming Problems)</h5>
 <p>
 974 crowd-sourced Python programming problems.
 </p>
-<h5>BBH (BIG-Bench Hard)</h5>
+<h5><a href="https://arxiv.org/abs/2210.09261">BBH</a> (BIG-Bench Hard)</h5>
 <p>
 23 challenging tasks from BIG-Bench requiring multi-step reasoning.
 </p>
@@ -1300,17 +1300,17 @@ Code generation benchmark. Model writes Python functions from docstrings.
 <p>
 Chinese versions of MMLU. Test Chinese language understanding.
 </p>
-<h5>TruthfulQA</h5>
+<h5><a href="https://arxiv.org/abs/2109.07958">TruthfulQA</a></h5>
 <p>
 Tests model's tendency to generate false but plausible answers.
 </p>
-<h5>GPQA (Graduate-Level Google-Proof Q&A)</h5>
+<h5><a href="https://arxiv.org/abs/2311.12022">GPQA</a> (Graduate-Level Google-Proof Q&A)</h5>
 <p>
 PhD-level science questions designed to be difficult even with Google access.
 </p>
 <hr>
 <h4>Metrics</h4>
-<h5>Accuracy</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Accuracy_and_precision">Accuracy</a></h5>
 <p>
 Percentage of correct answers. Used for multiple-choice tasks.
 </p>
@@ -1318,33 +1318,33 @@ Percentage of correct answers. Used for multiple-choice tasks.
 <p>
 In code generation, probability that at least one of k samples passes all tests.
 </p>
-<h5>Throughput</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Throughput">Throughput</a></h5>
 <p>
 Tokens generated per second. Measures inference speed.
 </p>
-<h5>FLOPs (Floating Point Operations)</h5>
+<h5><a href="https://en.wikipedia.org/wiki/FLOPS">FLOPs</a> (Floating Point Operations)</h5>
 <p>
 Measure of computational cost. 10²³ FLOPs ≈ training LLaDA 8B.
 </p>
 <hr>
 <h4>Related Models</h4>
-<h5>LLaMA (Large Language Model Meta AI)</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Llama_(language_model">LLaMA</a>) (Large Language Model Meta AI)</h5>
 <p>
-Meta's open-source LLM family. LLaMA3 8B is main comparison point.
+<a href="https://en.wikipedia.org/wiki/Meta_Platforms">Meta</a>'s open-source LLM family. LLaMA3 8B is main comparison point.
 </p>
-<h5>GPT-4o</h5>
+<h5><a href="https://en.wikipedia.org/wiki/GPT-4">GPT-4o</a></h5>
 <p>
-OpenAI's multimodal model. Comparison point for reversal task.
+<a href="https://en.wikipedia.org/wiki/OpenAI">OpenAI</a>'s multimodal model. Comparison point for reversal task.
 </p>
-<h5>Qwen</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Tongyi_Qianwen">Qwen</a></h5>
 <p>
-Alibaba's LLM family. Qwen2.5 used for reversal comparison.
+<a href="https://en.wikipedia.org/wiki/Alibaba_Group">Alibaba</a>'s LLM family. Qwen2.5 used for reversal comparison.
 </p>
-<h5>BERT</h5>
+<h5><a href="https://en.wikipedia.org/wiki/BERT_(language_model">BERT</a>)</h5>
 <p>
-Bidirectional Encoder from Transformers. Uses masked language modeling but fixed 15% mask ratio and not generative.
+Bidirectional Encoder from Transformers. Uses <a href="https://en.wikipedia.org/wiki/BERT_(language_model">masked language modeling</a>#Masked_language_modeling) but fixed 15% mask ratio and not generative.
 </p>
-<h5>MaskGIT</h5>
+<h5><a href="https://arxiv.org/abs/2202.04200">MaskGIT</a></h5>
 <p>
 Masked image generation model using similar principles to LLaDA but for images.
 </p>

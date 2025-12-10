@@ -1417,16 +1417,16 @@ Configuration: GSM8K 8-shot, generation length 1024
             <h2>Glossary</h2>
             <h4>Core Concepts</h4>
 <p>
-<strong>Diffusion LLM (Diffusion-based Large Language Model)</strong>: A type of language model that generates text through an iterative denoising process, progressively unmasking tokens from a fully masked sequence rather than generating one token at a time autoregressively.
+<strong>Diffusion LLM (Diffusion-based <a href="https://en.wikipedia.org/wiki/Large_language_model">Large Language Model</a>)</strong>: A type of language model that generates text through an iterative <a href="https://en.wikipedia.org/wiki/Noise_reduction">denoising</a> process, progressively unmasking tokens from a fully masked sequence rather than generating one token at a time autoregressively.
 </p>
 <p>
-<strong>Masked Diffusion Model (MDM)</strong>: A discrete diffusion model variant where the forward noising process replaces tokens with a special [MASK] token, and the reverse process progressively predicts and unmasks tokens.
+<strong>Masked Diffusion Model (MDM)</strong>: A discrete <a href="https://en.wikipedia.org/wiki/Diffusion_model">diffusion model</a> variant where the forward noising process replaces tokens with a special [MASK] token, and the reverse process progressively predicts and unmasks tokens.
 </p>
 <p>
-<strong>Autoregressive (AR) Model</strong>: A language model that generates text one token at a time, left-to-right, where each token is conditioned only on previously generated tokens. Examples include GPT, LLaMA, and Qwen.
+<strong><a href="https://en.wikipedia.org/wiki/Autoregressive_model">Autoregressive</a> (AR) Model</strong>: A language model that generates text one token at a time, left-to-right, where each token is conditioned only on previously generated tokens. Examples include <a href="https://en.wikipedia.org/wiki/Generative_pre-trained_transformer">GPT</a>, <a href="https://en.wikipedia.org/wiki/Llama_(language_model">LLaMA</a>), and <a href="https://en.wikipedia.org/wiki/Tongyi_Qianwen">Qwen</a>.
 </p>
 <p>
-<strong>KV Cache (Key-Value Cache)</strong>: An optimization technique in transformer models that stores previously computed Key and Value matrices in attention layers, avoiding redundant computation during sequential generation.
+<strong><a href="https://en.wikipedia.org/wiki/Cache_(computing">KV Cache</a>) (Key-Value Cache)</strong>: An optimization technique in <a href="https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture">transformer</a>) models that stores previously computed Key and Value matrices in <a href="https://en.wikipedia.org/wiki/Attention_(machine_learning">attention</a>) layers, avoiding redundant computation during sequential generation.
 </p>
 <p>
 <strong>Block-wise Generation</strong>: A generation strategy that divides the output sequence into fixed-size blocks and processes each block sequentially, enabling cache reuse within blocks.
@@ -1454,10 +1454,10 @@ Configuration: GSM8K 8-shot, generation length 1024
 <hr>
 <h4>Attention Mechanisms</h4>
 <p>
-<strong>Bidirectional Attention</strong>: An attention mechanism where each token can attend to all other tokens in the sequence, both before and after its position. Used in BERT, diffusion LLMs, and encoder models.
+<strong>Bidirectional Attention</strong>: An <a href="https://en.wikipedia.org/wiki/Attention_(machine_learning">attention mechanism</a>) where each token can attend to all other tokens in the sequence, both before and after its position. Used in <a href="https://en.wikipedia.org/wiki/BERT_(language_model">BERT</a>), diffusion LLMs, and encoder models.
 </p>
 <p>
-<strong>Causal Attention (Unidirectional Attention)</strong>: An attention mechanism where each token can only attend to tokens at earlier positions. Used in autoregressive models like GPT.
+<strong>Causal Attention (Unidirectional Attention)</strong>: An attention mechanism where each token can only attend to tokens at earlier positions. Used in <a href="https://en.wikipedia.org/wiki/Autoregressive_model">autoregressive models</a> like GPT.
 </p>
 <p>
 <strong>Full Attention</strong>: Another term for bidirectional attention, where the attention mask allows all pairwise token interactions.
@@ -1471,16 +1471,16 @@ Configuration: GSM8K 8-shot, generation length 1024
 <strong>Diffusion Time t</strong>: A parameter in [0,1] that controls the masking level in the forward process. At t=0, no tokens are masked; at t=1, all tokens are masked.
 </p>
 <p>
-<strong>Transition Probability q_{t|0}</strong>: The probability distribution over masked/unmasked states at time t, given the original sequence at t=0.
+<strong>Transition Probability q_{t|0}</strong>: The <a href="https://en.wikipedia.org/wiki/Probability_distribution">probability distribution</a> over masked/unmasked states at time t, given the original sequence at t=0.
 </p>
 <p>
-<strong>τ-leaping</strong>: An approximation technique for diffusion models that allows multiple tokens to be unmasked in a single step, rather than the exact one-token-at-a-time reverse process.
+<strong><a href="https://en.wikipedia.org/wiki/Tau-leaping">τ-leaping</a></strong>: An approximation technique for diffusion models that allows multiple tokens to be unmasked in a single step, rather than the exact one-token-at-a-time reverse process.
 </p>
 <p>
-<strong>ELBO (Evidence Lower Bound)</strong>: A tractable lower bound on the log-likelihood used as the training objective for diffusion models.
+<strong><a href="https://en.wikipedia.org/wiki/Evidence_lower_bound">ELBO</a> (Evidence Lower Bound)</strong>: A tractable lower bound on the <a href="https://en.wikipedia.org/wiki/Likelihood_function">log-likelihood</a> used as the training objective for diffusion models.
 </p>
 <p>
-<strong>Confidence Score</strong>: The maximum probability in the softmax output for a given position, representing the model's certainty about its top prediction.
+<strong>Confidence Score</strong>: The maximum probability in the <a href="https://en.wikipedia.org/wiki/Softmax_function">softmax</a> output for a given position, representing the model's certainty about its top prediction.
 </p>
 <p>
 <strong>NFE (Number of Function Evaluations)</strong>: The number of model forward passes required to complete generation, a measure of computational cost.
@@ -1488,16 +1488,16 @@ Configuration: GSM8K 8-shot, generation length 1024
 <hr>
 <h4>Benchmarks</h4>
 <p>
-<strong>GSM8K</strong>: Grade School Math 8K, a benchmark of 8,500 grade school math word problems requiring multi-step reasoning.
+<strong><a href="https://arxiv.org/abs/2110.14168">GSM8K</a></strong>: Grade School Math 8K, a benchmark of 8,500 grade school math word problems requiring multi-step reasoning.
 </p>
 <p>
-<strong>MATH</strong>: A challenging mathematics benchmark with competition-level problems across algebra, geometry, and more.
+<strong><a href="https://arxiv.org/abs/2103.03874">MATH</a></strong>: A challenging mathematics benchmark with competition-level problems across algebra, geometry, and more.
 </p>
 <p>
-<strong>HumanEval</strong>: A code generation benchmark measuring functional correctness of Python programs generated from docstrings.
+<strong><a href="https://arxiv.org/abs/2107.03374">HumanEval</a></strong>: A code generation benchmark measuring functional correctness of <a href="https://en.wikipedia.org/wiki/Python_(programming_language">Python</a>) programs generated from docstrings.
 </p>
 <p>
-<strong>MBPP (Mostly Basic Programming Problems)</strong>: A benchmark of ~1,000 Python programming problems for evaluating code generation.
+<strong><a href="https://arxiv.org/abs/2108.07732">MBPP</a> (Mostly Basic Programming Problems)</strong>: A benchmark of ~1,000 Python programming problems for evaluating code generation.
 </p>
 <p>
 <strong>MathVista</strong>: A multimodal benchmark requiring mathematical reasoning over visual content.
@@ -1508,7 +1508,7 @@ Configuration: GSM8K 8-shot, generation length 1024
 <hr>
 <h4>Related Models</h4>
 <p>
-<strong>LLaDA</strong>: Large Language Diffusion model with Attention, an 8B parameter masked diffusion model demonstrating competitive performance with autoregressive baselines.
+<strong><a href="https://arxiv.org/abs/2502.09992">LLaDA</a></strong>: Large Language Diffusion model with Attention, an 8B parameter masked diffusion model demonstrating competitive performance with autoregressive baselines.
 </p>
 <p>
 <strong>LLaDA-1.5</strong>: An improved version of LLaDA with variance-reduced preference optimization.
@@ -1520,72 +1520,72 @@ Configuration: GSM8K 8-shot, generation length 1024
 <strong>Dream</strong>: Another open-source 7B parameter masked diffusion language model.
 </p>
 <p>
-<strong>LLaMA</strong>: Large Language Model Meta AI, a family of autoregressive transformers used as baselines.
+<strong><a href="https://en.wikipedia.org/wiki/Llama_(language_model">LLaMA</a>)</strong>: Large Language Model Meta AI, a family of <a href="https://en.wikipedia.org/wiki/Autoregressive_model">autoregressive</a> transformers used as baselines.
 </p>
 <p>
-<strong>Qwen</strong>: A family of autoregressive language models from Alibaba.
+<strong><a href="https://en.wikipedia.org/wiki/Tongyi_Qianwen">Qwen</a></strong>: A family of autoregressive language models from <a href="https://en.wikipedia.org/wiki/Alibaba_Group">Alibaba</a>.
 </p>
 <hr>
 <h4>Technical Terms</h4>
 <p>
-<strong>Throughput</strong>: The number of output tokens generated per second, measuring inference efficiency.
+<strong><a href="https://en.wikipedia.org/wiki/Throughput">Throughput</a></strong>: The number of output tokens generated per second, measuring inference efficiency.
 </p>
 <p>
-<strong>Latency</strong>: The total time required to complete a generation task.
+<strong><a href="https://en.wikipedia.org/wiki/Latency_(engineering">Latency</a>)</strong>: The total time required to complete a generation task.
 </p>
 <p>
 <strong>Speedup</strong>: The ratio of throughput (or inverse latency) compared to a baseline method.
 </p>
 <p>
-<strong>Cosine Similarity</strong>: A measure of similarity between two vectors, computed as the dot product divided by the product of magnitudes. Used to measure KV activation similarity.
+<strong><a href="https://en.wikipedia.org/wiki/Cosine_similarity">Cosine Similarity</a></strong>: A measure of similarity between two vectors, computed as the <a href="https://en.wikipedia.org/wiki/Dot_product">dot product</a> divided by the product of magnitudes. Used to measure KV activation similarity.
 </p>
 <p>
 <strong>Token Dependencies</strong>: Statistical relationships between tokens where the probability of one token depends on the value of another.
 </p>
 <p>
-<strong>Conditional Independence Assumption</strong>: The assumption that tokens at different positions are independent given the context, which enables parallel decoding but may violate true dependencies.
+<strong><a href="https://en.wikipedia.org/wiki/Conditional_independence">Conditional Independence</a> Assumption</strong>: The assumption that tokens at different positions are independent given the context, which enables parallel decoding but may violate true dependencies.
 </p>
 <hr>
 <h4>Metrics and Evaluation</h4>
 <p>
-<strong>Accuracy</strong>: The percentage of correctly answered problems on a benchmark.
+<strong><a href="https://en.wikipedia.org/wiki/Accuracy_and_precision">Accuracy</a></strong>: The percentage of correctly answered problems on a benchmark.
 </p>
 <p>
-<strong>Total Variation Distance</strong>: A measure of the maximum difference between two probability distributions, bounded by the sum of absolute differences.
+<strong><a href="https://en.wikipedia.org/wiki/Total_variation_distance_of_probability_measures">Total Variation Distance</a></strong>: A measure of the maximum difference between two probability distributions, bounded by the sum of absolute differences.
 </p>
 <p>
-<strong>KL Divergence (Kullback-Leibler Divergence)</strong>: A measure of how one probability distribution differs from a reference distribution, used to quantify the error from the independence assumption.
+<strong><a href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">KL Divergence</a> (Kullback-Leibler Divergence)</strong>: A measure of how one probability distribution differs from a reference distribution, used to quantify the error from the independence assumption.
 </p>
 <p>
-<strong>Binary Entropy H_b(ε)</strong>: The entropy of a binary distribution with probability ε, equal to -ε ln(ε) - (1-ε) ln(1-ε).
+<strong><a href="https://en.wikipedia.org/wiki/Binary_entropy_function">Binary Entropy</a> H_b(ε)</strong>: The <a href="https://en.wikipedia.org/wiki/Entropy_(information_theory">entropy</a>) of a binary distribution with probability ε, equal to -ε ln(ε) - (1-ε) ln(1-ε).
 </p>
 <hr>
 <h4>Diffusion Model Theory</h4>
 <p>
-<strong>Forward Process</strong>: The process of progressively adding noise (or masks) to data, transforming it into a simple prior distribution.
+<strong>Forward Process</strong>: The process of progressively adding noise (or masks) to data, transforming it into a simple <a href="https://en.wikipedia.org/wiki/Prior_probability">prior distribution</a>.
 </p>
 <p>
 <strong>Reverse Process</strong>: The learned process of denoising, which generates data by iteratively removing noise from the prior.
 </p>
 <p>
-<strong>D3PM (Denoising Diffusion for Discrete Data)</strong>: A framework for discrete diffusion models using transition matrices and ELBO training.
+<strong><a href="https://arxiv.org/abs/2107.03006">D3PM</a> (Denoising Diffusion for Discrete Data)</strong>: A framework for discrete diffusion models using <a href="https://en.wikipedia.org/wiki/Stochastic_matrix">transition matrices</a> and ELBO training.
 </p>
 <p>
-<strong>SEDD (Score Entropy Discrete Diffusion)</strong>: A discrete diffusion approach that learns likelihood ratios using denoising score entropy.
+<strong><a href="https://arxiv.org/abs/2310.16834">SEDD</a> (Score Entropy Discrete Diffusion)</strong>: A discrete diffusion approach that learns likelihood ratios using denoising score entropy.
 </p>
 <p>
-<strong>CTMC (Continuous-Time Markov Chain)</strong>: A mathematical framework for modeling the diffusion process in continuous time.
+<strong><a href="https://en.wikipedia.org/wiki/Continuous-time_Markov_chain">CTMC</a> (Continuous-Time Markov Chain)</strong>: A mathematical framework for modeling the diffusion process in continuous time.
 </p>
 <hr>
 <h4>Hardware and Implementation</h4>
 <p>
-<strong>NVIDIA A100</strong>: A high-performance GPU commonly used for LLM inference and training, with 80GB of memory.
+<strong><a href="https://en.wikipedia.org/wiki/Ampere_(microarchitecture">NVIDIA A100</a>)</strong>: A high-performance <a href="https://en.wikipedia.org/wiki/Graphics_processing_unit">GPU</a> commonly used for LLM inference and training, with 80GB of memory.
 </p>
 <p>
-<strong>Batch Size</strong>: The number of independent sequences processed simultaneously during inference.
+<strong><a href="https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Iterative_method">Batch Size</a></strong>: The number of independent sequences processed simultaneously during inference.
 </p>
 <p>
-<strong>Memory-Bound</strong>: A computational regime where performance is limited by memory bandwidth rather than compute capacity.
+<strong>Memory-Bound</strong>: A computational regime where performance is limited by <a href="https://en.wikipedia.org/wiki/Memory_bandwidth">memory bandwidth</a> rather than compute capacity.
 </p>
 <p>
 <strong>Compute-Bound</strong>: A computational regime where performance is limited by computational capacity rather than memory bandwidth.
