@@ -1357,7 +1357,7 @@ Knowledge needed to fully understand this paper, organized by importance.
 </p>
 <hr>
 <h4>Essential Prerequisites</h4>
-<h5>1. Transformer Architecture</h5>
+<h5>1. <a href="https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture">Transformer</a>) Architecture</h5>
 <p>
 <strong>Why needed</strong>: LLaDA uses a Transformer as its backbone.
 </p>
@@ -1365,31 +1365,31 @@ Knowledge needed to fully understand this paper, organized by importance.
 <strong>What to know</strong>:
 </p>
 <ul>
-<li>Self-attention mechanism</li>
-<li>Multi-head attention</li>
-<li>Positional encoding (specifically RoPE)</li>
-<li>Causal vs bidirectional attention masks</li>
+<li><a href="https://en.wikipedia.org/wiki/Attention_(machine_learning">Self-attention mechanism</a>#Self-attention)</li>
+<li><a href="https://en.wikipedia.org/wiki/Attention_(machine_learning">Multi-head attention</a>#Multi-head_attention)</li>
+<li><a href="https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture">Positional encoding</a>#Positional_encoding) (specifically <a href="https://arxiv.org/abs/2104.09864">RoPE</a>)</li>
+<li>Causal vs bidirectional <a href="https://en.wikipedia.org/wiki/Attention_(machine_learning">attention masks</a>)</li>
 </ul>
 <p>
 <strong>Resources</strong>:
 </p>
 <ul>
 <li><a href="https://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a></li>
-<li>Original paper: "Attention Is All You Need" (Vaswani et al., 2017)</li>
+<li>Original paper: <a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a> (Vaswani et al., 2017)</li>
 </ul>
 <hr>
-<h5>2. Large Language Models Basics</h5>
+<h5>2. <a href="https://en.wikipedia.org/wiki/Large_language_model">Large Language Models</a> Basics</h5>
 <p>
-<strong>Why needed</strong>: Paper compares to LLaMA, GPT, assumes familiarity.
+<strong>Why needed</strong>: Paper compares to <a href="https://en.wikipedia.org/wiki/Llama_(language_model">LLaMA</a>), <a href="https://en.wikipedia.org/wiki/Generative_pre-trained_transformer">GPT</a>, assumes familiarity.
 </p>
 <p>
 <strong>What to know</strong>:
 </p>
 <ul>
-<li>Pre-training vs fine-tuning paradigm</li>
-<li>Next-token prediction objective</li>
-<li>In-context learning</li>
-<li>Tokenization (BPE, vocabulary)</li>
+<li><a href="https://en.wikipedia.org/wiki/Pre-training">Pre-training</a> vs <a href="https://en.wikipedia.org/wiki/Fine-tuning_(deep_learning">fine-tuning</a>) paradigm</li>
+<li><a href="https://en.wikipedia.org/wiki/Language_model#Neural_language_models">Next-token prediction</a> objective</li>
+<li><a href="https://en.wikipedia.org/wiki/In-context_learning_(machine_learning">In-context learning</a>)</li>
+<li><a href="https://en.wikipedia.org/wiki/Lexical_analysis#Tokenization">Tokenization</a> (<a href="https://en.wikipedia.org/wiki/Byte_pair_encoding">BPE</a>, vocabulary)</li>
 </ul>
 <p>
 <strong>Resources</strong>:
@@ -1399,7 +1399,7 @@ Knowledge needed to fully understand this paper, organized by importance.
 <li>GPT-2/3 papers for historical context</li>
 </ul>
 <hr>
-<h5>3. Maximum Likelihood Estimation</h5>
+<h5>3. <a href="https://en.wikipedia.org/wiki/Maximum_likelihood_estimation">Maximum Likelihood Estimation</a></h5>
 <p>
 <strong>Why needed</strong>: Core training objective is likelihood-based.
 </p>
@@ -1407,20 +1407,20 @@ Knowledge needed to fully understand this paper, organized by importance.
 <strong>What to know</strong>:
 </p>
 <ul>
-<li>What likelihood means for probabilistic models</li>
-<li>KL divergence minimization equivalence</li>
-<li>Why MLE leads to good generative models</li>
+<li>What <a href="https://en.wikipedia.org/wiki/Likelihood_function">likelihood</a> means for <a href="https://en.wikipedia.org/wiki/Statistical_model">probabilistic models</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">KL divergence</a> minimization equivalence</li>
+<li>Why MLE leads to good <a href="https://en.wikipedia.org/wiki/Generative_model">generative models</a></li>
 </ul>
 <p>
 <strong>Resources</strong>:
 </p>
 <ul>
 <li>Any ML textbook chapter on probabilistic models</li>
-<li>Bishop's Pattern Recognition, Chapter 1-2</li>
+<li>Bishop's <a href="https://www.microsoft.com/en-us/research/publication/pattern-recognition-machine-learning/">Pattern Recognition and Machine Learning</a>, Chapter 1-2</li>
 </ul>
 <hr>
 <h4>Important Prerequisites</h4>
-<h5>4. Diffusion Models (Continuous)</h5>
+<h5>4. <a href="https://en.wikipedia.org/wiki/Diffusion_model">Diffusion Models</a> (Continuous)</h5>
 <p>
 <strong>Why needed</strong>: LLaDA is a discrete analog of image diffusion models.
 </p>
@@ -1428,9 +1428,9 @@ Knowledge needed to fully understand this paper, organized by importance.
 <strong>What to know</strong>:
 </p>
 <ul>
-<li>Forward process (adding noise)</li>
-<li>Reverse process (denoising)</li>
-<li>Score matching / denoising objective</li>
+<li>Forward process (adding <a href="https://en.wikipedia.org/wiki/Gaussian_noise">noise</a>)</li>
+<li>Reverse process (<a href="https://en.wikipedia.org/wiki/Noise_reduction">denoising</a>)</li>
+<li><a href="https://en.wikipedia.org/wiki/Score_matching">Score matching</a> / denoising objective</li>
 <li>Sampling via reverse process</li>
 </ul>
 <p>
@@ -1438,10 +1438,10 @@ Knowledge needed to fully understand this paper, organized by importance.
 </p>
 <ul>
 <li><a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/">What are Diffusion Models?</a></li>
-<li>DDPM paper (Ho et al., 2020)</li>
+<li><a href="https://arxiv.org/abs/2006.11239">DDPM paper</a> (Ho et al., 2020)</li>
 </ul>
 <hr>
-<h5>5. BERT and Masked Language Modeling</h5>
+<h5>5. <a href="https://en.wikipedia.org/wiki/BERT_(language_model">BERT</a>) and Masked Language Modeling</h5>
 <p>
 <strong>Why needed</strong>: LLaDA's masking is related to BERT.
 </p>
@@ -1449,19 +1449,19 @@ Knowledge needed to fully understand this paper, organized by importance.
 <strong>What to know</strong>:
 </p>
 <ul>
-<li>Masked language modeling objective</li>
+<li><a href="https://en.wikipedia.org/wiki/BERT_(language_model">Masked language modeling</a>#Masked_language_modeling) objective</li>
 <li>Why BERT uses 15% masking</li>
-<li>Difference: BERT is discriminative, LLaDA is generative</li>
+<li>Difference: BERT is <a href="https://en.wikipedia.org/wiki/Discriminative_model">discriminative</a>, LLaDA is <a href="https://en.wikipedia.org/wiki/Generative_model">generative</a></li>
 </ul>
 <p>
 <strong>Resources</strong>:
 </p>
 <ul>
-<li>BERT paper (Devlin et al., 2018)</li>
+<li><a href="https://arxiv.org/abs/1810.04805">BERT paper</a> (Devlin et al., 2018)</li>
 <li><a href="https://jalammar.github.io/illustrated-bert/">The Illustrated BERT</a></li>
 </ul>
 <hr>
-<h5>6. Basic Probability Theory</h5>
+<h5>6. Basic <a href="https://en.wikipedia.org/wiki/Probability_theory">Probability Theory</a></h5>
 <p>
 <strong>Why needed</strong>: Paper involves probabilistic formulations.
 </p>
@@ -1469,16 +1469,16 @@ Knowledge needed to fully understand this paper, organized by importance.
 <strong>What to know</strong>:
 </p>
 <ul>
-<li>Conditional probability: P(A|B)</li>
-<li>Marginalization</li>
-<li>Expectation and variance</li>
-<li>Monte Carlo estimation</li>
+<li><a href="https://en.wikipedia.org/wiki/Conditional_probability">Conditional probability</a>: P(A|B)</li>
+<li><a href="https://en.wikipedia.org/wiki/Marginal_distribution">Marginalization</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Expected_value">Expectation</a> and <a href="https://en.wikipedia.org/wiki/Variance">variance</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo estimation</a></li>
 </ul>
 <hr>
 <h4>Helpful But Optional</h4>
-<h5>7. Variational Inference</h5>
+<h5>7. <a href="https://en.wikipedia.org/wiki/Variational_Bayesian_methods">Variational Inference</a></h5>
 <p>
-<strong>Why needed</strong>: Training loss is an evidence lower bound (ELBO).
+<strong>Why needed</strong>: Training loss is an <a href="https://en.wikipedia.org/wiki/Evidence_lower_bound">evidence lower bound</a> (ELBO).
 </p>
 <p>
 <strong>What to know</strong>:
@@ -1491,10 +1491,10 @@ Knowledge needed to fully understand this paper, organized by importance.
 <strong>Resources</strong>:
 </p>
 <ul>
-<li>Kingma & Welling's VAE tutorial</li>
+<li><a href="https://arxiv.org/abs/1906.02691">Kingma & Welling's VAE tutorial</a></li>
 </ul>
 <hr>
-<h5>8. Scaling Laws for LLMs</h5>
+<h5>8. <a href="https://en.wikipedia.org/wiki/Neural_scaling_law">Scaling Laws</a> for LLMs</h5>
 <p>
 <strong>Why needed</strong>: Paper discusses scalability claims.
 </p>
@@ -1502,16 +1502,16 @@ Knowledge needed to fully understand this paper, organized by importance.
 <strong>What to know</strong>:
 </p>
 <ul>
-<li>Chinchilla scaling laws</li>
+<li><a href="https://arxiv.org/abs/2203.15556">Chinchilla</a> scaling laws</li>
 <li>Compute-optimal training</li>
-<li>Emergent capabilities</li>
+<li><a href="https://en.wikipedia.org/wiki/Emergence#In_artificial_intelligence">Emergent capabilities</a></li>
 </ul>
 <p>
 <strong>Resources</strong>:
 </p>
 <ul>
-<li>"Scaling Laws for Neural Language Models" (Kaplan et al., 2020)</li>
-<li>"Training Compute-Optimal Large Language Models" (Hoffmann et al., 2022)</li>
+<li><a href="https://arxiv.org/abs/2001.08361">Scaling Laws for Neural Language Models</a> (Kaplan et al., 2020)</li>
+<li><a href="https://arxiv.org/abs/2203.15556">Training Compute-Optimal Large Language Models</a> (Hoffmann et al., 2022)</li>
 </ul>
 <hr>
 <h5>9. Evaluation Benchmarks</h5>
@@ -1522,10 +1522,10 @@ Knowledge needed to fully understand this paper, organized by importance.
 <strong>What to know</strong>:
 </p>
 <ul>
-<li>MMLU: Knowledge testing</li>
-<li>GSM8K: Math reasoning</li>
-<li>HumanEval: Code generation</li>
-<li>Few-shot evaluation protocol</li>
+<li><a href="https://arxiv.org/abs/2009.03300">MMLU</a>: Knowledge testing</li>
+<li><a href="https://arxiv.org/abs/2110.14168">GSM8K</a>: Math reasoning</li>
+<li><a href="https://arxiv.org/abs/2107.03374">HumanEval</a>: Code generation</li>
+<li><a href="https://en.wikipedia.org/wiki/Few-shot_learning">Few-shot learning</a> evaluation protocol</li>
 </ul>
 <hr>
 <h5>10. Discrete Diffusion Models</h5>
@@ -1536,17 +1536,17 @@ Knowledge needed to fully understand this paper, organized by importance.
 <strong>Key papers</strong>:
 </p>
 <ul>
-<li>D3PM (Austin et al., 2021)</li>
-<li>MDLM (Sahoo et al., 2024)</li>
-<li>"Simplified and Generalized Masked Diffusion" (Shi et al., 2024)</li>
+<li><a href="https://arxiv.org/abs/2107.03006">D3PM</a> (Austin et al., 2021)</li>
+<li><a href="https://arxiv.org/abs/2406.07524">MDLM</a> (Sahoo et al., 2024)</li>
+<li><a href="https://arxiv.org/abs/2406.04329">Simplified and Generalized Masked Diffusion</a> (Shi et al., 2024)</li>
 </ul>
 <hr>
 <h4>Quick Refresher Formulas</h4>
-<h5>Autoregressive Factorization</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Autoregressive_model">Autoregressive</a> Factorization</h5>
 <pre><code>
 P(x₁, x₂, ..., xₙ) = P(x₁) · P(x₂|x₁) · P(x₃|x₁,x₂) · ... · P(xₙ|x₁,...,xₙ₋₁)
 </code></pre>
-<h5>KL Divergence</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">KL Divergence</a></h5>
 <pre><code>
 KL(p||q) = E_p[log(p/q)] = E_p[log p] - E_p[log q]
 </code></pre>
@@ -1554,7 +1554,7 @@ KL(p||q) = E_p[log(p/q)] = E_p[log p] - E_p[log q]
 <pre><code>
 max_θ E_data[log p_θ(x)] ⟺ min_θ KL(p_data || p_θ)
 </code></pre>
-<h5>Cross-Entropy Loss</h5>
+<h5><a href="https://en.wikipedia.org/wiki/Cross-entropy">Cross-Entropy</a> Loss</h5>
 <pre><code>
 L = -Σᵢ y_i · log(p_i)
 </code></pre>
@@ -1575,9 +1575,9 @@ L = -Σᵢ y_i · log(p_i)
 To grasp the main contributions, you need at least:
 </p>
 <ol>
-<li>What autoregressive LLMs do (next-token prediction)</li>
-<li>Basic idea of diffusion (corrupt → learn to uncorrupt)</li>
-<li>What a Transformer is (attention-based neural network)</li>
+<li>What <a href="https://en.wikipedia.org/wiki/Autoregressive_model">autoregressive</a> LLMs do (next-token prediction)</li>
+<li>Basic idea of <a href="https://en.wikipedia.org/wiki/Diffusion_model">diffusion</a> (corrupt → learn to uncorrupt)</li>
+<li>What a <a href="https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture">Transformer</a>) is (attention-based neural network)</li>
 </ol>
 <p>
 Everything else enhances understanding but isn't strictly required for the high-level message.

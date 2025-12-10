@@ -1596,12 +1596,12 @@ Configuration: GSM8K 8-shot, generation length 1024
             <h2>Prerequisites</h2>
             <h4>Required Background Knowledge</h4>
 <h5>Essential (Must Understand)</h5>
-<h6>1. Transformer Architecture</h6>
+<h6>1. <a href="https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture">Transformer</a>) Architecture</h6>
 <ul>
-<li><strong>Self-attention mechanism</strong>: Query, Key, Value matrices</li>
-<li><strong>Multi-head attention</strong>: Parallel attention computations</li>
-<li><strong>Feed-forward layers</strong>: Position-wise transformations</li>
-<li><strong>Layer normalization</strong>: Stabilization techniques</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Attention_(machine_learning">Self-attention mechanism</a>#Self-attention)</strong>: Query, Key, Value matrices</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Attention_(machine_learning">Multi-head attention</a>#Multi-head_attention)</strong>: Parallel attention computations</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Feedforward_neural_network">Feed-forward layers</a></strong>: Position-wise transformations</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Layer_normalization">Layer normalization</a></strong>: Stabilization techniques</li>
 </ul>
 <p>
 <strong>Learning Resources:</strong>
@@ -1611,12 +1611,12 @@ Configuration: GSM8K 8-shot, generation length 1024
 <li><a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a> (original paper)</li>
 <li><a href="https://nlp.seas.harvard.edu/annotated-transformer/">The Annotated Transformer</a></li>
 </ul>
-<h6>2. Autoregressive Language Models</h6>
+<h6>2. <a href="https://en.wikipedia.org/wiki/Autoregressive_model">Autoregressive</a> Language Models</h6>
 <ul>
-<li><strong>Next-token prediction</strong>: P(x_t | x_1, ..., x_{t-1})</li>
-<li><strong>Causal masking</strong>: Left-to-right attention</li>
-<li><strong>KV caching in AR models</strong>: Why it works and how it speeds up inference</li>
-<li><strong>Sampling strategies</strong>: Greedy, top-k, nucleus sampling</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Language_model#Neural_language_models">Next-token prediction</a></strong>: P(x_t | x_1, ..., x_{t-1})</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Causal_model">Causal masking</a></strong>: Left-to-right attention</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Cache_(computing">KV caching</a>)</strong> in AR models: Why it works and how it speeds up inference</li>
+<li><strong>Sampling strategies</strong>: <a href="https://en.wikipedia.org/wiki/Greedy_algorithm">Greedy</a>, <a href="https://en.wikipedia.org/wiki/Top-k_problem">top-k</a>, <a href="https://arxiv.org/abs/1904.09751">nucleus sampling</a></li>
 </ul>
 <p>
 <strong>Learning Resources:</strong>
@@ -1626,28 +1626,28 @@ Configuration: GSM8K 8-shot, generation length 1024
 <li><a href="https://arxiv.org/abs/2302.13971">LLaMA: Open and Efficient Foundation Language Models</a></li>
 <li>Stanford CS224N lecture on language models</li>
 </ul>
-<h6>3. Basic Probability Theory</h6>
+<h6>3. Basic <a href="https://en.wikipedia.org/wiki/Probability_theory">Probability Theory</a></h6>
 <ul>
-<li><strong>Conditional probability</strong>: P(A|B)</li>
-<li><strong>Joint vs marginal distributions</strong>: P(X,Y) vs P(X), P(Y)</li>
-<li><strong>Independence</strong>: P(X,Y) = P(X)P(Y)</li>
-<li><strong>Bayes' rule</strong>: P(A|B) = P(B|A)P(A)/P(B)</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Conditional_probability">Conditional probability</a></strong>: P(A|B)</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Joint_probability_distribution">Joint</a> vs <a href="https://en.wikipedia.org/wiki/Marginal_distribution">marginal distributions</a></strong>: P(X,Y) vs P(X), P(Y)</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Independence_(probability_theory">Independence</a>)</strong>: P(X,Y) = P(X)P(Y)</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Bayes%27_theorem">Bayes' rule</a></strong>: P(A|B) = P(B|A)P(A)/P(B)</li>
 </ul>
 <p>
 <strong>Learning Resources:</strong>
 </p>
 <ul>
 <li>Any introductory probability textbook</li>
-<li>Khan Academy probability course</li>
+<li><a href="https://www.khanacademy.org/math/statistics-probability/probability-library">Khan Academy probability course</a></li>
 </ul>
 <hr>
 <h5>Helpful (Aids Understanding)</h5>
-<h6>4. Diffusion Models (Images)</h6>
+<h6>4. <a href="https://en.wikipedia.org/wiki/Diffusion_model">Diffusion Models</a> (Images)</h6>
 <ul>
-<li><strong>Forward process</strong>: Adding noise</li>
-<li><strong>Reverse process</strong>: Denoising</li>
-<li><strong>Score matching</strong>: Learning to denoise</li>
-<li><strong>DDPM basics</strong>: Denoising Diffusion Probabilistic Models</li>
+<li><strong>Forward process</strong>: Adding <a href="https://en.wikipedia.org/wiki/Gaussian_noise">noise</a></li>
+<li><strong>Reverse process</strong>: <a href="https://en.wikipedia.org/wiki/Noise_reduction">Denoising</a></li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Score_matching">Score matching</a></strong>: Learning to denoise</li>
+<li><strong><a href="https://arxiv.org/abs/2006.11239">DDPM</a> basics</strong>: Denoising Diffusion Probabilistic Models</li>
 </ul>
 <p>
 <strong>Learning Resources:</strong>
@@ -1657,9 +1657,9 @@ Configuration: GSM8K 8-shot, generation length 1024
 <li><a href="https://arxiv.org/abs/2006.11239">Denoising Diffusion Probabilistic Models</a></li>
 <li><a href="https://arxiv.org/abs/2208.11970">Understanding Diffusion Models: A Unified Perspective</a></li>
 </ul>
-<h6>5. Masked Language Models</h6>
+<h6>5. <a href="https://en.wikipedia.org/wiki/BERT_(language_model">Masked Language Models</a>#Masked_language_modeling)</h6>
 <ul>
-<li><strong>BERT-style training</strong>: Predict [MASK] tokens</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/BERT_(language_model">BERT</a>)-style training</strong>: Predict [MASK] tokens</li>
 <li><strong>Bidirectional context</strong>: Attend to both directions</li>
 <li><strong>MLM objective</strong>: Masked language modeling loss</li>
 </ul>
@@ -1670,9 +1670,9 @@ Configuration: GSM8K 8-shot, generation length 1024
 <li><a href="https://arxiv.org/abs/1810.04805">BERT: Pre-training of Deep Bidirectional Transformers</a></li>
 <li><a href="https://jalammar.github.io/illustrated-bert/">The Illustrated BERT</a></li>
 </ul>
-<h6>6. Non-Autoregressive Generation</h6>
+<h6>6. <a href="https://en.wikipedia.org/wiki/Non-autoregressive_sequence_generation">Non-Autoregressive</a> Generation</h6>
 <ul>
-<li><strong>Why parallel generation is hard</strong>: Independence assumption</li>
+<li><strong>Why parallel generation is hard</strong>: <a href="https://en.wikipedia.org/wiki/Independence_(probability_theory">Independence assumption</a>)</li>
 <li><strong>Trade-offs</strong>: Speed vs quality</li>
 <li><strong>Iterative refinement</strong>: Multiple passes to improve quality</li>
 </ul>
@@ -1687,8 +1687,8 @@ Configuration: GSM8K 8-shot, generation length 1024
 <h5>Advanced (For Deep Understanding)</h5>
 <h6>7. Discrete Diffusion Models</h6>
 <ul>
-<li><strong>D3PM</strong>: Discrete Denoising Diffusion for text</li>
-<li><strong>SEDD</strong>: Score Entropy for discrete data</li>
+<li><strong><a href="https://arxiv.org/abs/2107.03006">D3PM</a></strong>: Discrete Denoising Diffusion for text</li>
+<li><strong><a href="https://arxiv.org/abs/2310.16834">SEDD</a></strong>: Score Entropy for discrete data</li>
 <li><strong>Absorbing state diffusion</strong>: Masking as diffusion</li>
 </ul>
 <p>
@@ -1699,24 +1699,24 @@ Configuration: GSM8K 8-shot, generation length 1024
 <li><a href="https://arxiv.org/abs/2310.16834">Discrete Diffusion Language Modeling by Estimating the Ratios of the Data Distribution (SEDD)</a></li>
 <li><a href="https://arxiv.org/abs/2502.09992">Large Language Diffusion Models (LLaDA)</a></li>
 </ul>
-<h6>8. Information Theory</h6>
+<h6>8. <a href="https://en.wikipedia.org/wiki/Information_theory">Information Theory</a></h6>
 <ul>
-<li><strong>KL divergence</strong>: Measuring distribution difference</li>
-<li><strong>Entropy</strong>: Uncertainty in distributions</li>
-<li><strong>Total variation distance</strong>: Distribution distance metric</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">KL divergence</a></strong>: Measuring distribution difference</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Entropy_(information_theory">Entropy</a>)</strong>: Uncertainty in distributions</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Total_variation_distance_of_probability_measures">Total variation distance</a></strong>: Distribution distance metric</li>
 </ul>
 <p>
 <strong>Learning Resources:</strong>
 </p>
 <ul>
-<li>Cover & Thomas, "Elements of Information Theory"</li>
+<li>Cover & Thomas, "<a href="https://en.wikipedia.org/wiki/Elements_of_Information_Theory">Elements of Information Theory</a>"</li>
 <li><a href="https://www.inference.org.uk/mackay/itila/">Information Theory, Inference, and Learning Algorithms</a></li>
 </ul>
-<h6>9. Markov Chains</h6>
+<h6>9. <a href="https://en.wikipedia.org/wiki/Markov_chain">Markov Chains</a></h6>
 <ul>
-<li><strong>Transition matrices</strong>: State-to-state probabilities</li>
-<li><strong>Continuous-time Markov chains</strong>: For continuous diffusion time</li>
-<li><strong>τ-leaping</strong>: Approximating Markov chain transitions</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Stochastic_matrix">Transition matrices</a></strong>: State-to-state probabilities</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Continuous-time_Markov_chain">Continuous-time Markov chains</a></strong>: For continuous diffusion time</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Tau-leaping">τ-leaping</a></strong>: Approximating Markov chain transitions</li>
 </ul>
 <p>
 <strong>Learning Resources:</strong>
@@ -1754,11 +1754,11 @@ Configuration: GSM8K 8-shot, generation length 1024
 To fully understand Theorem 1 and proofs:
 </p>
 <ul>
-<li>Basic probability (conditional probability, Bayes' rule)</li>
-<li>Bonferroni inequality</li>
-<li>Properties of argmax</li>
-<li>Binary entropy function</li>
-<li>Basic inequalities (triangle inequality, Hölder's inequality)</li>
+<li>Basic probability (<a href="https://en.wikipedia.org/wiki/Conditional_probability">conditional probability</a>, <a href="https://en.wikipedia.org/wiki/Bayes%27_theorem">Bayes' rule</a>)</li>
+<li><a href="https://en.wikipedia.org/wiki/Bonferroni_correction">Bonferroni inequality</a></li>
+<li>Properties of <a href="https://en.wikipedia.org/wiki/Arg_max">argmax</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Binary_entropy_function">Binary entropy function</a></li>
+<li>Basic inequalities (<a href="https://en.wikipedia.org/wiki/Triangle_inequality">triangle inequality</a>, <a href="https://en.wikipedia.org/wiki/H%C3%B6lder%27s_inequality">Hölder's inequality</a>)</li>
 </ul>
 <hr>
 <h4>Programming Prerequisites</h4>
@@ -1766,9 +1766,9 @@ To fully understand Theorem 1 and proofs:
 To implement Fast-dLLM:
 </p>
 <ul>
-<li>PyTorch (tensor operations, autograd)</li>
-<li>Hugging Face Transformers (loading models, tokenization)</li>
-<li>Understanding of GPU memory management</li>
+<li><a href="https://en.wikipedia.org/wiki/PyTorch">PyTorch</a> (tensor operations, <a href="https://en.wikipedia.org/wiki/Automatic_differentiation">autograd</a>)</li>
+<li><a href="https://huggingface.co/docs/transformers/">Hugging Face Transformers</a> (loading models, tokenization)</li>
+<li>Understanding of <a href="https://en.wikipedia.org/wiki/Graphics_processing_unit">GPU</a> memory management</li>
 <li>Familiarity with LLM inference codebases</li>
 </ul>
         </section>
