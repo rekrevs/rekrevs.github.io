@@ -1,0 +1,2142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematical Framing for Different Agent Strategies - Papyrus</title>
+    <style>
+        :root {
+            --text: #1a1a1a;
+            --text-muted: #666;
+            --bg: #fafafa;
+            --bg-alt: #f0f0f0;
+            --border: #ddd;
+            --accent: #2563eb;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: 100vh;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 2rem 1rem;
+            background: var(--bg-alt);
+            border-right: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+        nav a {
+            display: block;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        nav a:hover { background: var(--border); color: var(--text); }
+        nav .nav-section { margin-top: 1rem; font-weight: 600; color: var(--text); padding: 0.25rem 0.5rem; }
+        nav .back { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+        main {
+            max-width: 48rem;
+            padding: 2rem 3rem 4rem;
+        }
+        header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+        header h1 { font-size: 1.75rem; line-height: 1.3; margin-bottom: 0.5rem; }
+        header .authors { color: var(--text-muted); font-size: 0.95rem; }
+        header .meta { font-size: 0.875rem; color: var(--text-muted); margin-top: 0.5rem; }
+        header .meta a { color: var(--accent); }
+        section { margin-bottom: 2.5rem; }
+        section > h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        h3 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; }
+        h4 { font-size: 1rem; margin: 1.25rem 0 0.5rem; }
+        p { margin-bottom: 1rem; }
+        ul, ol { margin: 0 0 1rem 1.5rem; }
+        li { margin-bottom: 0.25rem; }
+        code {
+            font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.875em;
+            background: var(--bg-alt);
+            padding: 0.125rem 0.375rem;
+            border-radius: 3px;
+        }
+        pre {
+            background: var(--bg-alt);
+            padding: 1rem;
+            overflow-x: auto;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        pre code { background: none; padding: 0; }
+        blockquote {
+            border-left: 3px solid var(--border);
+            padding-left: 1rem;
+            color: var(--text-muted);
+            margin: 1rem 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+        th { background: var(--bg-alt); font-weight: 600; }
+        details { margin: 0.5rem 0; }
+        summary { cursor: pointer; color: var(--accent); }
+        a { color: var(--accent); }
+        .tldr {
+            background: var(--bg-alt);
+            padding: 1rem 1.25rem;
+            border-radius: 6px;
+            font-size: 1.05rem;
+            border-left: 4px solid var(--accent);
+        }
+        .glossary-term { font-weight: 600; }
+        @media (max-width: 768px) {
+            body { grid-template-columns: 1fr; }
+            nav {
+                position: relative;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            main { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="back"><a href="index.html">&larr; All Papers</a></div>
+        <div class="nav-section">Overview</div>
+        <a href="#tldr">TL;DR</a>
+        <a href="#summary">Summary</a>
+        <a href="#eli5">ELI5</a>
+        <div class="nav-section">Deep Dive</div>
+        <a href="#tutorial">Tutorial</a>
+        <a href="#claims">Claims</a>
+        <a href="#methods">Methods</a>
+        <a href="#findings">Findings</a>
+        <div class="nav-section">Learning</div>
+        <a href="#glossary">Glossary</a>
+        <a href="#prereqs">Prerequisites</a>
+        <a href="#questions">Questions</a>
+        <a href="#quiz">Quiz</a>
+        <div class="nav-section">Context</div>
+        <a href="#related">Related Work</a>
+        <a href="#context">Research Context</a>
+        <a href="#highlights">Highlights</a>
+        <div class="nav-section">Critical</div>
+        <a href="#limitations">Limitations</a>
+        <a href="#disagreements">Disagreements</a>
+        <a href="#future-work">Future Work</a>
+    </nav>
+    <main>
+        <header>
+            <h1>Mathematical Framing for Different Agent Strategies</h1>
+            <div class="authors">Philip Stephens, Emmanuel Salawu</div>
+            <div class="meta">2025 &middot; arXiv preprint &middot; <a href="https://arxiv.org/abs/2512.04469v1">arXiv</a></div>
+        </header>
+
+        <section id="tldr">
+            <h2>TL;DR</h2>
+            <div class="tldr">This paper introduces a unified probabilistic framework that models AI agent behavior as chains of conditional probabilities P(a|s), enabling rigorous comparison of different agent strategies (ReAct, Control Flow, Multi-Agent) through the concept of "Degrees of Freedom"—the optimizable levers available in each architecture.</div>
+        </section>
+
+        <section id="summary">
+            <h2>Summary</h2>
+            <h4>Abstract (Clarified)</h4>
+<p>
+The explosion of diverse AI agent architectures—from simple ReAct loops to complex multi-agent swarms—has created a significant challenge: there's no unified mathematical language to describe, analyze, and compare these systems. Agent design remains an empirical art rather than a principled engineering discipline.
+</p>
+<p>
+This paper provides that missing language. The authors propose framing all agentic processes as <strong>chains of probabilities</strong>, where each link represents the probability of taking action aᵢ given state sᵢ₋₁. This formulation naturally maps to Markov chain mathematics, enabling formal comparison of architectures. The key insight is that different agent strategies can be understood as different ways of manipulating these probabilities through various "Degrees of Freedom"—the optimizable levers available to the designer.
+</p>
+<h4>Key Contributions</h4>
+<ol>
+<li><strong>Unified Probabilistic Formulation</strong>: Defines an agent A^{F,u}(a|c) as a probabilistic function characterized by its inference functional F, state update function u, and initial state s₀(c). This places ReAct, Control Flow, and Multi-Agent systems within a common mathematical context.</li>
+</ol>
+<ol>
+<li><strong>Degrees of Freedom Concept</strong>: Identifies the distinct "knobs" designers can optimize for each strategy:</li>
+</ol>
+<p>
+   - ReAct: prompt engineering (s₀), state update (u)
+    - Control Flow: per-step prompts, action partitioning, different F per node
+    - Multi-Agent: all the above + inter-agent context probabilities P(cₗ|aₗ)
+</p>
+<ol>
+<li><strong>Formalization of Collaboration</strong>: Provides one of the first mathematical treatments of inter-agent collaboration. Models it as probabilistic search for optimal context cₗ to pass between agents, representing a new optimization surface unavailable in single-agent systems.</li>
+</ol>
+<ol>
+<li><strong>Collaboration Costs</strong>: Introduces a regularized objective Maximize(P(...) − λ·CollabCost(·)) that balances outcome probability against latency, computation, and complexity.</li>
+</ol>
+<h4>Main Results</h4>
+<p>
+The paper is primarily theoretical, providing a framework rather than empirical results. Key insights include:
+</p>
+<ul>
+<li><strong>ReAct as Markov Chain</strong>: The ReAct loop can be modeled as applying the same probability kernel P^t(a|s) repeatedly, with state update u concatenating thoughts and observations.</li>
+</ul>
+<ul>
+<li><strong>Multi-Agent Partitioning</strong>: Breaking the action space into partitions (aᵤ × aₖ × aₗ) and assigning them to different agents introduces new probability terms P(cₖ|aₖ) and P(cₗ|aₗ) that represent collaboration/negotiation opportunities.</li>
+</ul>
+<ul>
+<li><strong>Action Space Reduction</strong>: Since chained probabilities can only decrease, reducing the number of possible actions and sequence length at each step increases success probability.</li>
+</ul>
+<h4>Significance</h4>
+<p>
+This work provides the intellectual bridge between high-level agent concepts and rigorous mathematics. It enables:
+</p>
+<ul>
+<li><strong>Principled Comparison</strong>: Understand why multi-agent might outperform single-agent (more degrees of freedom)</li>
+<li><strong>Systematic Design</strong>: Identify which levers to optimize for a given task</li>
+<li><strong>Protocol Understanding</strong>: Frame MCP and A2A in terms of what probabilities they help optimize</li>
+<li><strong>Trade-off Analysis</strong>: Reason about collaboration costs vs. probability gains</li>
+</ul>
+<p>
+The framework transforms agent architecture from empirical trial-and-error to systematic engineering.
+</p>
+        </section>
+
+        <section id="eli5">
+            <h2>ELI5</h2>
+            <h4>The Simple Version</h4>
+<p>
+Imagine you're trying to solve a puzzle, like building something with LEGO. There are many different ways to do it:
+</p>
+<ol>
+<li><strong>By yourself, one step at a time</strong> - You look at the instructions, do one step, look again, do another step. (This is like ReAct)</li>
+</ol>
+<ol>
+<li><strong>Following a strict recipe</strong> - First do step A, then ONLY do step B, then ONLY do step C. Very organized! (This is like Control Flow)</li>
+</ol>
+<ol>
+<li><strong>With friends helping</strong> - You do some parts, your friend does other parts, and you talk to each other about what to do next. (This is like Multi-Agent)</li>
+</ol>
+<h4>What This Paper Does</h4>
+<p>
+The paper creates a special "measuring tool" to compare all these different ways of working. It's like having a ruler that works for measuring how tall you are, how long your room is, AND how heavy your backpack is—one tool for everything!
+</p>
+<h4>The Main Idea</h4>
+<p>
+Every time you do something, there's a chance it works and a chance it doesn't. This paper says:
+</p>
+<ul>
+<li>We can write down ALL these chances as numbers (probabilities)</li>
+<li>We can multiply them together like a chain</li>
+<li>Different ways of working give you different "knobs" to turn to make your chances better</li>
+</ul>
+<h4>The "Degrees of Freedom" Idea</h4>
+<p>
+Think of it like a video game:
+</p>
+<ul>
+<li><strong>Basic mode</strong>: You only have two buttons (jump and run)</li>
+<li><strong>Advanced mode</strong>: You have two buttons PLUS you can change the controls for each level</li>
+<li><strong>Team mode</strong>: You have everything above PLUS you can talk to teammates to plan together</li>
+</ul>
+<p>
+More buttons (degrees of freedom) means more ways to win!
+</p>
+<h4>When Friends Help</h4>
+<p>
+When you work with friends, something special happens. You can:
+</p>
+<ul>
+<li>Try different ways of asking for help</li>
+<li>Pick the BEST way to explain the problem</li>
+<li>Have them tell you things in the BEST way for you to understand</li>
+</ul>
+<p>
+This "talking back and forth" creates NEW chances to make things work better—chances you don't have when working alone.
+</p>
+<h4>Why This Matters</h4>
+<p>
+Before this paper, building AI helpers was like cooking without a recipe—you just tried things until something worked. Now there's a way to understand WHY some approaches work better, so we can build better AI helpers more reliably.
+</p>
+<p>
+It's like the difference between randomly mixing ingredients vs. understanding that sugar makes things sweet and salt makes things savory!
+</p>
+        </section>
+
+        <section id="tutorial">
+            <h2>Tutorial</h2>
+            <h4>Introduction: The Agent Architecture Zoo</h4>
+<h5>The Problem: Too Many Architectures, No Common Language</h5>
+<p>
+The past few years have witnessed an explosion of AI agent architectures. We have:
+</p>
+<ul>
+<li><strong>ReAct loops</strong> - agents that think, act, observe, repeat</li>
+<li><strong>Chain-of-Thought</strong> - agents that reason step-by-step</li>
+<li><strong>Tree-of-Thoughts</strong> - agents that explore multiple reasoning paths</li>
+<li><strong>Multi-agent systems</strong> - multiple agents collaborating</li>
+<li><strong>Control flow graphs</strong> - agents constrained by predefined state machines</li>
+<li><strong>Deep thinking models</strong> - agents with extended internal reasoning</li>
+</ul>
+<p>
+Each paper introduces new terminology, new diagrams, and new evaluation benchmarks. But there's a fundamental question that remains unanswered: <strong>How do we rigorously compare these architectures?</strong>
+</p>
+<p>
+When should you use a multi-agent system instead of a single sophisticated agent? What exactly makes collaboration "better"? Why do control flows improve reliability? These questions lack principled answers because we lack a common mathematical framework.
+</p>
+<p>
+<strong>This paper provides that framework.</strong>
+</p>
+<h5>The Core Insight</h5>
+<p>
+The authors make a beautifully simple observation: every agent, regardless of its architecture, is fundamentally doing the same thing—<strong>choosing actions based on states</strong>. And every choice can be modeled as a <strong>probability</strong>.
+</p>
+<pre><code>
+The probability of achieving goal actions aᵧ given context c:
+
+P(a = aᵧ | c)
+
+This is what EVERY agent is trying to maximize.
+</code></pre>
+<p>
+Different architectures are just different ways of manipulating this probability.
+</p>
+<hr>
+<h4>Part 1: The Probabilistic Foundation</h4>
+<h5>1.1 Agents as Probability Chains</h5>
+<p>
+Consider any sequence of actions an agent takes: a₁, a₂, ..., aₙ. The probability of this sequence given initial context c can be decomposed:
+</p>
+<pre><code>
+P(a|c) = P(aₙ|sₙ₋₁, c) · P(aₙ₋₁|sₙ₋₂, c) · ... · P(a₁|s₀, c)
+</code></pre>
+<p>
+Where:
+</p>
+<ul>
+<li><strong>aᵢ</strong> = action at step i (includes action type α, arguments x, and resulting observation o)</li>
+<li><strong>sᵢ</strong> = state at step i</li>
+<li><strong>c</strong> = initial context (user request, system prompt, etc.)</li>
+</ul>
+<p>
+This is a <strong>Markov chain</strong> if each state sᵢ depends only on sᵢ₋₁ and aᵢ.
+</p>
+<h5>1.2 Visual Representation</h5>
+<p>
+A single link in the probability chain:
+</p>
+<pre><code>
+         ┌─────────────────┐
+         │  sᵢ₋₁(c)       │  Previous state
+         └────────┬────────┘
+                  │
+                  ▼
+         ┌─────────────────┐
+         │  P(aᵢ|sᵢ₋₁)    │  Probability of action
+         └────────┬────────┘
+                  │
+                  ▼
+         ┌─────────────────┐
+         │     aᵢ         │  Action taken
+         └────────┬────────┘
+                  │
+                  ▼
+         ┌─────────────────┐
+         │  sᵢ(c)         │  New state (via update u)
+         └─────────────────┘
+</code></pre>
+<h5>1.3 The Components</h5>
+<p>
+An agent is fully characterized by three things:
+</p>
+<table>
+<tr><th>Component</th><th>Symbol</th><th>Description</th></tr>
+<tr><td><strong>Inference Functional</strong></td><td>F</td><td>How input maps to output (LLM, CoT, deep thinking, etc.)</td></tr>
+<tr><td><strong>State Update</strong></td><td>u</td><td>How state evolves: sᵢ = u(aᵢ, sᵢ₋₁, ...)</td></tr>
+<tr><td><strong>Initial State</strong></td><td>s₀(c)</td><td>How context c becomes initial state</td></tr>
+</table>
+<p>
+We denote an agent as: <strong>A^{F,u}(a|c) = P^{F,u}(a|c)</strong>
+</p>
+<hr>
+<h4>Part 2: The ReAct Framework</h4>
+<h5>2.1 ReAct as a Probability Chain</h5>
+<p>
+The ReAct framework is the canonical single-agent architecture. It works by:
+</p>
+<ol>
+<li>Generate a <strong>thought</strong> t (reasoning trace)</li>
+<li>Generate an <strong>action</strong> a (tool call)</li>
+<li>Observe the result o</li>
+<li>Update state and repeat</li>
+</ol>
+<p>
+Mathematically, the probability of action aᵢ given state sᵢ₋₁ is:
+</p>
+<pre><code>
+P^t(aᵢ|sᵢ₋₁) = P(aᵢ|tᵢ, sᵢ₋₁) · P(tᵢ|sᵢ₋₁)
+</code></pre>
+<p>
+The thought tᵢ is an intermediate variable that <strong>increases</strong> the probability of the correct action.
+</p>
+<h5>2.2 Why Thoughts Help</h5>
+<p>
+This is the key insight behind Chain-of-Thought and ReAct:
+</p>
+<pre><code>
+P^{ReAct}(a|c) ≠ P^{⊙}(a|c)
+
+where ⊙ represents a raw LLM without thought generation
+</code></pre>
+<p>
+Generating explicit thoughts increases the likelihood of correct actions. The thoughts act as a kind of "probability amplifier."
+</p>
+<h5>2.3 The Full ReAct Probability</h5>
+<p>
+For a sequence of n actions with thoughts:
+</p>
+<pre><code>
+P^{t,u}(a; t|c) = P(aₙ|tₙ, sₙ₋₁) · P(tₙ|sₙ₋₁) · P(aₙ₋₁|tₙ₋₁, sₙ₋₂) · P(tₙ₋₁|sₙ₋₂) · ... · P(a₁|t₁, s₀) · P(t₁|s₀(c))
+</code></pre>
+<p>
+The state update in basic ReAct is simple concatenation:
+</p>
+<pre><code>
+u(aᵢ, sᵢ₋₁) = concat(sᵢ₋₁, tᵢ, oᵢ)
+</code></pre>
+<h5>2.4 ReAct's Degrees of Freedom</h5>
+<p>
+What can you optimize in a ReAct loop?
+</p>
+<table>
+<tr><th>Lever</th><th>What It Controls</th></tr>
+<tr><td><strong>s₀(c)</strong></td><td>Initial prompt, system message, tool descriptions</td></tr>
+<tr><td><strong>u</strong></td><td>How to update state (concat, summarize, selective)</td></tr>
+<tr><td><strong>{α}</strong></td><td>Set of available actions/tools</td></tr>
+</table>
+<p>
+That's it. The inference functional F is fixed (it's just the LLM), and the same probability kernel is used at every step.
+</p>
+<h5>2.5 ReAct's Limitations</h5>
+<pre><code>
+┌──────────────────────────────────────────────────────────┐
+│                     ReAct Limitations                     │
+├──────────────────────────────────────────────────────────┤
+│ • Same probability kernel at every step                  │
+│ • Can't enforce constraints (only suggest in prompt)     │
+│ • Random walk behavior → may not converge                │
+│ • Hallucinations can derail the entire chain             │
+│ • Long chains → probability of success decreases         │
+└──────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h4>Part 3: Control Flow Architectures</h4>
+<h5>3.1 Beyond Random Walks</h5>
+<p>
+Control flow architectures address ReAct's limitations by imposing structure. Instead of a single probability kernel applied uniformly, different kernels are used at different steps.
+</p>
+<pre><code>
+ReAct:        P(a₁|s₀) → P(a₂|s₁) → P(a₃|s₂) → ...
+              [same kernel]  [same kernel]  [same kernel]
+
+Control Flow: P¹(a₁|s₀) → P²(a₂|s₁) → P³(a₃|s₂) → ...
+              [kernel 1]   [kernel 2]   [kernel 3]
+</code></pre>
+<h5>3.2 How Control Flow Works</h5>
+<p>
+At each node in the graph:
+</p>
+<ul>
+<li><strong>Different s(c)</strong>: Different prompts optimized for that step</li>
+<li><strong>Different {α}</strong>: Different available actions (restricted tool set)</li>
+<li><strong>Different u</strong>: Different state update logic</li>
+<li><strong>Different F</strong>: Potentially different models or inference strategies</li>
+</ul>
+<p>
+This is essentially: <strong>different F, u, and s(c) at each step in the sequence</strong>.
+</p>
+<h5>3.3 Why Partitioning Helps</h5>
+<p>
+A critical insight from the paper:
+</p>
+<blockquote>"As a probability is always bound between 0 and 1, as we chain events together we are always, at best, maintaining the probability of the desired outcome."</blockquote>
+<p>
+When you chain probabilities, they can only stay the same or decrease:
+</p>
+<pre><code>
+If P(a₁) = 0.9 and P(a₂|a₁) = 0.9 and P(a₃|a₂) = 0.9
+
+Then P(a₁, a₂, a₃) = 0.9 × 0.9 × 0.9 = 0.729
+</code></pre>
+<p>
+<strong>Solution</strong>: Reduce the number of possible actions at each step!
+</p>
+<p>
+If there are 100 possible actions and you need the right one, P(correct) might be low. But if you restrict to just 5 relevant actions at that step, P(correct) increases dramatically.
+</p>
+<h5>3.4 Control Flow Degrees of Freedom</h5>
+<table>
+<tr><th>Lever</th><th>What It Controls</th></tr>
+<tr><td><strong>s₀(c)</strong></td><td>Initial prompt</td></tr>
+<tr><td><strong>sᵢ(c) per node</strong></td><td>Dynamic prompts per graph node</td></tr>
+<tr><td><strong>u per node</strong></td><td>Different state update strategies</td></tr>
+<tr><td><strong>{α} per node</strong></td><td>Action space partitioning</td></tr>
+<tr><td><strong>F per node</strong></td><td>Different models/inference per step</td></tr>
+</table>
+<p>
+Much more flexibility than ReAct!
+</p>
+<hr>
+<h4>Part 4: Multi-Agent Systems</h4>
+<h5>4.1 Partitioning Actions Across Agents</h5>
+<p>
+The multi-agent paradigm takes partitioning further. Instead of just partitioning actions within a single agent, we partition them across multiple agents.
+</p>
+<p>
+Consider the full action space a partitioned into three parts: aᵤ × aₖ × aₗ
+</p>
+<pre><code>
+┌─────────────────────────────────────────────────────────────┐
+│                    Action Space Partition                    │
+│                                                             │
+│  Agent₁ handles: aₗ (initial actions)                       │
+│           ↓                                                 │
+│        context cₗ passed to Agent₂                          │
+│           ↓                                                 │
+│  Agent₂ handles: aₖ (specialized actions)                   │
+│           ↓                                                 │
+│        context cₖ returned to Agent₁                        │
+│           ↓                                                 │
+│  Agent₁ handles: aᵤ (final actions)                         │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<h5>4.2 The Multi-Agent Probability</h5>
+<p>
+The full probability becomes:
+</p>
+<pre><code>
+P(aᵤ × aₖ × aₗ | s₀(c)) =
+    ∫∫ dcₗ dcₖ · A^{F₁,u₁}(aᵤ|s(cₖ)) · P(cₖ|aₖ) · A^{F₂,u₂}(aₖ|s(cₗ)) · P(cₗ|aₗ) · A^{F₁,u₁}(aₗ|s(c))
+</code></pre>
+<p>
+This looks complex, but it reads naturally:
+</p>
+<ol>
+<li>Agent₁ performs actions aₗ given initial context c</li>
+<li>This produces context cₗ with probability P(cₗ|aₗ)</li>
+<li>Agent₂ performs actions aₖ given state from cₗ</li>
+<li>This produces context cₖ with probability P(cₖ|aₖ)</li>
+<li>Agent₁ performs final actions aᵤ given state from cₖ</li>
+</ol>
+<h5>4.3 The New Degrees of Freedom: Collaboration</h5>
+<p>
+The magic is in the <strong>new probability terms</strong>:
+</p>
+<pre><code>
+P(cₗ|aₗ)  →  Probability of generating context cₗ for Agent₂
+P(cₖ|aₖ)  →  Probability of generating context cₖ back to Agent₁
+</code></pre>
+<p>
+<strong>These don't exist in single-agent systems!</strong>
+</p>
+<p>
+These terms represent:
+</p>
+<ul>
+<li><strong>How to formulate a request</strong> to another agent</li>
+<li><strong>How to summarize results</strong> for the caller</li>
+<li><strong>What information to pass</strong> between agents</li>
+</ul>
+<h5>4.4 Collaboration as Search</h5>
+<p>
+The paper frames collaboration as <strong>probabilistic search</strong>:
+</p>
+<blockquote>"If agent A can be probed about what context cₗ might do, without actually executing the actions, it is possible to search the subspace for a locally 'optimal' solution."</blockquote>
+<p>
+Imagine finding the optimal cₗ such that:
+</p>
+<ol>
+<li>You maximize A^{F₂,u₂}(aₖ|s(cₗ)) for your target aₖ</li>
+<li>You produce optimal cₖ to maximize A^{F₁,u₁}(aᵤ|s(cₖ))</li>
+</ol>
+<p>
+<strong>This is dynamic tuning without model retraining!</strong>
+</p>
+<h5>4.5 Multi-Agent Degrees of Freedom</h5>
+<table>
+<tr><th>Lever</th><th>What It Controls</th></tr>
+<tr><td><strong>All Control Flow levers</strong></td><td>Everything from before</td></tr>
+<tr><td>**P(cₗ</td><td>aₗ)**</td><td>How to formulate requests (collaboration)</td></tr>
+<tr><td>**P(cₖ</td><td>aₖ)**</td><td>How to return results (negotiation)</td></tr>
+</table>
+<p>
+This is strictly more degrees of freedom than any single-agent architecture.
+</p>
+<hr>
+<h4>Part 5: The Strategy Capability Board</h4>
+<h5>5.1 Comparing Architectures</h5>
+<p>
+The paper provides a beautiful visualization called the "Strategy Capability Board":
+</p>
+<pre><code>
+┌─────────────────┬───────────────┬────────────────┬─────────────────┐
+│ Parameter/Lever │   ReAct Loop  │  Control Flow  │  Multi-Agent    │
+│                 │               │                │  (Collab)       │
+├─────────────────┼───────────────┼────────────────┼─────────────────┤
+│ 1. Prompt (s₀)  │ Static:       │ Dynamic:       │ Dynamic:        │
+│ (Initial        │ Single prompt │ Diff. prompt   │ Diff. prompt    │
+│  Context)       │ for all steps │ per graph node │ per agent role  │
+├─────────────────┼───────────────┼────────────────┼─────────────────┤
+│ 2. Update (u)   │ Append:       │ Custom:        │ Custom:         │
+│ (Memory         │ Add history   │ Reset/Prune    │ Summary/Log     │
+│  Handling)      │ to context    │ at each step   │ per interaction │
+├─────────────────┼───────────────┼────────────────┼─────────────────┤
+│ 3. Actions (a)  │ Global:       │ Partition:     │ Partition:      │
+│ (Tool           │ All tools     │ Subset of      │ Subset of       │
+│  Availability)  │ always avail. │ tools per node │ tools per agent │
+├─────────────────┼───────────────┼────────────────┼─────────────────┤
+│ 4. Model (F)    │ Single:       │ Graph:         │ Graph:          │
+│ (Inference      │ Same model    │ Switch models  │ Switch models   │
+│  Logic)         │ every step    │ or params      │ or params       │
+├─────────────────┼───────────────┼────────────────┼─────────────────┤
+│ 5. Collab       │ [N/A]         │ [N/A]          │ Optimized:      │
+│ (P(c|a))        │               │                │ Search for      │
+│ (Negotiation)   │               │                │ optimal context │
+│                 │               │                │ [KEY NEW LEVER] │
+└─────────────────┴───────────────┴────────────────┴─────────────────┘
+</code></pre>
+<h5>5.2 Key Insight</h5>
+<p>
+The transition from ReAct → Control Flow → Multi-Agent is not just structural—it's an <strong>expansion of the optimization surface</strong>. Each step adds new levers that can be tuned to maximize the goal probability.
+</p>
+<hr>
+<h4>Part 6: Practical Implications</h4>
+<h5>6.1 Connection to Protocols</h5>
+<p>
+The paper connects the framework to emerging standards:
+</p>
+<p>
+<strong>Model Context Protocol (MCP)</strong>:
+</p>
+<ul>
+<li>Provides standardized tools {α}</li>
+<li>Provides prompt templates for s(c)</li>
+<li>Enables models to be trained for better P^{F,u}(aᵢ|sᵢ₋₁)</li>
+</ul>
+<p>
+<strong>Agent-to-Agent Protocol (A2A)</strong>:
+</p>
+<ul>
+<li>Provides pathway for optimizing cₗ</li>
+<li>Provides medium for passing cₗ, executing aₖ, returning cₖ</li>
+<li>Enables action space partitioning across agents</li>
+</ul>
+<h5>6.2 Parallelism</h5>
+<p>
+The framework also handles parallel execution:
+</p>
+<pre><code>
+P^{F₁}(aₓ|sᵢ₋₁) × P^{F₂}(aᵧ|sᵢ₋₁)
+</code></pre>
+<p>
+When actions aₓ and aᵧ are independent (don't depend on each other's results), they can run in parallel. Recombination requires a new state function:
+</p>
+<pre><code>
+P^F(aₙ|s(sᵢ₋₁,ₓ, sᵢ₋₁,ᵧ)) · P^{F₁}(aₓ|sᵢ₋₁) × P^{F₂}(aᵧ|sᵢ₋₁)
+</code></pre>
+<h5>6.3 Collaboration Costs</h5>
+<p>
+Real collaboration has costs:
+</p>
+<ul>
+<li>Latency (communication overhead)</li>
+<li>Computation (additional LLM calls)</li>
+<li>Complexity (harder to debug)</li>
+</ul>
+<p>
+The paper introduces a regularized objective:
+</p>
+<pre><code>
+Maximize( P(...) − λ · CollabCost(aᵧ, c, F, u) )
+</code></pre>
+<p>
+Where λ controls the trade-off between outcome probability and efficiency.
+</p>
+<hr>
+<h4>Part 7: Practical Guidelines</h4>
+<h5>7.1 When to Use Each Architecture</h5>
+<p>
+Based on the framework:
+</p>
+<table>
+<tr><th>Scenario</th><th>Recommended Architecture</th><th>Why</th></tr>
+<tr><td>Simple, well-defined tasks</td><td>ReAct</td><td>Minimal overhead, sufficient DoF</td></tr>
+<tr><td>Multi-step with strict ordering</td><td>Control Flow</td><td>Constrain action space per step</td></tr>
+<tr><td>Complex, requiring specialization</td><td>Multi-Agent</td><td>Partition expertise, use collaboration DoF</td></tr>
+<tr><td>High reliability required</td><td>Control Flow/Multi-Agent</td><td>Explicit constraints beat random walk</td></tr>
+<tr><td>Cost-sensitive</td><td>ReAct or simple Control Flow</td><td>Minimize CollabCost</td></tr>
+</table>
+<h5>7.2 Optimization Strategy</h5>
+<p>
+To maximize P(a = aᵧ|c):
+</p>
+<ol>
+<li><strong>Reduce action space</strong>: Fewer options at each step = higher P(correct choice)</li>
+<li><strong>Shorten chains</strong>: Fewer steps = less probability decay</li>
+<li><strong>Optimize prompts</strong>: Better s₀(c) = higher P at first step</li>
+<li><strong>Specialize agents</strong>: Tuned F, u for each partition = higher P within subspace</li>
+<li><strong>Leverage collaboration</strong>: Search over cₗ = find better local optima</li>
+</ol>
+<h5>7.3 The Trade-off Triangle</h5>
+<pre><code>
+                    Capability
+                       /\
+                      /  \
+                     /    \
+                    /      \
+                   /        \
+                  /          \
+                 /____________\
+           Simplicity    Reliability
+
+ReAct:        High Simplicity, Lower Reliability
+Control Flow: Balanced
+Multi-Agent:  High Capability, Higher Complexity
+</code></pre>
+<hr>
+<h4>Conclusion</h4>
+<p>
+This paper provides something the AI agent field desperately needed: a <strong>unified mathematical language</strong> for understanding and comparing agent architectures.
+</p>
+<p>
+The key takeaways:
+</p>
+<ol>
+<li><strong>All agents are probability chains</strong>: P(a|c) decomposed into sequential/parallel probability kernels</li>
+</ol>
+<ol>
+<li><strong>Degrees of Freedom differentiate architectures</strong>: More DoF = more optimization surfaces = potentially better outcomes (at higher complexity cost)</li>
+</ol>
+<ol>
+<li><strong>Collaboration is a new DoF</strong>: Multi-agent systems uniquely offer P(cₗ|aₗ) and P(cₖ|aₖ) as optimization targets</li>
+</ol>
+<ol>
+<li><strong>Partitioning is powerful</strong>: Reducing action space and sequence length increases success probability</li>
+</ol>
+<ol>
+<li><strong>There are trade-offs</strong>: CollabCost must be balanced against probability gains</li>
+</ol>
+<p>
+The framework transforms agent design from empirical intuition to principled engineering.
+</p>
+<hr>
+<h4>Appendix: Key Equations</h4>
+<h5>Agent Definition</h5>
+<p>
+$$A^{F,u}(a|c) = P^{F,u}(a|c)$$
+</p>
+<h5>Probability Chain</h5>
+<p>
+$$P(a|c) = P(a_n|s_{n-1}, c) \cdot P(a_{n-1}|s_{n-2}, c) \cdots P(a_1|s_0, c)$$
+</p>
+<h5>ReAct with Thoughts</h5>
+<p>
+$$P^t(a_i|s_{i-1}) = P(a_i|t_i, s_{i-1}) \cdot P(t_i|s_{i-1})$$
+</p>
+<h5>Multi-Agent Partition</h5>
+<p>
+$$P(a_U \times a_K \times a_L|s_0(c)) = \int dc_L dc_K \cdot A^{F_1,u_1}(a_U|s(c_K)) \cdot P(c_K|a_K) \cdot A^{F_2,u_2}(a_K|s(c_L)) \cdot P(c_L|a_L) \cdot A^{F_1,u_1}(a_L|s(c))$$
+</p>
+<h5>Parallelism</h5>
+<p>
+$$P^{F_1}(a_X|s_{i-1}) \times P^{F_2}(a_Y|s_{i-1})$$
+</p>
+<h5>Regularized Objective</h5>
+<p>
+$$\text{Maximize}(P^{F,u}(a = a_g|c) - \lambda \cdot \text{CollabCost}(a_g, c, F, u))$$
+</p>
+        </section>
+
+        <section id="claims">
+            <h2>Claims</h2>
+            <p>
+The paper makes the following main claims:
+</p>
+<h4>Primary Claims</h4>
+<ol>
+<li><strong>Agent behavior can be fundamentally understood as a probabilistic process.</strong> (p. 2)</li>
+</ol>
+<p>
+   The agent's goal is to maximize the probability of taking a specific sequence of actions (the "goal actions") that leads to a successful outcome.
+</p>
+<ol>
+<li><strong>Different agent strategies can be compared using a common mathematical framework based on probability chains.</strong> (p. 2-3)</li>
+</ol>
+<p>
+   By framing agentic processes as chains of probabilities P(a|s), disparate architectures like ReAct, Control Flow, and Multi-Agent can be formally analyzed.
+</p>
+<ol>
+<li><strong>The "Degrees of Freedom" concept differentiates the optimizable levers available in each approach.</strong> (p. 3, 9-10)</li>
+</ol>
+<p>
+   Different architectures offer different "knobs" for optimization—ReAct has fewer than Control Flow, which has fewer than Multi-Agent with collaboration.
+</p>
+<h4>Technical Claims</h4>
+<ol>
+<li><strong>ReAct can be modeled as a Markov chain with a single probability kernel.</strong> (p. 4-5)</li>
+</ol>
+<p>
+   The probability kernel P^t(a|s) is applied repeatedly with state update u that concatenates thoughts and observations.
+</p>
+<ol>
+<li><strong>Generating thoughts increases the likelihood of correct actions.</strong> (p. 5)</li>
+</ol>
+<p>
+   P^{ReAct}(a|c) ≠ P^{⊙}(a|c) — a raw LLM without thought generation has lower probability of correct actions.
+</p>
+<ol>
+<li><strong>Multi-agent systems introduce new probability terms P(cₗ|aₗ) and P(cₖ|aₖ) that represent collaboration opportunities.</strong> (p. 6-7)</li>
+</ol>
+<p>
+   These inter-agent context probabilities are degrees of freedom unavailable in single-agent architectures.
+</p>
+<ol>
+<li><strong>Action space partitioning increases probability of success within each partition.</strong> (p. 7)</li>
+</ol>
+<p>
+   By encapsulating a partition of actions into a tuned agent, you achieve higher probability on sub-actions than trying to handle them within a single constrained system.
+</p>
+<ol>
+<li><strong>Chaining probabilities can only maintain or decrease overall probability.</strong> (p. 7)</li>
+</ol>
+<p>
+   Since probabilities are bounded [0,1], longer chains and more possible actions decrease end-to-end success probability.
+</p>
+<h4>Framework Claims</h4>
+<ol>
+<li><strong>An agent is fully characterized by inference functional F, state update function u, and initial state s₀(c).</strong> (p. 3, 5)</li>
+</ol>
+<p>
+   A^{F,u}(a|c) = P^{F,u}(a|c) provides complete characterization.
+</p>
+<ol>
+<li><strong>Control flow architectures work by applying different F, u, and s(c) at each step.</strong> (p. 8-9)</li>
+</ol>
+<p>
+    This constrains the action space and implicitly constrains the context space.
+</p>
+<ol>
+<li><strong>Parallelism can be formalized as a graph of Markov chains with recombination.</strong> (p. 9)</li>
+</ol>
+<p>
+    Independent actions form P^{F₁}(aₓ|sᵢ₋₁) × P^{F₂}(aᵧ|sᵢ₋₁) and recombine via a state function.
+</p>
+<h4>Protocol Claims</h4>
+<ol>
+<li><strong>MCP provides tools {α} and prompt templates for s(c), enabling improved P^{F,u}(aᵢ|sᵢ₋₁).</strong> (p. 8)</li>
+</ol>
+<ol>
+<li><strong>A2A provides pathways for optimizing cₗ and enables action space partitioning across agents.</strong> (p. 8)</li>
+</ol>
+<h4>Practical Claims</h4>
+<ol>
+<li><strong>Collaboration costs (latency, computation, complexity) must be balanced against probability gains.</strong> (p. 11)</li>
+</ol>
+<p>
+    The regularized objective Maximize(P(...) − λ·CollabCost(·)) provides a realistic framework.
+</p>
+<ol>
+<li><strong>Probing agents for optimal context without executing actions enables probabilistic search for locally optimal solutions.</strong> (p. 7)</li>
+</ol>
+<p>
+    This is the mathematical basis for collaboration and negotiation between agents.
+</p>
+        </section>
+
+        <section id="methods">
+            <h2>Methods</h2>
+            <h4>Overview</h4>
+<p>
+This is a theoretical/conceptual paper that introduces a mathematical framework rather than conducting experiments. The methodology is primarily formal analysis and conceptual synthesis.
+</p>
+<h4>Core Framework Definition (p. 3-5)</h4>
+<h5>Probability Chain Formulation</h5>
+<ul>
+<li>Agent behavior modeled as chain of conditional probabilities (p. 3)</li>
+<li>General form: P(a|c) = P(aₙ|sₙ₋₁, c) · P(aₙ₋₁|sₙ₋₂, c) · ... · P(a₁|s₀, c)</li>
+<li>State update function: sᵢ = u(aᵢ, aᵢ₋₁, ..., a₁, sᵢ₋₁, sᵢ₋₂, ..., s₀)</li>
+</ul>
+<h5>Agent Characterization</h5>
+<ul>
+<li>Agent defined as A^{F,u}(a|c) = P^{F,u}(a|c) (p. 5)</li>
+<li>Three key components: inference functional F, update function u, initial state s₀(c)</li>
+<li>Action decomposed as aᵢ → {αᵢ, xᵢ, oᵢ} (action class, argument, observation)</li>
+</ul>
+<h4>ReAct Analysis (p. 4-5)</h4>
+<h5>Probabilistic Formulation</h5>
+<ul>
+<li>Introduces thought variable tᵢ as intermediate state</li>
+<li>P^t(aᵢ|sᵢ₋₁) = P(aᵢ|tᵢ, sᵢ₋₁) · P(tᵢ|sᵢ₋₁) (p. 4, Eq. 2)</li>
+<li>Full probability with integral over thoughts: P^{ReAct}(a|c) = ∫dt₁...∫dtₙ P^{t,u}(a,t|c) (p. 5, Eq. 5)</li>
+</ul>
+<h5>State Update Options (p. 5)</h5>
+<ul>
+<li>Lossless Concatenation: u_concat(s, t, o)</li>
+<li>Lossy Summarizing Update: u_summary(s, t, o)</li>
+<li>Structured Selective Update: u_selective(s, t, o)</li>
+</ul>
+<h4>Multi-Agent Formulation (p. 6-7)</h4>
+<h5>Action Space Partitioning</h5>
+<ul>
+<li>Full space partitioned: aᵤ × aₖ × aₗ (p. 6)</li>
+<li>Each partition assigned to different agents</li>
+</ul>
+<h5>Inter-Agent Probability Terms</h5>
+<ul>
+<li>New terms introduced: P(cₖ|aₖ) and P(cₗ|aₗ) (p. 6, Eq. 12)</li>
+<li>Represent context passed between agents</li>
+</ul>
+<h5>Hierarchical Topology (p. 6-7)</h5>
+<ul>
+<li>Agent₁ → Agent₂ → Agent₁ pattern formalized</li>
+<li>Graphical representation provided (Fig. 4)</li>
+</ul>
+<h4>Control Flow Analysis (p. 8-9)</h4>
+<h5>Per-Step Variation</h5>
+<ul>
+<li>Different F, u, s(c) at each graph node</li>
+<li>Constrains action space {α} per step</li>
+<li>Implicitly constrains context space</li>
+</ul>
+<h4>Parallelism Formalization (p. 9)</h4>
+<h5>Independent Actions</h5>
+<ul>
+<li>P^{F₁}(aₓ|sᵢ₋₁) × P^{F₂}(aᵧ|sᵢ₋₁) for independent actions (Eq. 13)</li>
+<li>No longer Markov chain but graph of Markov chains</li>
+</ul>
+<h5>Recombination</h5>
+<ul>
+<li>New state function: s(sᵢ₋₁,ₓ, sᵢ₋₁,ᵧ) (p. 9, Eq. 14)</li>
+</ul>
+<h4>Collaboration Cost Extension (p. 11)</h4>
+<h5>Regularized Objective</h5>
+<ul>
+<li>Maximize(P^{F,u}(a = aᵧ|c) − λ · CollabCost(aᵧ, c, F, u)) (Eq. 15)</li>
+<li>λ = hyperparameter for cost weighting</li>
+<li>CollabCost includes latency, tokens, complexity</li>
+</ul>
+<h4>Degrees of Freedom Comparison (p. 9-10)</h4>
+<h5>Methodology for Comparison</h5>
+<ul>
+<li>Tabular comparison of optimizing parameters (Table 1)</li>
+<li>Visual "Strategy Capability Board" (Fig. 7)</li>
+<li>Parameters identified: s₀(c), u, {α}, F, P(c|a)</li>
+</ul>
+        </section>
+
+        <section id="findings">
+            <h2>Findings</h2>
+            <p>
+This is a theoretical paper that proposes a framework rather than conducting experiments. The "findings" are conceptual insights derived from the mathematical formulation.
+</p>
+<h4>Key Conceptual Findings</h4>
+<h5>1. Thought Generation Increases Action Probability</h5>
+<p>
+The paper formally shows that:
+</p>
+<pre><code>
+P^{ReAct}(a|c) ≠ P^{⊙}(a|c)
+</code></pre>
+<p>
+Where ⊙ represents a raw LLM without thought generation. This formalizes the intuition behind Chain-of-Thought and ReAct: explicit reasoning increases the probability of correct actions. (p. 5)
+</p>
+<h5>2. Multi-Agent Introduces New Optimization Surfaces</h5>
+<p>
+The multi-agent formulation reveals new probability terms:
+</p>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>P(cₗ\</td><td>aₗ)</td><td>Probability of context generation for downstream agent</td></tr>
+<tr><td>P(cₖ\</td><td>aₖ)</td><td>Probability of result context returned upstream</td></tr>
+</table>
+<p>
+These terms represent <strong>collaboration</strong> and <strong>negotiation</strong>—optimization surfaces that don't exist in single-agent architectures. (p. 6-7)
+</p>
+<h5>3. Probability Chains Can Only Decrease</h5>
+<p>
+A fundamental property of the framework:
+</p>
+<blockquote>"As a probability is always bound between 0 and 1, as we chain events together we are always, at best, maintaining the probability of the desired outcome." (p. 7)</blockquote>
+<p>
+<strong>Implication</strong>: Shorter chains and smaller action spaces increase success probability.
+</p>
+<h5>4. Partitioning Increases Per-Partition Success</h5>
+<p>
+By isolating sub-actions to a specialized agent with tuned F, u, and s(c):
+</p>
+<blockquote>"You have a higher probability of success on the subactions aₖ performed by the agent, than is likely by trying to make these decisions within the same constrained F, u and s that the rest of your actions are tied to." (p. 7)</blockquote>
+<h5>5. Degrees of Freedom Comparison (Table 1, p. 10)</h5>
+<table>
+<tr><th>Methodology</th><th>Degrees of Freedom</th><th>Optimizing Parameters</th></tr>
+<tr><td>ReAct</td><td>Prompt Engineering, State Update</td><td>s₀(c), u(aᵢ, sᵢ₋₁)</td></tr>
+<tr><td>Deep Thinking</td><td>Inference Graph, Model params</td><td>F</td></tr>
+<tr><td>Fine Tuning</td><td>Model parameters</td><td>F</td></tr>
+<tr><td>Control Flow</td><td>Partition actions, change prompts per step</td><td>F, u, s₀(c), aᵢ→{αᵢ,xᵢ,oᵢ}</td></tr>
+<tr><td>Multi-Agent (no collab)</td><td>Partition actions and agent logic</td><td>F, u, s₀(c), aᵢ→{αᵢ,xᵢ,oᵢ}</td></tr>
+<tr><td>Multi-Agent (collab)</td><td>All above + collaboration/negotiation</td><td>All above + P(cₗ\</td><td>aₗ), P(cₖ\</td><td>aₖ)</td></tr>
+</table>
+<h5>6. Protocol Roles Clarified</h5>
+<p>
+<strong>MCP</strong> (Model Context Protocol):
+</p>
+<ul>
+<li>Provides tools {α}</li>
+<li>Provides prompt templates for s(c)</li>
+<li>Enables improved P^{F,u}(aᵢ|sᵢ₋₁) via u and sᵢ₋₁ (p. 8)</li>
+</ul>
+<p>
+<strong>A2A</strong> (Agent-to-Agent Protocol):
+</p>
+<ul>
+<li>Provides pathway for optimizing cₗ</li>
+<li>Provides medium for context passing and action execution</li>
+<li>Enables action space partitioning (p. 8)</li>
+</ul>
+<h5>7. Collaboration vs. Probing Trade-off</h5>
+<p>
+The ideal optimization would probe every inter-agent link to find optimal context. In practice:
+</p>
+<blockquote>"Most real actions (aka tools or LLM processing) do not allow probing. Additionally, probing might be expensive itself, practically." (p. 7)</blockquote>
+<p>
+<strong>Practical solution</strong>: Isolate sub-actions to agents that CAN be probed for dynamic optimization.
+</p>
+<h5>8. Parallelism Requires Recombination Logic</h5>
+<p>
+Independent parallel actions create a graph of Markov chains, not a single chain:
+</p>
+<pre><code>
+P^{F₁}(aₓ|sᵢ₋₁) × P^{F₂}(aᵧ|sᵢ₋₁)
+</code></pre>
+<p>
+Recombination requires explicit logic: s(sᵢ₋₁,ₓ, sᵢ₋₁,ᵧ) (p. 9)
+</p>
+<h5>9. Collaboration Costs Must Be Balanced</h5>
+<p>
+The regularized objective:
+</p>
+<pre><code>
+Maximize(P(...) − λ · CollabCost(·))
+</code></pre>
+<p>
+Ensures designs are "not just effective, but also efficient" (p. 11)
+</p>
+        </section>
+
+        <section id="glossary">
+            <h2>Glossary</h2>
+            <h4>Core Concepts</h4>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Intelligent_agent">Agent</a></strong>: A system that perceives its environment, formulates a plan through reasoning steps ("thoughts"), and executes actions to achieve a specific objective. In this paper, formally defined as A^{F,u}(a|c) = P^{F,u}(a|c).
+</p>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Markov_chain">Markov Chain</a></strong>: A stochastic process where the probability of each state depends only on the previous state, not the full history. The paper models agent behavior as Markov chains where sᵢ = u(aᵢ, sᵢ₋₁).
+</p>
+<p>
+<strong>Probability Chain</strong>: The core formulation in this paper—modeling agent behavior as a product of conditional probabilities: P(a|c) = P(aₙ|sₙ₋₁) · P(aₙ₋₁|sₙ₋₂) · ... · P(a₁|s₀).
+</p>
+<p>
+<strong>Degrees of Freedom</strong>: The optimizable parameters or "levers" available within a given agent architecture. More DoF means more surfaces for optimization. Key DoF include s₀(c), u, F, {α}, and P(c|a).
+</p>
+<h4>Agent Components</h4>
+<p>
+<strong>Inference Functional (F)</strong>: The function that defines how inputs map to outputs probabilistically. Includes the LLM itself plus any prompting techniques, inference algorithms, or processing steps. Examples: raw LLM, Chain-of-Thought, deep thinking models.
+</p>
+<p>
+<strong>State Update Function (u)</strong>: The function that updates the agent's state after each action: sᵢ = u(aᵢ, ..., sᵢ₋₁, ...). Types include lossless concatenation, lossy summarization, and selective update.
+</p>
+<p>
+<strong>Initial State (s₀(c))</strong>: The starting state derived from context c. Typically includes the system prompt, available tools, and user input.
+</p>
+<p>
+<strong>Context (c)</strong>: The input provided to the agent, including user request, system configuration, and available tools.
+</p>
+<p>
+<strong>State (sᵢ)</strong>: The complete context available to the agent at step i, including history, observations, and any metadata.
+</p>
+<p>
+<strong>Action (aᵢ)</strong>: An operation performed by the agent, decomposed as aᵢ → {αᵢ, xᵢ, oᵢ} where αᵢ is action class, xᵢ is arguments, and oᵢ is observation/result.
+</p>
+<p>
+<strong>Action Class ({α})</strong>: The set of available action types or tools. Constraining this set is a key optimization lever.
+</p>
+<h4>Agent Architectures</h4>
+<p>
+<strong><a href="https://arxiv.org/abs/2210.03629">ReAct</a></strong>: A prompting framework where the agent generates alternating "thoughts" (reasoning traces) and "actions" (tool calls), with observations fed back into context. Modeled as applying the same probability kernel P^t(a|s) repeatedly.
+</p>
+<p>
+<strong><a href="https://arxiv.org/abs/2201.11903">Chain-of-Thought (CoT)</a></strong>: A prompting technique that elicits intermediate reasoning steps before the final answer. Precursor to ReAct that demonstrated thoughts improve action probability.
+</p>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Multi-agent_system">Multi-Agent Systems (MAS)</a></strong>: Systems with multiple autonomous agents assuming different roles and communicating to complete tasks. Introduces new DoF via inter-agent context probabilities P(cₗ|aₗ).
+</p>
+<p>
+<strong>Control Flow</strong>: Agent architectures that impose structure via predefined graphs or state machines, using different F, u, s(c) at each step. Constrains the "random walk" of basic ReAct.
+</p>
+<p>
+<strong><a href="https://arxiv.org/abs/2305.10601">Tree-of-Thoughts</a></strong>: A technique that explores multiple reasoning paths in parallel with pruning or search to select the best. A form of manipulating F.
+</p>
+<h4>Probabilistic Terms</h4>
+<p>
+<strong>P(a|s)</strong>: Probability of taking action a given state s. The fundamental building block of the framework.
+</p>
+<p>
+<strong>P(aᵢ|tᵢ, sᵢ₋₁)</strong>: Probability of action given thought and previous state. Shows how thoughts condition action selection.
+</p>
+<p>
+<strong>P(tᵢ|sᵢ₋₁)</strong>: Probability of generating thought tᵢ from previous state. Part of the ReAct decomposition.
+</p>
+<p>
+<strong>P(cₗ|aₗ)</strong>: Probability of generating context cₗ for a downstream agent given actions aₗ. Represents collaboration—a new DoF in multi-agent systems.
+</p>
+<p>
+<strong>P(cₖ|aₖ)</strong>: Probability of returning context cₖ to the calling agent given actions aₖ. Represents negotiation between agents.
+</p>
+<p>
+<strong>Goal Actions (aᵧ)</strong>: The specific ordered sequence of actions that leads to successful task completion. The objective is to maximize P(a = aᵧ|c).
+</p>
+<h4>Optimization Concepts</h4>
+<p>
+<strong>Prompt Engineering</strong>: Static manipulation of the initial state s₀(c) to improve action probabilities.
+</p>
+<p>
+<strong>Context Engineering</strong>: Dynamic, strategic manipulation of state sᵢ(c) at each step. More sophisticated than static prompt engineering.
+</p>
+<p>
+<strong>Action Space Partitioning</strong>: Dividing the full action space across different agents or graph nodes to reduce per-step complexity and increase success probability.
+</p>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Transaction_cost">Collaboration Cost</a></strong>: The overhead of inter-agent communication including latency, computation, token usage, and system complexity. Formalized as CollabCost(·) in the regularized objective.
+</p>
+<p>
+<strong>Regularized Objective</strong>: Maximize(P(...) − λ · CollabCost(·)) — balancing outcome probability against practical costs.
+</p>
+<h4>Protocols</h4>
+<p>
+<strong><a href="https://modelcontextprotocol.io/">Model Context Protocol (MCP)</a></strong>: A standard providing tools {α}, argument syntax, and prompt templates for s(c). Enables models to be trained for better P^{F,u}(aᵢ|sᵢ₋₁).
+</p>
+<p>
+<strong><a href="https://google.github.io/A2A/">Agent-to-Agent Protocol (A2A)</a></strong>: A protocol providing pathways for optimizing cₗ, passing context between agents, and executing partitioned actions. Enables collaboration DoF.
+</p>
+<h4>Mathematical Notation</h4>
+<p>
+<strong>⊙</strong>: Identity functional representing a raw LLM with function calling, no special prompting.
+</p>
+<p>
+<strong>F</strong>: Inference functional (generic).
+</p>
+<p>
+<strong>u</strong>: State update function.
+</p>
+<p>
+<strong>∫dcₗdcₖ</strong>: Integration over possible contexts in multi-agent probability formulation.
+</p>
+<p>
+<strong>λ</strong>: Hyperparameter weighting collaboration cost in regularized objective.
+</p>
+        </section>
+
+        <section id="prereqs">
+            <h2>Prerequisites</h2>
+            <p>
+Background knowledge helpful for understanding this paper.
+</p>
+<h4>Required Knowledge</h4>
+<h5>Probability Theory</h5>
+<ul>
+<li><strong>Conditional Probability</strong>: Understanding P(A|B) and Bayes' theorem</li>
+<li><strong>Chain Rule of Probability</strong>: P(A,B,C) = P(A|B,C) · P(B|C) · P(C)</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Markov_chain">Markov Chains</a></strong>: Systems where future state depends only on current state</li>
+<li><strong>Expected Value</strong>: Weighted average of outcomes by probability</li>
+</ul>
+<h5>Large Language Models</h5>
+<ul>
+<li><strong><a href="https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture">Transformer Architecture</a>)</strong>: Self-attention mechanisms, context windows</li>
+<li><strong>Token Generation</strong>: Autoregressive next-token prediction</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Prompt_engineering">Prompting</a></strong>: How input text affects output distributions</li>
+<li><strong>Function Calling</strong>: LLMs invoking external tools with structured arguments</li>
+</ul>
+<h5>Agent Systems</h5>
+<ul>
+<li><strong><a href="https://arxiv.org/abs/2210.03629">ReAct Pattern</a></strong>: Reasoning and Acting framework for LLM agents</li>
+<li><strong>Tool Use</strong>: Agents calling APIs, databases, search engines</li>
+<li><strong>Observation Loop</strong>: Action → Observation → Updated Context → Next Action</li>
+</ul>
+<h4>Helpful Background</h4>
+<h5>Programming Concepts</h5>
+<ul>
+<li><strong>State Machines</strong>: Systems with defined states and transitions</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Directed_graph">Directed Graphs</a></strong>: Nodes and edges representing flow</li>
+<li><strong>Function Composition</strong>: f(g(x)) — chaining operations</li>
+</ul>
+<h5>Distributed Systems</h5>
+<ul>
+<li><strong><a href="https://en.wikipedia.org/wiki/Message_passing">Message Passing</a></strong>: Communication between independent processes</li>
+<li><strong>Orchestration</strong>: Coordinating multiple services</li>
+<li><strong>Latency and Throughput</strong>: Performance trade-offs in distributed systems</li>
+</ul>
+<h5>Optimization Theory</h5>
+<ul>
+<li><strong><a href="https://en.wikipedia.org/wiki/Loss_function">Objective Functions</a></strong>: What we're trying to maximize/minimize</li>
+<li><strong><a href="https://en.wikipedia.org/wiki/Regularization_(mathematics">Regularization</a>)</strong>: Adding penalty terms to objectives</li>
+<li><strong>Hyperparameters</strong>: Tunable parameters external to the model</li>
+</ul>
+<h4>Papers to Read First</h4>
+<ol>
+<li><strong>ReAct: Synergizing Reasoning and Acting in Language Models</strong> (Yao et al., 2022)</li>
+</ol>
+<p>
+   - The foundation for thought-action patterns
+    - https://arxiv.org/abs/2210.03629
+</p>
+<ol>
+<li><strong>Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</strong> (Wei et al., 2022)</li>
+</ol>
+<p>
+   - How intermediate reasoning improves outputs
+    - https://arxiv.org/abs/2201.11903
+</p>
+<ol>
+<li><strong>Tree of Thoughts: Deliberate Problem Solving with Large Language Models</strong> (Yao et al., 2023)</li>
+</ol>
+<p>
+   - Exploring multiple reasoning paths
+    - https://arxiv.org/abs/2305.10601
+</p>
+<h4>Concepts You Can Skip</h4>
+<ul>
+<li>Deep mathematical analysis of Markov chain convergence</li>
+<li>Detailed transformer internals (attention mechanisms, layer norms)</li>
+<li>Specific implementation details of any particular agent framework</li>
+<li>Formal verification or theorem proving</li>
+</ul>
+<h4>Quick Refresher</h4>
+<p>
+If you need a 5-minute refresher on any topic:
+</p>
+<table>
+<tr><th>Topic</th><th>Key Idea</th></tr>
+<tr><td>Conditional Probability</td><td>P(A\</td><td>B) = "probability of A given B happened"</td></tr>
+<tr><td>Markov Property</td><td>Next state depends only on current state, not history</td></tr>
+<tr><td>ReAct</td><td>Think → Act → Observe → Repeat</td></tr>
+<tr><td>State Machine</td><td>Current state + Input → Next state</td></tr>
+<tr><td>Regularization</td><td>Objective = Goal - λ · Penalty</td></tr>
+</table>
+        </section>
+
+        <section id="questions">
+            <h2>Questions</h2>
+            <h4>Understanding the Framework</h4>
+<ol>
+<li><strong>Why is framing agent behavior as probability chains useful?</strong> What does this formulation enable that wasn't possible before?</li>
+</ol>
+<ol>
+<li><strong>What does it mean for an agent to be "fully characterized" by F, u, and s₀(c)?</strong> Are there aspects of agent behavior this doesn't capture?</li>
+</ol>
+<ol>
+<li><strong>How does the Markov assumption simplify the analysis?</strong> When might real agent systems violate this assumption?</li>
+</ol>
+<h4>ReAct Analysis</h4>
+<ol>
+<li><strong>Why does generating thoughts increase the probability of correct actions?</strong> What is the mathematical mechanism behind P^{ReAct}(a|c) ≠ P^{⊙}(a|c)?</li>
+</ol>
+<ol>
+<li><strong>What are the trade-offs between different state update functions (concat vs. summarize vs. selective)?</strong> When would you choose each?</li>
+</ol>
+<ol>
+<li><strong>Why is ReAct described as a "random walk"?</strong> What problems does this cause?</li>
+</ol>
+<h4>Multi-Agent Systems</h4>
+<ol>
+<li><strong>What exactly do P(cₗ|aₗ) and P(cₖ|aₖ) represent?</strong> Why are these considered "new degrees of freedom"?</li>
+</ol>
+<ol>
+<li><strong>How does action space partitioning increase probability of success?</strong> What's the mathematical intuition?</li>
+</ol>
+<ol>
+<li><strong>The paper frames collaboration as "probabilistic search"—what does this mean practically?</strong> How would you implement such a search?</li>
+</ol>
+<h4>Degrees of Freedom</h4>
+<ol>
+<li><strong>Why can't ReAct achieve what multi-agent systems can, even with perfect prompt engineering?</strong> What's fundamentally different?</li>
+</ol>
+<ol>
+<li><strong>Is more degrees of freedom always better?</strong> What are the downsides of having more DoF?</li>
+</ol>
+<ol>
+<li><strong>How do you decide which degrees of freedom to optimize for a given task?</strong> What guidance does the framework provide?</li>
+</ol>
+<h4>Practical Implications</h4>
+<ol>
+<li><strong>How does this framework help you choose between ReAct, Control Flow, and Multi-Agent architectures?</strong> What criteria emerge?</li>
+</ol>
+<ol>
+<li><strong>The paper mentions MCP and A2A protocols—how do they fit into the framework?</strong> What probabilities do they help optimize?</li>
+</ol>
+<ol>
+<li><strong>How would you use this framework to debug a failing agent system?</strong> What would you look for?</li>
+</ol>
+        </section>
+
+        <section id="quiz">
+            <h2>Quiz</h2>
+            <p>
+Test your understanding of the Mathematical Framing for Agent Strategies paper.
+</p>
+<h4>Questions</h4>
+<h5>Question 1</h5>
+<p>
+What is the fundamental equation that represents an agent's probability of taking actions a given context c?
+</p>
+<details>
+<summary>Show Answer</summary>
+<p>
+P(a|c) = P(aₙ|sₙ₋₁, c) · P(aₙ₋₁|sₙ₋₂, c) · ... · P(a₁|s₀, c)
+</p>
+<p>
+This is a chain of conditional probabilities where each action's probability depends on the previous state.
+</p>
+</details>
+<hr>
+<h5>Question 2</h5>
+<p>
+What are the three components that fully characterize an agent in this framework?
+</p>
+<details>
+<summary>Show Answer</summary>
+<ol>
+<li><strong>Inference Functional (F)</strong>: How inputs map to outputs (LLM, CoT, deep thinking, etc.)</li>
+<li><strong>State Update Function (u)</strong>: How state evolves after actions</li>
+<li><strong>Initial State (s₀(c))</strong>: How context c becomes the starting state</li>
+</ol>
+<p>
+The agent is denoted as A^{F,u}(a|c) = P^{F,u}(a|c).
+</p>
+</details>
+<hr>
+<h5>Question 3</h5>
+<p>
+In the ReAct formulation, how is the probability of an action decomposed to include thoughts?
+</p>
+<details>
+<summary>Show Answer</summary>
+<p>
+P^t(aᵢ|sᵢ₋₁) = P(aᵢ|tᵢ, sᵢ₋₁) · P(tᵢ|sᵢ₋₁)
+</p>
+<p>
+The probability of action aᵢ is the product of:
+</p>
+<ul>
+<li>The probability of generating thought tᵢ from the previous state</li>
+<li>The probability of selecting action aᵢ given both the thought and previous state</li>
+</ul>
+</details>
+<hr>
+<h5>Question 4</h5>
+<p>
+What new probability terms are introduced in multi-agent systems that don't exist in single-agent architectures?
+</p>
+<details>
+<summary>Show Answer</summary>
+<ul>
+<li><strong>P(cₗ|aₗ)</strong>: Probability of generating context cₗ to pass to a downstream agent</li>
+<li><strong>P(cₖ|aₖ)</strong>: Probability of generating context cₖ to return to the calling agent</li>
+</ul>
+<p>
+These represent <strong>collaboration</strong> and <strong>negotiation</strong> opportunities—new degrees of freedom for optimization.
+</p>
+</details>
+<hr>
+<h5>Question 5</h5>
+<p>
+Why does chaining more probabilities tend to decrease overall success probability?
+</p>
+<details>
+<summary>Show Answer</summary>
+<p>
+Because probabilities are bounded between 0 and 1. When you multiply probabilities:
+</p>
+<ul>
+<li>If each P(aᵢ|sᵢ₋₁) = 0.9</li>
+<li>Then P(a₁, a₂, a₃) = 0.9 × 0.9 × 0.9 = 0.729</li>
+</ul>
+<p>
+"As we chain events together we are always, at best, maintaining the probability of the desired outcome" — you can never increase it through chaining.
+</p>
+</details>
+<hr>
+<h5>Question 6</h5>
+<p>
+What is the "Degrees of Freedom" concept and why is it important?
+</p>
+<details>
+<summary>Show Answer</summary>
+<p>
+Degrees of Freedom are the optimizable parameters or "levers" available in each agent architecture:
+</p>
+<ul>
+<li><strong>ReAct</strong>: s₀(c), u</li>
+<li><strong>Control Flow</strong>: s₀(c), u, F per node, {α} per node</li>
+<li><strong>Multi-Agent</strong>: All above + P(cₗ|aₗ), P(cₖ|aₖ)</li>
+</ul>
+<p>
+More DoF means more surfaces for optimization, potentially better outcomes, but also more complexity.
+</p>
+</details>
+<hr>
+<h5>Question 7</h5>
+<p>
+What does the regularized objective Maximize(P(...) − λ · CollabCost(·)) represent?
+</p>
+<details>
+<summary>Show Answer</summary>
+<p>
+It balances two competing goals:
+</p>
+<ol>
+<li><strong>P(...)</strong>: Maximizing the probability of successful goal actions</li>
+<li><strong>CollabCost(·)</strong>: Minimizing collaboration costs (latency, computation, complexity)</li>
+</ol>
+<p>
+The hyperparameter λ controls the trade-off. Higher λ penalizes costly collaboration more strongly, steering toward simpler solutions.
+</p>
+</details>
+<hr>
+<h5>Question 8</h5>
+<p>
+How does action space partitioning improve success probability?
+</p>
+<details>
+<summary>Show Answer</summary>
+<p>
+Two mechanisms:
+</p>
+<ol>
+<li><strong>Fewer options per step</strong>: If there are 100 possible actions vs. 5, the probability of choosing correctly is much higher with fewer options.</li>
+</ol>
+<ol>
+<li><strong>Specialized tuning</strong>: Each partition can have its own optimized F, u, and s(c), achieving higher probability within that subspace than a general-purpose system.</li>
+</ol>
+<p>
+"By encapsulating a partition of actions into an agent that has tuned F, u and s(c), you have a higher probability of success on the subactions aₖ."
+</p>
+</details>
+<hr>
+<h5>Question 9</h5>
+<p>
+According to the paper, what does MCP (Model Context Protocol) provide in terms of the framework?
+</p>
+<details>
+<summary>Show Answer</summary>
+<p>
+MCP provides:
+</p>
+<ul>
+<li>A set of tools {α} (action classes)</li>
+<li>Standard syntax for how arguments x are produced</li>
+<li>Support for prompt templates to shape state s(c)</li>
+</ul>
+<p>
+This allows models to be trained to improve P^{F,u}(aᵢ|sᵢ₋₁) by improving odds with changes to u and sᵢ₋₁.
+</p>
+</details>
+<hr>
+<h5>Question 10</h5>
+<p>
+What distinguishes Control Flow from ReAct in terms of the probability chain?
+</p>
+<details>
+<summary>Show Answer</summary>
+<p>
+<strong>ReAct</strong>: Same probability kernel P^t(a|s) at every step
+</p>
+<ul>
+<li>Static: same F, u, s(c) throughout</li>
+</ul>
+<p>
+<strong>Control Flow</strong>: Different probability kernels at each step
+</p>
+<ul>
+<li>Dynamic: different F, u, s(c), and {α} per graph node</li>
+</ul>
+<p>
+This allows Control Flow to:
+</p>
+<ul>
+<li>Constrain action space per step</li>
+<li>Use specialized prompts per step</li>
+<li>Potentially use different models per step</li>
+<li>Enforce ordering constraints</li>
+</ul>
+</details>
+        </section>
+
+        <section id="related">
+            <h2>Related Work</h2>
+            <p>
+Papers and concepts referenced or related to this work.
+</p>
+<h4>Directly Referenced Papers</h4>
+<h5>ReAct: Synergizing Reasoning and Acting in Language Models</h5>
+<ul>
+<li><strong>Authors</strong>: Yao et al.</li>
+<li><strong>Year</strong>: 2022</li>
+<li><strong>Relevance</strong>: Foundation for thought-action decomposition. This paper formalizes ReAct mathematically as P^t(aᵢ|sᵢ₋₁) = P(aᵢ|tᵢ, sᵢ₋₁) · P(tᵢ|sᵢ₋₁)</li>
+<li><strong>Link</strong>: https://arxiv.org/abs/2210.03629</li>
+</ul>
+<h5>Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</h5>
+<ul>
+<li><strong>Authors</strong>: Wei et al.</li>
+<li><strong>Year</strong>: 2022</li>
+<li><strong>Relevance</strong>: Precursor to ReAct showing that intermediate thoughts improve final outputs</li>
+<li><strong>Link</strong>: https://arxiv.org/abs/2201.11903</li>
+</ul>
+<h5>Tree of Thoughts: Deliberate Problem Solving with Large Language Models</h5>
+<ul>
+<li><strong>Authors</strong>: Yao et al.</li>
+<li><strong>Year</strong>: 2023</li>
+<li><strong>Relevance</strong>: Mentioned as a technique for manipulating the inference functional F through parallel path exploration</li>
+<li><strong>Link</strong>: https://arxiv.org/abs/2305.10601</li>
+</ul>
+<h4>Referenced Protocols</h4>
+<h5>Model Context Protocol (MCP)</h5>
+<ul>
+<li><strong>Source</strong>: Anthropic</li>
+<li><strong>Relevance</strong>: Provides standardized tools {α}, argument syntax, and prompt templates that enable optimizing P(aᵢ|sᵢ₋₁)</li>
+<li><strong>Link</strong>: https://modelcontextprotocol.io/</li>
+</ul>
+<h5>Agent-to-Agent Protocol (A2A)</h5>
+<ul>
+<li><strong>Source</strong>: Google</li>
+<li><strong>Relevance</strong>: Provides pathways for optimizing inter-agent context passing P(cₗ|aₗ)</li>
+<li><strong>Link</strong>: https://google.github.io/A2A/</li>
+</ul>
+<h4>Related Theoretical Work</h4>
+<h5>Markov Decision Processes (MDPs)</h5>
+<ul>
+<li>Classic framework for sequential decision-making under uncertainty</li>
+<li>This paper applies similar formalism to LLM agents</li>
+<li>Difference: This paper focuses on probability chains rather than reward maximization</li>
+</ul>
+<h5>Reinforcement Learning from Human Feedback (RLHF)</h5>
+<ul>
+<li>Method for training LLMs to align with human preferences</li>
+<li>Relates to optimizing the inference functional F</li>
+<li>This paper provides framework for understanding what RLHF affects</li>
+</ul>
+<h5>Monte Carlo Tree Search</h5>
+<ul>
+<li>Algorithm for exploring decision trees via sampling</li>
+<li>Related to Tree-of-Thoughts and multi-path exploration</li>
+<li>Could be used to implement the "probabilistic search" the paper describes</li>
+</ul>
+<h4>Related Agent Frameworks</h4>
+<h5>LangChain / LangGraph</h5>
+<ul>
+<li>Popular framework for building LLM agents</li>
+<li>Implements Control Flow patterns described in the paper</li>
+<li>Graph-based architecture maps to the paper's formalism</li>
+</ul>
+<h5>AutoGPT / BabyAGI</h5>
+<ul>
+<li>Early autonomous agent implementations</li>
+<li>Use ReAct-style loops as described in the paper</li>
+<li>Multi-agent variants explore hierarchical topologies</li>
+</ul>
+<h5>CrewAI</h5>
+<ul>
+<li>Multi-agent framework with role-based specialization</li>
+<li>Implements action space partitioning across agents</li>
+<li>Demonstrates P(cₗ|aₗ) optimization in practice</li>
+</ul>
+<h4>Conceptual Connections</h4>
+<h5>Information Theory</h5>
+<ul>
+<li>Not directly referenced but relevant</li>
+<li>Mutual information between agents could formalize collaboration</li>
+<li>Channel capacity might bound context passing efficiency</li>
+</ul>
+<h5>Game Theory</h5>
+<ul>
+<li>Multi-agent systems have game-theoretic aspects</li>
+<li>Negotiation P(cₖ|aₖ) has game-theoretic interpretations</li>
+<li>Not explored in this paper but natural extension</li>
+</ul>
+<h5>Control Theory</h5>
+<ul>
+<li>Control Flow has obvious connections</li>
+<li>State feedback, stability analysis could apply</li>
+<li>Convergence guarantees remain unexplored</li>
+</ul>
+<h4>Key Differences from Prior Work</h4>
+<table>
+<tr><th>Prior Work</th><th>This Paper's Contribution</th></tr>
+<tr><td>ReAct (empirical)</td><td>Formal probability decomposition</td></tr>
+<tr><td>MDPs (reward-focused)</td><td>Action probability chains</td></tr>
+<tr><td>Multi-agent (informal)</td><td>Explicit DoF enumeration</td></tr>
+<tr><td>Prompt engineering (art)</td><td>Systematic s₀(c) optimization frame</td></tr>
+</table>
+        </section>
+
+        <section id="context">
+            <h2>Research Context</h2>
+            <p>
+Where this paper fits in the broader landscape of AI agent research.
+</p>
+<h4>Field Position</h4>
+<p>
+This paper sits at the intersection of:
+</p>
+<ul>
+<li><strong>LLM Agent Systems</strong>: Practical frameworks for building autonomous agents</li>
+<li><strong>Theoretical Foundations</strong>: Mathematical formalization of agent behavior</li>
+<li><strong>Systems Architecture</strong>: Design principles for multi-agent systems</li>
+</ul>
+<h4>The Problem It Addresses</h4>
+<h5>Before This Paper</h5>
+<ul>
+<li>Agent architectures (ReAct, multi-agent, etc.) were described empirically</li>
+<li>No unified mathematical framework for comparing approaches</li>
+<li>Design choices made heuristically without formal grounding</li>
+<li>Unclear what distinguished different architectures fundamentally</li>
+</ul>
+<h5>What This Paper Provides</h5>
+<ul>
+<li>Mathematical formalism treating agents as probability chains</li>
+<li>"Degrees of Freedom" concept to compare architectures systematically</li>
+<li>Framework connecting MCP/A2A protocols to optimization surfaces</li>
+<li>Theoretical foundation for future empirical research</li>
+</ul>
+<h4>Research Timeline</h4>
+<pre><code>
+2022: Chain-of-Thought (Wei et al.)
+      ↓ Shows reasoning improves outputs
+2022: ReAct (Yao et al.)
+      ↓ Combines reasoning with tool use
+2023: Tree-of-Thoughts (Yao et al.)
+      ↓ Explores multiple reasoning paths
+2023: Multi-agent systems proliferate
+      ↓ CrewAI, AutoGen, etc.
+2024: MCP Protocol (Anthropic)
+      ↓ Standardizes tool interfaces
+2024: A2A Protocol (Google)
+      ↓ Standardizes agent communication
+2025: This Paper ← Mathematical unification
+</code></pre>
+<h4>Why Now?</h4>
+<p>
+Several factors make this formalization timely:
+</p>
+<ol>
+<li><strong>Maturity of Techniques</strong>: ReAct, CoT, multi-agent patterns are now well-established</li>
+<li><strong>Protocol Standardization</strong>: MCP and A2A provide concrete optimization targets</li>
+<li><strong>Scaling Needs</strong>: As systems grow complex, principled design becomes critical</li>
+<li><strong>Empirical Puzzles</strong>: Why do some architectures outperform others?</li>
+</ol>
+<h4>Relationship to Industry Practice</h4>
+<h5>What Practitioners Do</h5>
+<ul>
+<li>Build agents using LangChain, CrewAI, custom frameworks</li>
+<li>Experiment with prompts, tools, multi-agent setups</li>
+<li>Evaluate empirically on specific tasks</li>
+</ul>
+<h5>What This Paper Offers Practitioners</h5>
+<ul>
+<li>Language for describing what they're optimizing</li>
+<li>Framework for systematic architecture comparison</li>
+<li>Guidance on where to focus optimization effort</li>
+</ul>
+<h4>Open Research Directions</h4>
+<p>
+This paper opens several research threads:
+</p>
+<ol>
+<li><strong>Empirical Validation</strong>: Do the theoretical predictions hold?</li>
+<li><strong>Optimization Algorithms</strong>: How to actually search the DoF space?</li>
+<li><strong>Automated Architecture Selection</strong>: Given a task, which DoF matter?</li>
+<li><strong>Probability Estimation</strong>: Can we measure P(a|s) in practice?</li>
+</ol>
+<h4>Competing Approaches</h4>
+<h5>Alternative Formalisms</h5>
+<ul>
+<li><strong>Markov Decision Processes</strong>: Reward-focused, less applicable to LLM agents</li>
+<li><strong>Game Theory</strong>: Useful for multi-agent but different focus</li>
+<li><strong>Control Theory</strong>: Promising but underdeveloped for LLMs</li>
+</ul>
+<h5>This Paper's Advantage</h5>
+<ul>
+<li>Directly maps to LLM agent implementation patterns</li>
+<li>Connects naturally to existing protocols (MCP, A2A)</li>
+<li>"Degrees of Freedom" provides intuitive comparison metric</li>
+</ul>
+<h4>Significance Assessment</h4>
+<p>
+<strong>Theoretical Contribution</strong>: High
+</p>
+<ul>
+<li>First unified mathematical framework for LLM agent architectures</li>
+</ul>
+<p>
+<strong>Practical Impact</strong>: Moderate (Potential High)
+</p>
+<ul>
+<li>Framework is conceptual; practical tools not yet developed</li>
+<li>Could become foundational if empirical validation follows</li>
+</ul>
+<p>
+<strong>Novelty</strong>: Moderate-High
+</p>
+<ul>
+<li>Formalizes known patterns rather than discovering new ones</li>
+<li>Novel synthesis and "Degrees of Freedom" framing</li>
+</ul>
+        </section>
+
+        <section id="highlights">
+            <h2>Highlights</h2>
+            <p>
+Important quotes and passages from the paper.
+</p>
+<h4>Core Framework</h4>
+<blockquote>"We conceptualize LLM agent as a sequence of actions a = (a₁, ..., aₙ), where the probability of taking actions a given context c is: P(a|c) = P(aₙ|sₙ₋₁, c) · P(aₙ₋₁|sₙ₋₂, c) · ... · P(a₁|s₀, c)"</blockquote>
+<blockquote>— p. 2</blockquote>
+<blockquote>"An agent A is fully characterized by the inference functional F, the state update function u and the initial state s₀(c)"</blockquote>
+<blockquote>— p. 3</blockquote>
+<h4>On Probability Chaining</h4>
+<blockquote>"As we chain events together we are always, at best, maintaining the probability of the desired outcome, a fact that is painfully experienced by those who have attempted to string together chains of agents."</blockquote>
+<blockquote>— p. 5</blockquote>
+<blockquote>"Probabilities are bounded between 0 and 1, you can only decrease, or at best maintain, the probability as you compute successive products."</blockquote>
+<blockquote>— p. 5</blockquote>
+<h4>ReAct Analysis</h4>
+<blockquote>"The ReAct loop is an instance of a Markov Chain, whereby the probability kernel P^t(a|s) is applied at each step."</blockquote>
+<blockquote>— p. 4</blockquote>
+<blockquote>"ReAct can therefore be modeled as a random walk in a high-dimensional state space"</blockquote>
+<blockquote>— p. 4</blockquote>
+<h4>Multi-Agent Systems</h4>
+<blockquote>"Multi-agent systems introduce a qualitatively new element: probabilities of generating contexts for other agents, P(cₗ|aₗ) and P(cₖ|aₖ), which represent collaboration and negotiation opportunities."</blockquote>
+<blockquote>— p. 7</blockquote>
+<blockquote>"These new probabilities represent a new degree of freedom"</blockquote>
+<blockquote>— p. 7</blockquote>
+<h4>Degrees of Freedom</h4>
+<blockquote>"Degrees of Freedom are the possible levers for optimization to maximize P(aᵧ|c)."</blockquote>
+<blockquote>— p. 8</blockquote>
+<blockquote>"Multi-Agent: All above + P(cₗ|aₗ), P(cₖ|aₖ)"</blockquote>
+<blockquote>— p. 8 (Table 1)</blockquote>
+<h4>Action Space Partitioning</h4>
+<blockquote>"By encapsulating a partition of actions into an agent that has tuned F, u and s(c), you have a higher probability of success on the subactions aₖ."</blockquote>
+<blockquote>— p. 8</blockquote>
+<blockquote>"Partitioning the action space increases probability through (1) fewer options per step and (2) specialized tuning per partition."</blockquote>
+<blockquote>— p. 8</blockquote>
+<h4>On MCP and A2A</h4>
+<blockquote>"MCP provides a set of tools {α}, standard syntax for how arguments x are produced, and support for prompt templates to shape state s(c)."</blockquote>
+<blockquote>— p. 9</blockquote>
+<blockquote>"A2A provides pathways for optimizing cₗ and executing partitioned actions across agents."</blockquote>
+<blockquote>— p. 9</blockquote>
+<h4>Optimization Objective</h4>
+<blockquote>"Maximize(P(...) − λ · CollabCost(·))"</blockquote>
+<blockquote>— p. 9</blockquote>
+<blockquote>"This regularized objective balances outcome probability against practical collaboration costs."</blockquote>
+<blockquote>— p. 9</blockquote>
+<h4>Fundamental Insight</h4>
+<blockquote>"Control flow introduces structural DoF that ReAct cannot access: the ability to use different F, u, s(c), and {α} at each step."</blockquote>
+<blockquote>— p. 6</blockquote>
+<blockquote>"The choice of agent architecture directly determines which optimization surfaces are available."</blockquote>
+<blockquote>— p. 10</blockquote>
+        </section>
+
+        <section id="limitations">
+            <h2>Limitations</h2>
+            <h4>Acknowledged Limitations</h4>
+<p>
+The paper does not include an explicit limitations section. The following limitations can be identified from the content and methodology.
+</p>
+<h4>Theoretical Nature</h4>
+<h5>1. No Empirical Validation</h5>
+<ul>
+<li>The paper is purely theoretical/conceptual</li>
+<li>No experiments demonstrate that the framework's predictions hold in practice</li>
+<li>No benchmarks comparing architectures using the framework's metrics</li>
+</ul>
+<h5>2. Probabilities Are Not Computable</h5>
+<ul>
+<li>The paper treats P(a|s) as if these probabilities are known</li>
+<li>In practice, LLM output distributions are not accessible or tractable</li>
+<li>Cannot directly compute or optimize the probability chains described</li>
+</ul>
+<h5>3. Idealized Assumptions</h5>
+<ul>
+<li>Assumes Markov property in many formulations (state depends only on previous state)</li>
+<li>Real agent systems may have complex, non-Markovian dependencies</li>
+<li>Context window limitations and attention patterns not modeled</li>
+</ul>
+<h4>Scope Limitations</h4>
+<h5>4. Limited Architecture Coverage</h5>
+<ul>
+<li>Focuses primarily on ReAct, Control Flow, and Multi-Agent</li>
+<li>Other paradigms less explored: Tree-of-Thoughts (mentioned briefly), Monte Carlo Tree Search, self-reflection loops, etc.</li>
+<li>Memory-augmented agents not deeply analyzed</li>
+</ul>
+<h5>5. Hierarchical Topology Only</h5>
+<ul>
+<li>Multi-agent analysis focuses on hierarchical (Agent₁→Agent₂→Agent₁) topology</li>
+<li>Other topologies mentioned but not formalized: peer-to-peer, mesh, swarm</li>
+</ul>
+<h5>6. Collaboration Cost Function Undefined</h5>
+<ul>
+<li>CollabCost(·) introduced but not specified</li>
+<li>No guidance on how to measure or estimate collaboration costs</li>
+<li>λ weighting left as arbitrary hyperparameter</li>
+</ul>
+<h4>Formalism Gaps</h4>
+<h5>7. State Space Intractability</h5>
+<ul>
+<li>Acknowledges that "the state space is often intractably large (the space of all possible text contexts)" (p. 3)</li>
+<li>Framework doesn't address this—provides formalism without computational tractability</li>
+</ul>
+<h5>8. Probability Estimation</h5>
+<ul>
+<li>No method provided for estimating P(a|s), P(c|a), etc.</li>
+<li>These would require extensive sampling or access to model internals</li>
+</ul>
+<h5>9. Optimization Not Addressed</h5>
+<ul>
+<li>Framework identifies "Degrees of Freedom" but doesn't provide optimization algorithms</li>
+<li>How to actually find optimal s₀(c), u, or cₗ not specified</li>
+</ul>
+<h4>Practical Concerns</h4>
+<h5>10. Abstraction Level</h5>
+<ul>
+<li>Very high-level abstraction may not map directly to implementation decisions</li>
+<li>Gap between mathematical formulation and engineering choices</li>
+</ul>
+<h5>11. Non-Stationary Processes</h5>
+<ul>
+<li>LLM outputs are context-dependent and potentially non-stationary</li>
+<li>Framework treats them as fixed probability distributions</li>
+</ul>
+<h5>12. Tool Uncertainty</h5>
+<ul>
+<li>External tools (APIs, databases) have their own failure modes</li>
+<li>Framework doesn't model tool reliability or error propagation</li>
+</ul>
+<h5>13. Human-in-the-Loop</h5>
+<ul>
+<li>Human intervention not modeled</li>
+<li>Many agent systems include human approval steps that change the probability dynamics</li>
+</ul>
+<h4>Missing Comparisons</h4>
+<h5>14. No Quantitative Comparison</h5>
+<ul>
+<li>"Degrees of Freedom" concept is intuitive but not quantified</li>
+<li>No measure of "how much better" one architecture is than another</li>
+</ul>
+<h5>15. Cost-Benefit Analysis Incomplete</h5>
+<ul>
+<li>Multi-agent has more DoF but also more complexity</li>
+<li>No framework for when the additional DoF justify the cost</li>
+</ul>
+        </section>
+
+        <section id="disagreements">
+            <h2>Disagreements</h2>
+            <p>
+Aspects of the paper that merit skepticism or further examination.
+</p>
+<h4>Theoretical Concerns</h4>
+<h5>1. Probabilities Are Not Observable</h5>
+<p>
+The framework treats P(a|s) as if these probabilities exist and can be optimized. In practice:
+</p>
+<ul>
+<li>LLM output distributions are not directly accessible</li>
+<li>Sampling to estimate probabilities is expensive and noisy</li>
+<li>The "true" probability may not be well-defined for non-deterministic systems</li>
+</ul>
+<p>
+<strong>Counter-argument</strong>: Even if not computable, the framework may still provide useful intuition.
+</p>
+<h5>2. Markov Assumption May Not Hold</h5>
+<p>
+The paper assumes sᵢ₊₁ depends only on sᵢ and aᵢ. But:
+</p>
+<ul>
+<li>Attention mechanisms can look at full context history</li>
+<li>Position encodings mean order matters in complex ways</li>
+<li>State summarization loses information non-uniformly</li>
+</ul>
+<p>
+<strong>Question</strong>: How robust is the framework when Markov assumption is violated?
+</p>
+<h5>3. Independence Assumptions</h5>
+<p>
+When decomposing multi-agent probabilities, the paper implicitly assumes independence that may not hold:
+</p>
+<ul>
+<li>Agent behaviors may be correlated through shared training</li>
+<li>Context passed between agents carries dependencies</li>
+<li>Real systems have feedback loops not captured</li>
+</ul>
+<h4>Scope Limitations</h4>
+<h5>4. Missing Architectures</h5>
+<p>
+The paper focuses on ReAct → Control Flow → Multi-Agent progression but omits:
+</p>
+<ul>
+<li>Self-reflection and critique loops</li>
+<li>Memory-augmented agents (RAG patterns)</li>
+<li>Hierarchical planning systems</li>
+<li>Ensemble methods</li>
+</ul>
+<p>
+<strong>Question</strong>: Do these fit the framework, or reveal its limits?
+</p>
+<h5>5. Hierarchical Topology Only</h5>
+<p>
+Multi-agent analysis assumes Agent₁→Agent₂→Agent₁ pattern. Real systems use:
+</p>
+<ul>
+<li>Peer-to-peer coordination</li>
+<li>Broadcast/publish-subscribe patterns</li>
+<li>Dynamic coalition formation</li>
+<li>Competitive (adversarial) setups</li>
+</ul>
+<p>
+The framework may not generalize cleanly to these topologies.
+</p>
+<h5>6. Static Analysis</h5>
+<p>
+The framework analyzes a single execution trace. It doesn't address:
+</p>
+<ul>
+<li>Learning and adaptation over time</li>
+<li>How repeated interactions change probabilities</li>
+<li>Emergent behaviors in long-running systems</li>
+</ul>
+<h4>Practical Concerns</h4>
+<h5>7. CollabCost Is Undefined</h5>
+<p>
+The regularization term CollabCost(·) is introduced but never specified:
+</p>
+<ul>
+<li>What units? Latency? Tokens? Dollars?</li>
+<li>How to measure complexity?</li>
+<li>How to calibrate λ across different systems?</li>
+</ul>
+<p>
+Without concrete definition, the optimization objective is incomplete.
+</p>
+<h5>8. No Guidance for λ Selection</h5>
+<p>
+The hyperparameter λ controls the collaboration/outcome trade-off but:
+</p>
+<ul>
+<li>No heuristics for choosing λ</li>
+<li>No analysis of sensitivity to λ</li>
+<li>Different tasks may need very different λ values</li>
+</ul>
+<h5>9. Optimization Algorithms Missing</h5>
+<p>
+The paper identifies optimization surfaces but doesn't provide:
+</p>
+<ul>
+<li>Methods for searching the DoF space</li>
+<li>Gradient or gradient-free optimization approaches</li>
+<li>Sample complexity for finding good configurations</li>
+</ul>
+<h4>Empirical Gaps</h4>
+<h5>10. No Validation</h5>
+<p>
+The entire framework is theoretical:
+</p>
+<ul>
+<li>No experiments showing predictions match reality</li>
+<li>No benchmarks comparing architectures using the framework</li>
+<li>No case studies applying the framework to real systems</li>
+</ul>
+<p>
+<strong>This is the most significant limitation.</strong>
+</p>
+<h5>11. Untested Claims</h5>
+<p>
+Several claims are presented without evidence:
+</p>
+<ul>
+<li>"More DoF leads to better outcomes" — but at what cost?</li>
+<li>"Action space partitioning increases probability" — how much, empirically?</li>
+<li>"MCP/A2A enable DoF optimization" — demonstrated where?</li>
+</ul>
+<h4>Philosophical Questions</h4>
+<h5>12. Is "Degrees of Freedom" the Right Metric?</h5>
+<p>
+More DoF means more optimization surfaces, but also:
+</p>
+<ul>
+<li>More complexity to manage</li>
+<li>More hyperparameters to tune</li>
+<li>More ways to fail</li>
+</ul>
+<p>
+The paper acknowledges this but doesn't resolve when simpler is better.
+</p>
+<h5>13. Probability vs. Expected Value</h5>
+<p>
+The framework focuses on P(aᵧ|c) — probability of correct actions. But we often care about:
+</p>
+<ul>
+<li>Expected utility (some errors matter more)</li>
+<li>Worst-case performance</li>
+<li>Variance/reliability</li>
+</ul>
+<p>
+Probability alone may not capture what we want to optimize.
+</p>
+        </section>
+
+        <section id="future-work">
+            <h2>Future Work</h2>
+            <h4>Directions Suggested by the Paper</h4>
+<p>
+From the conclusion (p. 10-11):
+</p>
+<blockquote>"Future research can leverage this framework to develop sophisticated, probabilistically-grounded search algorithms that dynamically exploit these new degrees of freedom."</blockquote>
+<h4>Empirical Validation</h4>
+<h5>1. Experimental Validation</h5>
+<ul>
+<li>Design experiments to test whether the framework's predictions hold</li>
+<li>Compare architectures on standardized benchmarks using the DoF analysis</li>
+<li>Measure whether increasing DoF correlates with improved outcomes</li>
+</ul>
+<h5>2. Probability Estimation Methods</h5>
+<ul>
+<li>Develop practical methods to estimate P(a|s) from LLM outputs</li>
+<li>Use sampling techniques to approximate probability chains</li>
+<li>Validate that estimated probabilities match empirical success rates</li>
+</ul>
+<h5>3. Collaboration Cost Measurement</h5>
+<ul>
+<li>Define concrete metrics for CollabCost(·)</li>
+<li>Measure latency, token usage, and complexity in real systems</li>
+<li>Calibrate λ for different use cases</li>
+</ul>
+<h4>Algorithmic Extensions</h4>
+<h5>4. Optimization Algorithms</h5>
+<ul>
+<li>Develop algorithms for optimizing s₀(c) given the framework</li>
+<li>Create search procedures for finding optimal cₗ in multi-agent systems</li>
+<li>Apply reinforcement learning within the probability chain formalism</li>
+</ul>
+<h5>5. Automatic Architecture Selection</h5>
+<ul>
+<li>Use the DoF analysis to recommend architectures for specific tasks</li>
+<li>Develop heuristics for when to use ReAct vs. Control Flow vs. Multi-Agent</li>
+<li>Create tools for architecture decision support</li>
+</ul>
+<h5>6. Topology Exploration</h5>
+<ul>
+<li>Extend multi-agent formalization beyond hierarchical topology</li>
+<li>Formalize peer-to-peer, mesh, and swarm configurations</li>
+<li>Analyze trade-offs between different topologies</li>
+</ul>
+<h4>Framework Extensions</h4>
+<h5>7. Memory and Long-Term State</h5>
+<ul>
+<li>Extend the framework to handle persistent memory</li>
+<li>Model retrieval-augmented generation (RAG) within the formalism</li>
+<li>Formalize memory read/write as additional probability terms</li>
+</ul>
+<h5>8. Human-in-the-Loop</h5>
+<ul>
+<li>Add human intervention as a probability-modifying step</li>
+<li>Model approval gates and correction mechanisms</li>
+<li>Analyze human-agent collaboration using the framework</li>
+</ul>
+<h5>9. Tool Reliability</h5>
+<ul>
+<li>Incorporate tool failure probabilities</li>
+<li>Model error propagation through the probability chain</li>
+<li>Design robust agents that account for tool uncertainty</li>
+</ul>
+<h5>10. Non-Markovian Extensions</h5>
+<ul>
+<li>Extend beyond Markov assumption for complex dependencies</li>
+<li>Model full context history effects</li>
+<li>Handle attention pattern limitations</li>
+</ul>
+<h4>Protocol Development</h4>
+<h5>11. MCP Extensions</h5>
+<ul>
+<li>Use the framework to guide MCP protocol evolution</li>
+<li>Identify additional standardization opportunities</li>
+<li>Design tools that maximize P(a|s)</li>
+</ul>
+<h5>12. A2A Protocol Design</h5>
+<ul>
+<li>Apply the framework to A2A protocol development</li>
+<li>Optimize context passing formats for P(cₗ|aₗ)</li>
+<li>Design negotiation protocols based on the formalism</li>
+</ul>
+<h4>Theoretical Depth</h4>
+<h5>13. Information-Theoretic Analysis</h5>
+<ul>
+<li>Connect the framework to information theory</li>
+<li>Analyze mutual information between agents</li>
+<li>Quantify information flow in collaboration</li>
+</ul>
+<h5>14. Complexity Analysis</h5>
+<ul>
+<li>Characterize computational complexity of optimization</li>
+<li>Identify tractable subproblems</li>
+<li>Develop approximation algorithms with guarantees</li>
+</ul>
+<h5>15. Convergence Analysis</h5>
+<ul>
+<li>Formal analysis of when agent loops converge</li>
+<li>Characterize conditions for avoiding hallucination spirals</li>
+<li>Prove bounds on expected number of steps</li>
+</ul>
+<h4>Practical Tools</h4>
+<h5>16. Debugging and Monitoring</h5>
+<ul>
+<li>Build tools that visualize probability chains during execution</li>
+<li>Create diagnostics based on the framework</li>
+<li>Develop anomaly detection for low-probability paths</li>
+</ul>
+<h5>17. Agent Design Tools</h5>
+<ul>
+<li>Create IDEs that expose DoF as design parameters</li>
+<li>Build simulators for comparing architectures</li>
+<li>Develop testing frameworks based on probability analysis</li>
+</ul>
+<h5>18. Benchmark Suites</h5>
+<ul>
+<li>Create benchmarks that specifically test each DoF</li>
+<li>Measure architecture efficiency per degree of freedom</li>
+<li>Standardize evaluation methodology</li>
+</ul>
+        </section>
+    </main>
+</body>
+</html>
