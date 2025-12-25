@@ -1,0 +1,2636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Reasoning Model - Papyrus</title>
+    <style>
+        :root {
+            --text: #1a1a1a;
+            --text-muted: #666;
+            --bg: #fafafa;
+            --bg-alt: #f0f0f0;
+            --border: #ddd;
+            --accent: #2563eb;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: 100vh;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 2rem 1rem;
+            background: var(--bg-alt);
+            border-right: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+        nav a {
+            display: block;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        nav a:hover { background: var(--border); color: var(--text); }
+        nav .nav-section { margin-top: 1rem; font-weight: 600; color: var(--text); padding: 0.25rem 0.5rem; }
+        nav .back { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+        main {
+            max-width: 48rem;
+            padding: 2rem 3rem 4rem;
+        }
+        header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+        header h1 { font-size: 1.75rem; line-height: 1.3; margin-bottom: 0.5rem; }
+        header .authors { color: var(--text-muted); font-size: 0.95rem; }
+        header .meta { font-size: 0.875rem; color: var(--text-muted); margin-top: 0.5rem; }
+        header .meta a { color: var(--accent); }
+        section { margin-bottom: 2.5rem; }
+        section > h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        h3 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; }
+        h4 { font-size: 1rem; margin: 1.25rem 0 0.5rem; }
+        p { margin-bottom: 1rem; }
+        ul, ol { margin: 0 0 1rem 1.5rem; }
+        li { margin-bottom: 0.25rem; }
+        code {
+            font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.875em;
+            background: var(--bg-alt);
+            padding: 0.125rem 0.375rem;
+            border-radius: 3px;
+        }
+        pre {
+            background: var(--bg-alt);
+            padding: 1rem;
+            overflow-x: auto;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        pre code { background: none; padding: 0; }
+        blockquote {
+            border-left: 3px solid var(--border);
+            padding-left: 1rem;
+            color: var(--text-muted);
+            margin: 1rem 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+        th { background: var(--bg-alt); font-weight: 600; }
+        details { margin: 0.5rem 0; }
+        summary { cursor: pointer; color: var(--accent); }
+        a { color: var(--accent); }
+        .tldr {
+            background: var(--bg-alt);
+            padding: 1rem 1.25rem;
+            border-radius: 6px;
+            font-size: 1.05rem;
+            border-left: 4px solid var(--accent);
+        }
+        .glossary-term { font-weight: 600; }
+        @media (max-width: 768px) {
+            body { grid-template-columns: 1fr; }
+            nav {
+                position: relative;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            main { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="back"><a href="index.html">&larr; All Papers</a></div>
+        <div class="nav-section">Overview</div>
+        <a href="#tldr">TL;DR</a>
+        <a href="#summary">Summary</a>
+        <a href="#eli5">ELI5</a>
+        <div class="nav-section">Deep Dive</div>
+        <a href="#tutorial">Tutorial</a>
+        <a href="#claims">Claims</a>
+        <a href="#methods">Methods</a>
+        <a href="#findings">Findings</a>
+        <div class="nav-section">Learning</div>
+        <a href="#glossary">Glossary</a>
+        <a href="#prereqs">Prerequisites</a>
+        <a href="#questions">Questions</a>
+        <a href="#quiz">Quiz</a>
+        <div class="nav-section">Context</div>
+        <a href="#related">Related Work</a>
+        <a href="#context">Research Context</a>
+        <a href="#highlights">Highlights</a>
+        <div class="nav-section">Critical</div>
+        <a href="#limitations">Limitations</a>
+        <a href="#disagreements">Disagreements</a>
+        <a href="#future-work">Future Work</a>
+    </nav>
+    <main>
+        <header>
+            <h1>Universal Reasoning Model</h1>
+            <div class="authors">Zitian Gao, Lynx Chen, Yihao Xiao, He Xing, Ran Tao, Haoming Luo, Joey Zhou, Bryan Dai</div>
+            <div class="meta">2025 &middot; arXiv preprint &middot; <a href="https://doi.org/arXiv:2512.14693v1">DOI</a></div>
+        </header>
+
+        <section id="tldr">
+            <h2>TL;DR</h2>
+            <div class="tldr">The Universal Reasoning Model (URM) achieves state-of-the-art performance on ARC-AGI benchmarks by showing that Universal Transformers' success comes from recurrent inductive bias and strong nonlinearity rather than complex architectures, and enhancing these properties with short convolutions and truncated backpropagation.</div>
+        </section>
+
+        <section id="summary">
+            <h2>Summary</h2>
+            <h4>Abstract (Clarified)</h4>
+<p>
+Universal Transformers (UTs) have shown impressive performance on complex reasoning tasks like ARC-AGI and Sudoku, but researchers haven't fully understood <em>why</em> they work so well. This paper conducts systematic ablation studies to identify the true sources of UT performance gains. The authors discover that success stems from two key factors: (1) the recurrent inductive bias (reusing the same parameters across multiple processing steps) and (2) strong nonlinear components in the Transformer architecture—not from elaborate architectural innovations proposed in prior work.
+</p>
+<p>
+Based on these insights, the authors propose the Universal Reasoning Model (URM), which adds two enhancements to the standard UT: a ConvSwiGLU module (short convolution combined with gated activation) and Truncated Backpropagation Through Loops (TBPTL) for more stable training. URM achieves 53.8% pass@1 on ARC-AGI 1 and 16.0% pass@1 on ARC-AGI 2—state-of-the-art among comparable single small models trained from scratch.
+</p>
+<h4>Key Contributions</h4>
+<ol>
+<li><strong>Demystifying UT Performance</strong>: Through extensive ablations, the paper demonstrates that Universal Transformers outperform standard Transformers on reasoning tasks primarily due to recurrent computation (parameter sharing across depth) and strong nonlinearity, not due to complex gating mechanisms or hierarchical designs proposed in prior work.</li>
+</ol>
+<ol>
+<li><strong>ConvSwiGLU Module</strong>: A novel feed-forward block that augments SwiGLU with a depthwise short convolution (kernel size 2), injecting local token interactions into the gating mechanism. This significantly boosts nonlinear representational capacity.</li>
+</ol>
+<ol>
+<li><strong>Truncated Backpropagation Through Loops (TBPTL)</strong>: A training technique that only computes gradients for the later recurrent loops (e.g., last 6 of 8), avoiding gradient instability from early loops while maintaining effective long-horizon learning.</li>
+</ol>
+<ol>
+<li><strong>State-of-the-Art Results</strong>: URM achieves 53.8% pass@1 on ARC-AGI 1 (vs. 40.0% TRM, 34.4% HRM) and 16.0% pass@1 on ARC-AGI 2 (vs. 7.8% TRM, 5.4% HRM), representing major improvements over prior UT-based methods.</li>
+</ol>
+<h4>Main Results</h4>
+<table>
+<tr><th>Benchmark</th><th>URM</th><th>TRM</th><th>HRM</th></tr>
+<tr><td>ARC-AGI 1 (pass@1)</td><td><strong>53.8%</strong></td><td>40.0%</td><td>32.0%</td></tr>
+<tr><td>ARC-AGI 2 (pass@1)</td><td><strong>16.0%</strong></td><td>7.8%</td><td>2.4%</td></tr>
+<tr><td>Sudoku (pass@1)</td><td><strong>77.6%</strong></td><td>66.8%</td><td>63.9%</td></tr>
+</table>
+<h4>Significance</h4>
+<p>
+This paper provides crucial insights into <em>why</em> recurrent architectures excel at abstract reasoning tasks:
+</p>
+<ul>
+<li><strong>Parameter efficiency</strong>: A 4-layer UT with 8 loops achieves 40% pass@1 using only 4× base parameters, while a 32-layer vanilla Transformer with 32× parameters only reaches 23.75%.</li>
+<li><strong>Nonlinearity matters</strong>: Ablating nonlinear components (SwiGLU→SiLU→ReLU, removing softmax) causes monotonic performance degradation, highlighting that reasoning capability requires rich nonlinear mappings.</li>
+<li><strong>Recurrence over depth</strong>: Reallocating computation from deep independent layers to recurrent refinement dramatically improves performance at the same FLOP budget.</li>
+</ul>
+<p>
+The findings suggest that future work on reasoning should focus on enhancing recurrent computation and nonlinear capacity rather than increasingly elaborate architectural designs.
+</p>
+        </section>
+
+        <section id="eli5">
+            <h2>ELI5</h2>
+            <h4>The Simple Version</h4>
+<p>
+Imagine you're trying to solve a really tricky puzzle—like those picture puzzles where you have to figure out the pattern and guess what comes next. Some puzzles are so hard that even smart computer programs struggle with them!
+</p>
+<p>
+Scientists built a special kind of computer brain called a "Universal Transformer" that's really good at these puzzles. But nobody knew exactly <em>why</em> it was so good. Was it because of some fancy new trick? Or something simpler?
+</p>
+<p>
+This paper is like being a detective. The researchers took apart the computer brain piece by piece to figure out which parts actually mattered.
+</p>
+<h4>What They Found</h4>
+<p>
+They discovered two simple things that make the difference:
+</p>
+<ol>
+<li><strong>Thinking in Loops</strong>: Imagine if you looked at a puzzle once and had to give your answer immediately. That's hard! But what if you could look at the same puzzle again and again, each time understanding it a little better? That's what "recurrent" means—the computer looks at the problem multiple times using the same "thinking muscles."</li>
+</ol>
+<ol>
+<li><strong>Bendy Thinking</strong>: Some computer programs can only think in straight lines—if A then B. But these puzzles need "bendy" thinking that can twist and turn in surprising ways. The scientists call this "nonlinearity."</li>
+</ol>
+<h4>What They Built</h4>
+<p>
+The researchers made their computer brain even better by adding:
+</p>
+<ul>
+<li><strong>A Little Helper</strong>: They added a small piece that helps nearby parts of the puzzle talk to each other (like asking your neighbor for a hint).</li>
+<li><strong>Smart Practice</strong>: When training their computer, they only graded its later attempts, not the early confused ones. It's like a teacher saying "I won't count your first few tries while you're still learning."</li>
+</ul>
+<h4>The Result</h4>
+<p>
+Their new computer brain, called URM (Universal Reasoning Model), got WAY better at solving these puzzles:
+</p>
+<ul>
+<li>On one puzzle test, it went from solving 40% to solving 54%</li>
+<li>On a harder test, it went from solving about 5% to solving 16%</li>
+</ul>
+<h4>Why It Matters</h4>
+<p>
+This tells us that to make computers better at thinking and reasoning, we don't need super complicated designs. We just need to let them:
+</p>
+<ol>
+<li>Think about problems multiple times</li>
+<li>Use "bendy" thinking that can handle surprises</li>
+</ol>
+<p>
+It's like the difference between reading a tricky book once quickly versus reading it several times slowly—you understand much more the second way!
+</p>
+        </section>
+
+        <section id="tutorial">
+            <h2>Tutorial</h2>
+            <h4>Introduction: The Quest for Machine Reasoning</h4>
+<h5>The Problem: Why Can't Large Language Models Solve Puzzles?</h5>
+<p>
+Large Language Models (LLMs) like GPT-4 and Claude have revolutionized AI, demonstrating remarkable capabilities in language understanding, code generation, and even mathematical reasoning. Yet when faced with certain types of abstract reasoning puzzles, even the most powerful LLMs struggle significantly.
+</p>
+<p>
+The ARC-AGI (Abstraction and Reasoning Corpus for Artificial General Intelligence) benchmark exemplifies this challenge. Created by François Chollet (the creator of Keras), ARC presents visual grid puzzles that test a system's ability to:
+</p>
+<ul>
+<li>Recognize abstract patterns</li>
+<li>Generalize from very few examples (typically 2-3)</li>
+<li>Apply transformations consistently</li>
+</ul>
+<pre><code>
+Example ARC Puzzle (simplified):
+Input:  ■□□     Output: □□■
+        □■□      →      □■□
+        □□■             ■□□
+
+Pattern: Rotate 180 degrees
+</code></pre>
+<p>
+What makes ARC fascinating is that humans solve these puzzles easily (80%+ accuracy) while state-of-the-art LLMs trained on internet-scale data often achieve less than 20% accuracy. This performance gap suggests that raw scale and memorization aren't enough—there's something fundamentally different about abstract reasoning.
+</p>
+<h5>The Universal Transformer: A Different Approach</h5>
+<p>
+Enter the <strong>Universal Transformer (UT)</strong>, a variant of the standard Transformer architecture that takes a radically different approach. Instead of processing input through many different layers once, the UT applies the <em>same</em> transformation repeatedly, allowing the model to "think" about the problem multiple times.
+</p>
+<pre><code>
+Standard Transformer (depth=6):
+Input → Layer1 → Layer2 → Layer3 → Layer4 → Layer5 → Layer6 → Output
+        (each layer has different parameters)
+
+Universal Transformer (depth=1, loops=6):
+Input → Layer → Layer → Layer → Layer → Layer → Layer → Output
+        (same layer repeated, parameters shared)
+</code></pre>
+<p>
+Surprisingly, small UT-based models trained from scratch on ARC data significantly outperform much larger standard Transformers. But <em>why</em>? Prior work attributed this to various architectural innovations, but no one had systematically investigated the true sources of this improvement.
+</p>
+<p>
+<strong>This paper answers that question and leverages the insights to build an even better model.</strong>
+</p>
+<hr>
+<h4>Part 1: Understanding the Foundations</h4>
+<h5>1.1 The Standard Transformer Architecture</h5>
+<p>
+Before diving into Universal Transformers, let's establish what a standard Transformer does.
+</p>
+<p>
+A Transformer layer consists of two main components:
+</p>
+<pre><code>
+┌─────────────────────────────────────────┐
+│           Transformer Layer             │
+├─────────────────────────────────────────┤
+│                                         │
+│  Input H                                │
+│    │                                    │
+│    ▼                                    │
+│  ┌─────────────────┐                    │
+│  │ Layer Norm      │                    │
+│  └────────┬────────┘                    │
+│           │                             │
+│           ▼                             │
+│  ┌─────────────────┐                    │
+│  │ Multi-Head      │                    │
+│  │ Self-Attention  │ ← Global mixing    │
+│  └────────┬────────┘                    │
+│           │                             │
+│           ▼                             │
+│     + Residual ←──────────────────┐     │
+│           │                       │     │
+│           ▼                       │     │
+│  ┌─────────────────┐              │     │
+│  │ Layer Norm      │              │     │
+│  └────────┬────────┘              │     │
+│           │                       │     │
+│           ▼                       │     │
+│  ┌─────────────────┐              │     │
+│  │ Feed-Forward    │ ← Nonlinear  │     │
+│  │ Network (FFN)   │   transform  │     │
+│  └────────┬────────┘              │     │
+│           │                       │     │
+│           ▼                       │     │
+│     + Residual ←──────────────────┘     │
+│           │                             │
+│           ▼                             │
+│  Output H'                              │
+│                                         │
+└─────────────────────────────────────────┘
+</code></pre>
+<p>
+<strong>Multi-Head Self-Attention (MHSA)</strong>: Allows each token to "attend to" all other tokens, enabling global information mixing. It computes attention weights based on query-key similarity and uses them to aggregate values.
+</p>
+<p>
+<strong>Feed-Forward Network (FFN)</strong>: A two-layer MLP applied independently to each token position. This is where most of the model's parameters live and where nonlinear transformations happen.
+</p>
+<p>
+A standard L-layer Transformer stacks L such layers with <em>different</em> parameters for each layer:
+</p>
+<p>
+$$M_{std}(x) = \psi \circ T_{\theta_L} \circ \cdots \circ T_{\theta_1} \circ \phi(x)$$
+</p>
+<p>
+where $\phi$ is the embedding function and $\psi$ is the unembedding (output projection).
+</p>
+<h5>1.2 The Universal Transformer: Recurrence Over Depth</h5>
+<p>
+The Universal Transformer makes one crucial change: <strong>parameter sharing across depth</strong>. Instead of L different layers, it uses 1 layer applied T times:
+</p>
+<pre><code>
+Universal Transformer (T iterations):
+
+    H⁰ = Embedding(input)
+
+    for t = 1 to T:
+        H^t = Layer(H^(t-1))   ← Same parameters every time!
+
+    output = Unembed(H^T)
+</code></pre>
+<p>
+This seemingly simple change has profound implications:
+</p>
+<ol>
+<li><strong>Flexible Depth</strong>: The same model can run for different numbers of iterations at inference time</li>
+<li><strong>Parameter Efficiency</strong>: Many more "effective layers" with the same parameter count</li>
+<li><strong>Iterative Refinement</strong>: The model can gradually refine its representation of the input</li>
+</ol>
+<p>
+The paper also uses <strong>Adaptive Computation Time (ACT)</strong>, which allows different tokens to "halt" at different iterations based on a learned confidence score. This enables the model to allocate more computation to harder parts of the problem.
+</p>
+<h5>1.3 Why Recurrence Might Help Reasoning</h5>
+<p>
+Consider how you might solve an ARC puzzle:
+</p>
+<ol>
+<li><strong>First look</strong>: Notice basic shapes and colors</li>
+<li><strong>Second look</strong>: Identify potential patterns (rotation? reflection? color change?)</li>
+<li><strong>Third look</strong>: Test hypotheses against examples</li>
+<li><strong>Fourth look</strong>: Verify consistency across all examples</li>
+<li><strong>Final answer</strong>: Apply the discovered rule</li>
+</ol>
+<p>
+This iterative refinement process maps naturally to a recurrent architecture. Each pass through the shared layer can implement a different "phase" of reasoning, even though the parameters are fixed.
+</p>
+<p>
+In contrast, a standard Transformer must accomplish all reasoning in a single forward pass through different layers, with no opportunity to revisit and refine earlier conclusions.
+</p>
+<hr>
+<h4>Part 2: The Key Insight—What Actually Matters?</h4>
+<h5>2.1 The Experimental Setup</h5>
+<p>
+The authors conduct extensive ablation studies to isolate what makes Universal Transformers succeed on ARC-AGI. They compare:
+</p>
+<ul>
+<li><strong>Vanilla Transformers</strong>: Standard architecture with different layers</li>
+<li><strong>Universal Transformers</strong>: Shared parameters across depth</li>
+<li><strong>Varying configurations</strong>: Different depths, widths, and numbers of loops</li>
+</ul>
+<p>
+All models are trained from scratch on the same ARC dataset (including augmented data from prior work) using consistent hyperparameters.
+</p>
+<h5>2.2 Finding 1: Recurrence is the Key</h5>
+<p>
+The most striking result comes from Table 2 (page 6), comparing vanilla and Universal Transformers:
+</p>
+<pre><code>
+Configuration Comparison (ARC-AGI 1 pass@1):
+
+Vanilla Transformers:
+┌─────────┬──────┬─────────────┬────────┬───────┬─────────┐
+│ Layers  │ Loop │ Hidden Size │ Params │ FLOPs │ pass@1  │
+├─────────┼──────┼─────────────┼────────┼───────┼─────────┤
+│ 32      │ 1    │ 512         │ 32×    │ 32×   │ 23.75%  │
+│ 64      │ 1    │ 256         │ 32×    │ 32×   │ 18.25%  │
+│ 8       │ 1    │ 768         │ 12×    │ 12×   │ 10.63%  │
+└─────────┴──────┴─────────────┴────────┴───────┴─────────┘
+
+Universal Transformers:
+┌─────────┬──────┬─────────────┬────────┬───────┬─────────┐
+│ Layers  │ Loop │ Hidden Size │ Params │ FLOPs │ pass@1  │
+├─────────┼──────┼─────────────┼────────┼───────┼─────────┤
+│ 4       │ 8    │ 512         │ 4×     │ 32×   │ 40.00%  │ ← Same FLOPs!
+│ 2       │ 8    │ 512         │ 2×     │ 16×   │ 36.25%  │
+└─────────┴──────┴─────────────┴────────┴───────┴─────────┘
+</code></pre>
+<p>
+<strong>Key observations</strong>:
+</p>
+<ol>
+<li><strong>At equal FLOPs (32×)</strong>: UT achieves 40.0% vs vanilla's 23.75%—a massive 69% relative improvement</li>
+<li><strong>At equal parameters</strong>: A 4-layer UT with 4× parameters beats a 32-layer vanilla with 32× parameters</li>
+<li><strong>Scaling doesn't help vanilla</strong>: Going from 32 to 64 layers actually <em>decreases</em> performance (23.75% → 18.25%)</li>
+</ol>
+<p>
+This demonstrates that <strong>recurrent computation over shared parameters is fundamentally more effective than stacking independent layers</strong> for reasoning tasks.
+</p>
+<h5>2.3 Finding 2: Nonlinearity is Critical</h5>
+<p>
+The second key finding emerges from Table 4 (page 9), which ablates nonlinear components:
+</p>
+<pre><code>
+Nonlinearity Ablation (ARC-AGI 1 pass@1):
+
+Full URM (SwiGLU + Conv):     53.75%
+├── Remove short convolution: 45.25%  (-8.5%)
+├── SwiGLU → SiLU:            29.75%  (-15.5%)
+├── SiLU → ReLU:              28.63%  (-1.1%)
+└── Remove attention softmax:  2.00%  (-26.6%)
+</code></pre>
+<p>
+The performance degrades <strong>monotonically</strong> as nonlinearity is reduced:
+</p>
+<ol>
+<li><strong>SwiGLU matters most</strong>: Replacing the sophisticated SwiGLU activation (which includes gating) with simple SiLU drops performance by 15.5 percentage points</li>
+<li><strong>Softmax is essential</strong>: Removing the softmax in attention (making it linear) causes catastrophic failure (2% accuracy)</li>
+<li><strong>Activation function choice matters</strong>: Even swapping SiLU for ReLU causes a small drop</li>
+</ol>
+<p>
+This reveals that <strong>reasoning requires rich nonlinear transformations</strong>. The model needs "bendy" functions that can implement complex conditional logic, not just linear combinations of features.
+</p>
+<hr>
+<h4>Part 3: The Universal Reasoning Model Architecture</h4>
+<p>
+Based on these insights, the authors propose the <strong>Universal Reasoning Model (URM)</strong>, which enhances the standard UT in two specific ways:
+</p>
+<h5>3.1 ConvSwiGLU: Boosting Nonlinearity with Local Context</h5>
+<p>
+The first enhancement is a modified feed-forward block called <strong>ConvSwiGLU</strong>.
+</p>
+<h6>Standard SwiGLU Refresher</h6>
+<p>
+SwiGLU (Swish-Gated Linear Unit) is a modern FFN variant that includes a gating mechanism:
+</p>
+<pre><code>
+Standard SwiGLU:
+
+Input X ∈ R^(T×d)
+    │
+    ▼
+Linear projection (d → 2m)
+    │
+    ├─────────┐
+    ▼         ▼
+   Gate G    Up U
+    │         │
+    ▼         │
+  SiLU(G)     │
+    │         │
+    └────⊙────┘   (element-wise multiply)
+         │
+         ▼
+    H_ffn = SiLU(G) ⊙ U
+         │
+         ▼
+  Linear projection (m → d)
+         │
+         ▼
+      Output
+</code></pre>
+<p>
+The gating mechanism (SiLU(G) ⊙ U) allows the model to selectively activate different features, providing richer nonlinearity than a simple activation function.
+</p>
+<h6>ConvSwiGLU Enhancement</h6>
+<p>
+ConvSwiGLU adds a depthwise 1D convolution after the gated multiplication:
+</p>
+<pre><code>
+ConvSwiGLU:
+
+Input X ∈ R^(T×d)
+    │
+    ▼
+Linear projection (d → 2m)
+    │
+    ├─────────┐
+    ▼         ▼
+   Gate G    Up U
+    │         │
+    ▼         │
+  SiLU(G)     │
+    │         │
+    └────⊙────┘
+         │
+         ▼
+    H_ffn = SiLU(G) ⊙ U
+         │
+         ▼
+┌─────────────────────┐
+│ Depthwise Conv 1D   │ ← NEW!
+│ (kernel size k=2)   │
+└─────────────────────┘
+         │
+         ▼
+       SiLU          ← Additional nonlinearity
+         │
+         ▼
+  Linear projection (m → d)
+         │
+         ▼
+      Output
+
+Mathematical formulation:
+Y = σ(W_dwconv * (SiLU(G) ⊙ U)) · W_down
+
+where W_dwconv ∈ R^(m×1×k) is a depthwise conv kernel
+</code></pre>
+<p>
+<strong>Why this helps</strong>:
+</p>
+<ol>
+<li><strong>Local token interactions</strong>: Standard SwiGLU treats each token independently. The convolution introduces interactions between neighboring tokens, providing local context mixing.</li>
+</ol>
+<ol>
+<li><strong>Additional nonlinearity</strong>: The extra SiLU activation after convolution increases the model's nonlinear capacity.</li>
+</ol>
+<ol>
+<li><strong>Minimal parameter overhead</strong>: Depthwise convolution uses only m×k additional parameters (tiny compared to the projection matrices).</li>
+</ol>
+<ol>
+<li><strong>Preserves global attention</strong>: Unlike adding convolution to the attention pathway (which degrades performance—see Figure 3), adding it to the FFN enhances the already nonlinear subspace.</li>
+</ol>
+<h6>Where to Place the Convolution</h6>
+<p>
+The authors systematically test different insertion points:
+</p>
+<pre><code>
+Convolution Placement Experiments:
+
+(a) After SDPA output:        ↓ Performance
+(b) After value projection:   ↓ Performance
+(c) After key projection:     ↓ Performance
+(d) After query projection:   ↓ Performance
+(e) After multi-head concat:  ~ Slight gain
+(f) After MLP expansion:      ↑↑ Best results!
+</code></pre>
+<p>
+The convolution works best when applied within the already-nonlinear FFN subspace. Inserting it into the attention pathway (positions a-d) actually hurts performance, likely because it interferes with the geometric structure of the attention mechanism's linear projections.
+</p>
+<h5>3.2 Truncated Backpropagation Through Loops (TBPTL)</h5>
+<p>
+The second enhancement addresses a training challenge: gradient instability in deep recurrent computation.
+</p>
+<h6>The Problem</h6>
+<p>
+When training a UT with M recurrent loops, gradients must flow backward through all M iterations:
+</p>
+<pre><code>
+Forward pass:   H⁰ → H¹ → H² → H³ → H⁴ → H⁵ → H⁶ → H⁷ → H⁸ → Loss
+                                                              │
+Backward pass:  ←── ←── ←── ←── ←── ←── ←── ←── ←── ←── ←── ←┘
+                (gradients flow through ALL loops)
+</code></pre>
+<p>
+This creates two problems:
+</p>
+<ol>
+<li><strong>Gradient instability</strong>: Gradients can vanish or explode over many iterations</li>
+<li><strong>Noisy early gradients</strong>: Early loops may receive gradients that are dominated by noise rather than useful signal</li>
+</ol>
+<h6>The Solution: TBPTL</h6>
+<p>
+TBPTL partitions the recurrent rollout into two segments:
+</p>
+<pre><code>
+TBPTL with M=8 total loops, N=2 forward-only:
+
+Forward:    H⁰ → H¹ → H² │ H³ → H⁴ → H⁵ → H⁶ → H⁷ → H⁸ → Loss
+                         │                              │
+            (no grad)    │    (gradient computation)    │
+                         │                              │
+Backward:                │ ←── ←── ←── ←── ←── ←── ←── ←┘
+
+Loss = Σ(t=N+1 to M) L(H^t, y)  (only last M-N loops contribute to loss)
+</code></pre>
+<p>
+<strong>Why this works</strong>:
+</p>
+<ol>
+<li><strong>Stable optimization</strong>: Gradients only flow through 6 loops instead of 8, reducing accumulation of noise</li>
+<li><strong>Still benefits from early computation</strong>: The forward pass through all loops means later loops can still build on early refinement</li>
+<li><strong>Analogous to TBPTT</strong>: This mirrors Truncated Backpropagation Through Time in RNNs, a well-established technique</li>
+</ol>
+<h6>Optimal Truncation Length</h6>
+<p>
+Table 3 shows the effect of different truncation settings:
+</p>
+<pre><code>
+Truncation Ablation (8 total loops):
+
+Loops w/ grad  Loops w/o grad  pass@1
+     8              0           36.25%
+     7              1           37.75%
+     6              2           39.13%  ← Best!
+     5              3           39.50%
+     4              4           38.75%
+     3              5           36.88%
+     2              6           34.25%
+     1              7           22.50%
+</code></pre>
+<p>
+The sweet spot is N=2 forward-only loops, achieving 39.13% vs 36.25% baseline (7.9% relative improvement). Too little truncation gives noisy gradients; too much truncation prevents effective long-range learning.
+</p>
+<hr>
+<h4>Part 4: Complete Architecture Overview</h4>
+<h5>4.1 Full URM Architecture</h5>
+<pre><code>
+┌────────────────────────────────────────────────────────────┐
+│                Universal Reasoning Model                    │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  Input Sequence x                                          │
+│       │                                                    │
+│       ▼                                                    │
+│  ┌──────────────┐                                         │
+│  │ Embedding    │ + Position encoding + Puzzle embedding   │
+│  └──────┬───────┘                                         │
+│         │                                                  │
+│         ▼                                                  │
+│  ┌──────────────────────────────────────────────────┐     │
+│  │              Fixed Inner Loop (N times)           │     │
+│  │   ┌─────────────────────────────────────────┐    │     │
+│  │   │         Transformer Block               │    │     │
+│  │   │  ┌────────────────────────────────┐    │    │     │
+│  │   │  │ RMSNorm → Multi-Head Attention  │    │    │     │
+│  │   │  │         + Residual              │    │    │     │
+│  │   │  └────────────────────────────────┘    │    │     │
+│  │   │  ┌────────────────────────────────┐    │    │     │
+│  │   │  │ RMSNorm → ConvSwiGLU           │    │    │     │
+│  │   │  │         + Residual              │    │    │     │
+│  │   │  └────────────────────────────────┘    │    │     │
+│  │   └─────────────────────────────────────────┘    │     │
+│  │        ↑                                         │     │
+│  │        └─────── (same block, repeated N times)   │     │
+│  │                                                  │     │
+│  │   First 2 loops: forward only (no gradient)      │     │
+│  │   Last 6 loops: forward + backward               │     │
+│  └──────────────────────────────────────────────────┘     │
+│         │                                                  │
+│         ▼                                                  │
+│  ┌──────────────────────────────────────────────────┐     │
+│  │              ACT Outer Loop (≤M times)            │     │
+│  │                                                   │     │
+│  │   Each position predicts halting probability      │     │
+│  │   Stops when cumulative prob &gt; 1-ε               │     │
+│  │   Final: weighted mixture of all step outputs     │     │
+│  └──────────────────────────────────────────────────┘     │
+│         │                                                  │
+│         ▼                                                  │
+│  ┌──────────────┐                                         │
+│  │ Output Head  │                                         │
+│  └──────┬───────┘                                         │
+│         │                                                  │
+│         ▼                                                  │
+│    Predictions                                             │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+</code></pre>
+<h5>4.2 Key Hyperparameters</h5>
+<p>
+The full URM uses the following configuration:
+</p>
+<table>
+<tr><th>Component</th><th>Setting</th></tr>
+<tr><td>Number of layers (D)</td><td>4</td></tr>
+<tr><td>Hidden dimension (d)</td><td>512</td></tr>
+<tr><td>Attention heads</td><td>8</td></tr>
+<tr><td>Inner loops (N)</td><td>8</td></tr>
+<tr><td>Forward-only loops</td><td>2</td></tr>
+<tr><td>ACT max steps (M)</td><td>16</td></tr>
+<tr><td>ConvSwiGLU kernel size</td><td>2</td></tr>
+<tr><td>Optimizer</td><td>AdamAtan2</td></tr>
+<tr><td>Learning rate (main)</td><td>1×10⁻⁴ (ARC-AGI 1), 3×10⁻⁴ (ARC-AGI 2)</td></tr>
+<tr><td>Learning rate (puzzle embed)</td><td>1×10⁻²</td></tr>
+<tr><td>Weight decay</td><td>0.1</td></tr>
+</table>
+<hr>
+<h4>Part 5: Experimental Results Deep Dive</h4>
+<h5>5.1 Main Benchmark Results</h5>
+<p>
+The full results on three benchmarks show URM's dominance:
+</p>
+<h6>ARC-AGI 1</h6>
+<pre><code>
+Model     pass@1   pass@10  pass@100  pass@1000
+───────────────────────────────────────────────
+HRM       34.4%    46.4%    55.0%     60.5%
+TRM       40.0%    51.3%    59.8%     64.4%
+URM       53.8%    71.3%    80.4%     85.1%
+</code></pre>
+<p>
+URM achieves 53.8% pass@1, a 34.5% relative improvement over TRM.
+</p>
+<h6>ARC-AGI 2</h6>
+<pre><code>
+Model     pass@1   pass@10  pass@100  pass@1000
+───────────────────────────────────────────────
+HRM        5.4%     9.6%    14.3%     18.6%
+TRM        4.6%     7.4%    11.7%     13.6%
+URM       16.0%    26.9%    34.3%     41.3%
+</code></pre>
+<p>
+On the harder ARC-AGI 2 benchmark, URM nearly triples HRM's performance.
+</p>
+<h6>Sudoku</h6>
+<pre><code>
+Model     pass@1
+─────────────────
+HRM       63.9%
+TRM       66.8%
+URM       77.6%
+</code></pre>
+<p>
+URM also excels on Sudoku, demonstrating generalization to different reasoning tasks.
+</p>
+<h5>5.2 Ablation Analysis</h5>
+<p>
+Each component of URM contributes meaningfully:
+</p>
+<pre><code>
+Component Ablation (ARC-AGI 1):
+
+Full URM:                53.8%
+w/o Short Convolution:   45.3%  (-8.5pp)
+w/o Trunc. Backprop:     40.0%  (-13.8pp)
+</code></pre>
+<ul>
+<li><strong>Short convolution contributes 8.5 percentage points</strong></li>
+<li><strong>Truncated backpropagation contributes 13.8 percentage points</strong></li>
+</ul>
+<h5>5.3 Why URM Scales Better</h5>
+<p>
+An interesting pattern emerges in the pass@n results. As the sampling budget increases, URM's advantage grows:
+</p>
+<pre><code>
+Relative improvement over TRM:
+
+           pass@1   pass@10  pass@100  pass@1000
+ARC-AGI 1  +34.5%   +39.0%   +34.4%    +32.1%
+ARC-AGI 2  +247.8%  +263.5%  +193.2%   +203.7%
+</code></pre>
+<p>
+This suggests that URM's iterative refinement produces a richer distribution of candidate answers, not just better single-shot predictions.
+</p>
+<h5>5.4 Optimizer Comparison: Adam vs Muon</h5>
+<p>
+The paper also explores the Muon optimizer (Momentum Updated Orthogonal Newton), which approximates second-order optimization:
+</p>
+<pre><code>
+Muon vs AdamAtan2 Training Efficiency:
+
+On ARC-AGI 2:
+- Muon reaches 11.5% pass@1 in ~600K steps
+- Adam reaches 11.5% pass@1 in ~1,300K steps
+→ Muon is ~2× faster to converge!
+
+Final performance:
+- Both converge to ~53.8% (ARC-AGI 1) and ~16.0% (ARC-AGI 2)
+</code></pre>
+<p>
+<strong>Key insight</strong>: Muon accelerates training but doesn't improve final performance. This separates optimization efficiency from architectural capacity—the URM's gains come from its architecture, not from being easier to optimize.
+</p>
+<hr>
+<h4>Part 6: Theoretical Perspective</h4>
+<h5>6.1 Why Recurrence Helps: The Computational Depth Argument</h5>
+<p>
+Standard Transformers have a fixed computational depth equal to the number of layers. Each layer can implement at most O(1) "reasoning steps." For a problem requiring k sequential reasoning steps, you need at least k layers.
+</p>
+<p>
+Universal Transformers decouple computational depth from parameter count:
+</p>
+<ul>
+<li><strong>Standard Transformer</strong>: Depth = L layers, Parameters = L × params_per_layer</li>
+<li><strong>Universal Transformer</strong>: Depth = L × T iterations, Parameters = L × params_per_layer</li>
+</ul>
+<p>
+This means a UT can achieve effective depth L×T while only using L layers worth of parameters. For reasoning tasks that require many sequential steps but not necessarily complex individual operations, this is a major advantage.
+</p>
+<h5>6.2 The Role of Nonlinearity</h5>
+<p>
+Linear transformations can only compute functions that are themselves linear. But abstract reasoning often requires:
+</p>
+<ul>
+<li><strong>Conditional logic</strong>: "If pattern A, then transform B"</li>
+<li><strong>Threshold decisions</strong>: "If value > threshold, activate"</li>
+<li><strong>Complex feature interactions</strong>: Non-additive combinations of inputs</li>
+</ul>
+<p>
+These require nonlinear functions. The ablation study shows that stronger nonlinearity (SwiGLU > SiLU > ReLU) correlates with better reasoning performance. The ConvSwiGLU module amplifies this by:
+</p>
+<ol>
+<li>Adding an extra nonlinear activation (SiLU after convolution)</li>
+<li>Enabling nonlinear interactions between neighboring tokens</li>
+<li>Operating within the already-nonlinear FFN subspace</li>
+</ol>
+<h5>6.3 Truncated Backpropagation: A Variance-Bias Tradeoff</h5>
+<p>
+Training recurrent models involves a fundamental tradeoff:
+</p>
+<ul>
+<li><strong>Full backpropagation</strong>: Unbiased gradients but high variance (especially for early timesteps)</li>
+<li><strong>Truncated backpropagation</strong>: Biased gradients but lower variance</li>
+</ul>
+<p>
+TBPTL chooses a moderate truncation (2 out of 8 loops) that:
+</p>
+<ul>
+<li>Reduces variance enough to stabilize training</li>
+<li>Maintains enough gradient flow for effective long-range learning</li>
+<li>Allows early loops to still contribute via the forward pass</li>
+</ul>
+<hr>
+<h4>Part 7: Connections to Prior Work</h4>
+<h5>7.1 Hierarchical Reasoning Model (HRM)</h5>
+<p>
+HRM introduced multi-timescale recurrence with inner and outer loops. The authors of URM argue that HRM's gains come primarily from the recurrence itself, not the hierarchical structure. URM simplifies the architecture while achieving better results.
+</p>
+<h5>7.2 Tiny Recursive Model (TRM)</h5>
+<p>
+TRM showed that a single lightweight network applied recursively can match or exceed more complex hierarchical designs. URM builds on this by further enhancing the recurrent core with ConvSwiGLU and TBPTL.
+</p>
+<h5>7.3 Vision ARC (VARC)</h5>
+<p>
+VARC treats ARC as an image-to-image problem, leveraging visual inductive biases. While effective (especially with ensembling), it represents a fundamentally different approach than the sequence-based methods URM employs.
+</p>
+<hr>
+<h4>Part 8: Practical Implications</h4>
+<h5>8.1 For Researchers</h5>
+<ol>
+<li><strong>Focus on recurrence</strong>: When designing models for reasoning tasks, recurrent/iterative architectures should be the default choice over deeper feedforward networks.</li>
+</ol>
+<ol>
+<li><strong>Nonlinearity matters</strong>: Don't underestimate the importance of activation functions and gating mechanisms. The difference between SwiGLU and SiLU alone accounts for 15+ percentage points on ARC-AGI.</li>
+</ol>
+<ol>
+<li><strong>Training matters too</strong>: Techniques like truncated backpropagation can provide substantial gains without any architectural changes.</li>
+</ol>
+<h5>8.2 For Practitioners</h5>
+<ol>
+<li><strong>Small models can excel</strong>: URM achieves state-of-the-art results with ~10M parameters, far smaller than typical LLMs.</li>
+</ol>
+<ol>
+<li><strong>Task-specific training</strong>: Training from scratch on task-specific data (with augmentation) can outperform adapting large pretrained models.</li>
+</ol>
+<ol>
+<li><strong>Sample efficiency</strong>: URM's pass@1000 results show that generating multiple samples and selecting the best can dramatically boost effective accuracy (53.8% → 85.1% on ARC-AGI 1).</li>
+</ol>
+<h5>8.3 Broader Implications</h5>
+<p>
+This work suggests that the path to better reasoning in AI may not require ever-larger models trained on ever-more data. Instead, it may require:
+</p>
+<ul>
+<li>Architectures with appropriate inductive biases (recurrence)</li>
+<li>Sufficient nonlinear capacity</li>
+<li>Effective training techniques for recurrent computation</li>
+</ul>
+<p>
+This is encouraging for developing more efficient and interpretable reasoning systems.
+</p>
+<hr>
+<h4>Conclusion</h4>
+<p>
+The Universal Reasoning Model demonstrates that understanding <em>why</em> architectures work is as important as designing new ones. By systematically identifying recurrent computation and nonlinearity as the key factors behind UT success, the authors were able to design targeted enhancements (ConvSwiGLU, TBPTL) that push performance significantly further.
+</p>
+<p>
+Key takeaways:
+</p>
+<ol>
+<li><strong>Recurrence beats depth</strong>: Parameter-shared recurrent computation is more effective than stacking independent layers for reasoning tasks.</li>
+</ol>
+<ol>
+<li><strong>Nonlinearity is essential</strong>: Strong nonlinear transformations (especially SwiGLU) are critical for abstract reasoning.</li>
+</ol>
+<ol>
+<li><strong>Simple enhancements work</strong>: ConvSwiGLU (adding a small convolution) and TBPTL (truncating gradients) provide large gains with minimal complexity.</li>
+</ol>
+<ol>
+<li><strong>State-of-the-art with small models</strong>: URM achieves 53.8% pass@1 on ARC-AGI 1 and 16.0% on ARC-AGI 2, setting new benchmarks for single small models trained from scratch.</li>
+</ol>
+<p>
+The findings point toward a future where reasoning capabilities can be achieved through architectural innovations rather than sheer scale—a promising direction for building more efficient and capable AI systems.
+</p>
+<hr>
+<h4>Appendix: Key Equations</h4>
+<h5>Transformer Layer</h5>
+<p>
+$$\mathcal{T}_\theta(H) = \text{FFN}(\text{LN}(H' + H)), \quad H' = \text{MHSA}(\text{LN}(H))$$
+</p>
+<h5>Universal Transformer Update</h5>
+<p>
+$$H^{t+1} = \text{LayerNorm}(H^t + \text{MHA}(H^t))$$
+ $$H^{t+1} \leftarrow \text{LayerNorm}(H^{t+1} + \text{Transition}(H^{t+1}))$$
+</p>
+<h5>ConvSwiGLU</h5>
+<p>
+$$Y = \sigma(W_{\text{dwconv}} * (\text{SiLU}(G) \odot U)) W_{\text{down}}$$
+</p>
+<h5>TBPTL Loss</h5>
+<p>
+$$\mathcal{L}_{\text{TBPTL}}(\theta) = \sum_{t=N+1}^{M} \mathcal{L}(h_t^{(D)}, y)$$
+</p>
+<h5>ACT Halting Probability</h5>
+<p>
+$$p_{t,i} = \sigma(w^\top h_{t,i} + b)$$
+</p>
+        </section>
+
+        <section id="claims">
+            <h2>Claims</h2>
+            <p>
+The paper makes the following main claims:
+</p>
+<h4>Primary Claims</h4>
+<ol>
+<li><strong>The success of Universal Transformers on ARC-AGI stems from recurrent inductive bias and strong nonlinearity, not from elaborate architectural designs.</strong> (p. 1-2, 10)</li>
+</ol>
+<p>
+   Prior work attributed UT improvements to high-level architectural innovations like hierarchical structures, but the authors argue these are not the true sources of performance gains.
+</p>
+<ol>
+<li><strong>Recurrent computation over shared parameters is fundamentally more parameter-efficient than stacking independent layers for reasoning tasks.</strong> (p. 6)</li>
+</ol>
+<p>
+   A 4-layer UT with 4× base parameters achieves 40% pass@1, while a 32-layer vanilla Transformer with 32× parameters only achieves 23.75%.
+</p>
+<ol>
+<li><strong>Nonlinear components (particularly the MLP activation function and attention softmax) are critical for reasoning performance.</strong> (p. 9)</li>
+</ol>
+<p>
+   Ablating nonlinear components causes monotonic performance degradation, with SwiGLU→SiLU dropping 15+ percentage points.
+</p>
+<h4>Technical Claims</h4>
+<ol>
+<li><strong>Short convolution in the FFN (ConvSwiGLU) enhances nonlinear representational capacity.</strong> (p. 3-4, 7-8)</li>
+</ol>
+<p>
+   Adding a depthwise convolution after MLP expansion improves pass@1 from 45.25% to 53.75%.
+</p>
+<ol>
+<li><strong>Placing convolution in the attention pathway degrades performance.</strong> (p. 7)</li>
+</ol>
+<p>
+   Inserting convolution after SDPA, value/key/query projections, or multi-head concatenation either hurts or provides minimal benefit compared to placing it after MLP expansion.
+</p>
+<ol>
+<li><strong>Truncated Backpropagation Through Loops (TBPTL) improves optimization stability and performance.</strong> (p. 4-5, 8)</li>
+</ol>
+<p>
+   Running the first 2 of 8 loops in forward-only mode achieves optimal results (39.13% vs 36.25% baseline).
+</p>
+<ol>
+<li><strong>Short convolution enhances channel mixing in attention matrices.</strong> (p. 7-8)</li>
+</ol>
+<p>
+   Visualization shows that ConvSwiGLU produces more diverse and structured attention distributions compared to standard UT.
+</p>
+<h4>Performance Claims</h4>
+<ol>
+<li><strong>URM achieves state-of-the-art 53.8% pass@1 on ARC-AGI 1 among single small models trained from scratch.</strong> (p. 1, 5)</li>
+</ol>
+<ol>
+<li><strong>URM achieves 16.0% pass@1 on ARC-AGI 2, nearly tripling HRM (5.4%) and more than doubling TRM (7.8%).</strong> (p. 5-6)</li>
+</ol>
+<ol>
+<li><strong>URM achieves 77.6% pass@1 on Sudoku, surpassing TRM (66.8%) and HRM (63.9%).</strong> (p. 5-6)</li>
+</ol>
+<ol>
+<li><strong>URM's advantages widen under larger sampling budgets (pass@1000), indicating iterative refinement enables richer candidate generation.</strong> (p. 6)</li>
+</ol>
+<h4>Optimizer-Related Claims</h4>
+<ol>
+<li><strong>The Muon optimizer provides ~2× faster convergence than AdamAtan2 but achieves similar final performance.</strong> (p. 9-10)</li>
+</ol>
+<p>
+    This separates optimization efficiency from architectural capacity.
+</p>
+<h4>Theoretical Claims</h4>
+<ol>
+<li><strong>Recurrent computation converts FLOPs into increased effective depth, which is more beneficial for reasoning than increasing the number of independent layers.</strong> (p. 6-7)</li>
+</ol>
+<ol>
+<li><strong>Moderate gradient truncation in recurrent loops provides a favorable balance between optimization stability and effective long-horizon learning.</strong> (p. 8)</li>
+</ol>
+        </section>
+
+        <section id="methods">
+            <h2>Methods</h2>
+            <h4>Overview</h4>
+<p>
+The paper proposes the Universal Reasoning Model (URM), a decoder-only Universal Transformer enhanced with two key modifications: ConvSwiGLU and Truncated Backpropagation Through Loops (TBPTL).
+</p>
+<h4>Base Architecture: Universal Transformer</h4>
+<ul>
+<li><strong>Type</strong>: Decoder-only Universal Transformer (p. 3)</li>
+<li><strong>Core mechanism</strong>: Parameter sharing across depth—same transformation applied repeatedly (p. 2-3)</li>
+<li><strong>State update</strong>:</li>
+</ul>
+<p>
+  - First: Multi-head attention with residual and layer norm
+   - Then: Position-wise transition function with residual and layer norm (p. 2-3)
+</p>
+<ul>
+<li><strong>Position encoding</strong>: 2-D sinusoidal embeddings encoding both position and refinement depth (p. 3)</li>
+</ul>
+<h4>ConvSwiGLU Module (p. 3-4)</h4>
+<h5>Motivation</h5>
+<ul>
+<li>Strengthen nonlinearity of Universal Transformer</li>
+<li>Inject local contextual interactions into the gating mechanism</li>
+<li>Introduce lightweight channel mixing in token space</li>
+</ul>
+<h5>Implementation</h5>
+<ol>
+<li><strong>Input projection</strong>: X ∈ R^(T×d) → [G, U] ∈ R^(T×2m) via linear projection W_up</li>
+<li><strong>SwiGLU activation</strong>: H_ffn = SiLU(G) ⊙ U (element-wise gated multiplication)</li>
+<li><strong>Depthwise 1D convolution</strong>: H_conv = σ(W_dwconv * H_ffn) where W_dwconv ∈ R^(m×1×k), k=2</li>
+<li><strong>Output projection</strong>: Y = H_conv · W_down</li>
+</ol>
+<h5>Key Design Choices</h5>
+<ul>
+<li><strong>Kernel size k=2</strong>: Minimal local context window (p. 7, Figure 3)</li>
+<li><strong>Placed after MLP expansion</strong>: Position (f) in ablation, not within attention pathway (p. 7)</li>
+<li><strong>Additional SiLU activation</strong>: After convolution for extra nonlinearity</li>
+</ul>
+<h4>Truncated Backpropagation Through Loops (TBPTL) (p. 4-5)</h4>
+<h5>Motivation</h5>
+<ul>
+<li>Large numbers of recurrent loops cause gradient instability</li>
+<li>Early loop gradients may hinder optimization due to noise accumulation</li>
+</ul>
+<h5>Implementation</h5>
+<ol>
+<li><strong>Partition loops</strong>: {1, ..., N} forward-only, {N+1, ..., M} forward+backward</li>
+<li><strong>Loss computation</strong>: Only on latter (M-N) loops: L_TBPTL = Σ_{t=N+1}^M L(h_t^(D), y)</li>
+<li><strong>Gradient flow</strong>: Only through last (M-N) loops</li>
+</ol>
+<h5>Configuration</h5>
+<ul>
+<li><strong>Total inner loops M</strong>: 8</li>
+<li><strong>Forward-only loops N</strong>: 2 (optimal based on ablation, p. 8, Table 3)</li>
+</ul>
+<h4>Adaptive Computation Time (ACT) (p. 3)</h4>
+<ul>
+<li>Each position predicts halting probability: p_{t,i} = σ(w^T h_{t,i} + b)</li>
+<li>Accumulated until threshold 1-ε reached</li>
+<li>Final representation: weighted mixture h_final = Σ_t Δ_{t,i} h_{t,i}</li>
+<li><strong>Maximum ACT steps</strong>: 16</li>
+</ul>
+<h4>Training Configuration (p. 5)</h4>
+<h5>Model Hyperparameters</h5>
+<table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Number of layers</td><td>4</td></tr>
+<tr><td>Hidden size</td><td>512</td></tr>
+<tr><td>Attention heads</td><td>8</td></tr>
+<tr><td>Inner loop steps</td><td>8</td></tr>
+<tr><td>Forward-only loops</td><td>2</td></tr>
+<tr><td>ACT max steps</td><td>16</td></tr>
+</table>
+<h5>Optimization</h5>
+<table>
+<tr><th>Parameter</th><th>ARC-AGI 1/2</th><th>Sudoku</th></tr>
+<tr><td>Optimizer</td><td>AdamAtan2</td><td>AdamAtan2</td></tr>
+<tr><td>Main LR</td><td>1×10^-4 / 3×10^-4</td><td>-</td></tr>
+<tr><td>Puzzle embed LR</td><td>1×10^-2</td><td>1×10^-4</td></tr>
+<tr><td>Weight decay</td><td>0.1</td><td>1.0</td></tr>
+<tr><td>EMA</td><td>Yes</td><td>Yes</td></tr>
+</table>
+<h5>Data</h5>
+<ul>
+<li>Same datasets and augmented data as HRM and TRM (p. 5)</li>
+<li>Training from scratch on task-specific data</li>
+</ul>
+<h4>Evaluation Metrics</h4>
+<ul>
+<li><strong>pass@n</strong>: Pass rate when sampling n answers; correct if at least one of n is correct (p. 5)</li>
+<li>Tested at n = 1, 10, 100, 1000</li>
+</ul>
+<h4>Ablation Studies Methodology (p. 6-9)</h4>
+<h5>Vanilla vs Universal Transformer Comparison</h5>
+<ul>
+<li>Varied: layers (2-64), hidden size (256-1024), loops (1 vs 8)</li>
+<li>Controlled: same training setup and evaluation</li>
+<li>Metrics: params (normalized), FLOPs (normalized), pass@n</li>
+</ul>
+<h5>Convolution Position Ablation</h5>
+<ul>
+<li>Tested 6 insertion points (a-f)</li>
+<li>Positions (a-d): within attention pathway</li>
+<li>Position (e): after multi-head concatenation</li>
+<li>Position (f): after MLP expansion</li>
+</ul>
+<h5>TBPTL Ablation</h5>
+<ul>
+<li>Fixed total loops at 8</li>
+<li>Varied forward-only loops from 0 to 7</li>
+<li>Used 2-layer URM without short convolution</li>
+</ul>
+<h5>Nonlinearity Ablation</h5>
+<ul>
+<li>Progressive removal/replacement:</li>
+</ul>
+<p>
+  1. Full model (SwiGLU + Conv)
+   2. Remove short convolution
+   3. SwiGLU → SiLU
+   4. SiLU → ReLU
+   5. Remove attention softmax
+</p>
+        </section>
+
+        <section id="findings">
+            <h2>Findings</h2>
+            <h4>Main Performance Results (Table 1, p. 5)</h4>
+<h5>ARC-AGI 1 Benchmark</h5>
+<table>
+<tr><th>Model</th><th>pass@1</th><th>pass@10</th><th>pass@100</th><th>pass@1000</th></tr>
+<tr><td>HRM</td><td>34.4%</td><td>46.4%</td><td>55.0%</td><td>60.5%</td></tr>
+<tr><td>TRM</td><td>40.0%</td><td>51.3%</td><td>59.8%</td><td>64.4%</td></tr>
+<tr><td><strong>URM</strong></td><td><strong>53.8%</strong></td><td><strong>71.3%</strong></td><td><strong>80.4%</strong></td><td><strong>85.1%</strong></td></tr>
+<tr><td>URM w/o Short Conv</td><td>45.3%</td><td>62.6%</td><td>72.0%</td><td>78.3%</td></tr>
+<tr><td>URM w/o Trunc. Backprop</td><td>40.0%</td><td>54.4%</td><td>64.5%</td><td>70.5%</td></tr>
+</table>
+<h5>ARC-AGI 2 Benchmark</h5>
+<table>
+<tr><th>Model</th><th>pass@1</th><th>pass@10</th><th>pass@100</th><th>pass@1000</th></tr>
+<tr><td>HRM</td><td>5.4%</td><td>9.6%</td><td>14.3%</td><td>18.6%</td></tr>
+<tr><td>TRM</td><td>4.6%</td><td>7.4%</td><td>11.7%</td><td>13.6%</td></tr>
+<tr><td><strong>URM</strong></td><td><strong>16.0%</strong></td><td><strong>26.9%</strong></td><td><strong>34.3%</strong></td><td><strong>41.3%</strong></td></tr>
+</table>
+<h5>Sudoku Benchmark</h5>
+<table>
+<tr><th>Model</th><th>pass@1</th></tr>
+<tr><td>HRM</td><td>63.9%</td></tr>
+<tr><td>TRM</td><td>66.8%</td></tr>
+<tr><td><strong>URM</strong></td><td><strong>77.6%</strong></td></tr>
+</table>
+<h4>Vanilla vs Universal Transformer Comparison (Table 2, p. 6)</h4>
+<h5>Key Finding: Recurrence Dramatically Outperforms Depth</h5>
+<p>
+At equivalent FLOPs (32×):
+</p>
+<ul>
+<li>32-layer vanilla Transformer (512 hidden): <strong>23.75%</strong> pass@1</li>
+<li>4-layer UT with 8 loops (512 hidden): <strong>40.00%</strong> pass@1</li>
+<li><strong>Improvement: +68.4% relative</strong></li>
+</ul>
+<p>
+At equivalent parameters:
+</p>
+<ul>
+<li>4× params vanilla (4-layer, 512): 5.13% pass@1</li>
+<li>4× params UT (4-layer, 8 loops): 40.00% pass@1</li>
+<li><strong>Improvement: +680% relative</strong></li>
+</ul>
+<h5>Diminishing Returns for Vanilla Transformers</h5>
+<ul>
+<li>32-layer, 512 hidden: 23.75%</li>
+<li>64-layer, 256 hidden (same FLOPs): 18.25%</li>
+<li><strong>Deeper ≠ better for vanilla Transformers</strong></li>
+</ul>
+<h4>Short Convolution Placement (Figure 3, p. 7)</h4>
+<h5>Position Ablation Results</h5>
+<table>
+<tr><th>Position</th><th>Description</th><th>Effect</th></tr>
+<tr><td>Baseline</td><td>No convolution</td><td>Reference</td></tr>
+<tr><td>(a)</td><td>After SDPA output</td><td>Degraded</td></tr>
+<tr><td>(b)</td><td>After value projection</td><td>Degraded</td></tr>
+<tr><td>(c)</td><td>After key projection</td><td>Degraded</td></tr>
+<tr><td>(d)</td><td>After query projection</td><td>Degraded</td></tr>
+<tr><td>(e)</td><td>After multi-head concat</td><td>Slight gain</td></tr>
+<tr><td><strong>(f)</strong></td><td><strong>After MLP expansion</strong></td><td><strong>Best results</strong></td></tr>
+</table>
+<h5>Kernel Size Ablation</h5>
+<ul>
+<li>Kernel size 2 provides optimal results</li>
+<li>Performance remains stable for kernel sizes 2-9</li>
+<li>All sizes outperform baseline</li>
+</ul>
+<h4>Truncated Backpropagation Results (Table 3, p. 8)</h4>
+<table>
+<tr><th>Loops w/ grad</th><th>Loops w/o grad</th><th>pass@1</th><th>pass@1000</th></tr>
+<tr><td>8</td><td>0</td><td>36.25%</td><td>66.88%</td></tr>
+<tr><td>7</td><td>1</td><td>37.75%</td><td>65.88%</td></tr>
+<tr><td><strong>6</strong></td><td><strong>2</strong></td><td><strong>39.13%</strong></td><td><strong>66.88%</strong></td></tr>
+<tr><td>5</td><td>3</td><td>39.50%</td><td>65.25%</td></tr>
+<tr><td>4</td><td>4</td><td>38.75%</td><td>65.88%</td></tr>
+<tr><td>3</td><td>5</td><td>36.88%</td><td>63.88%</td></tr>
+<tr><td>2</td><td>6</td><td>34.25%</td><td>61.75%</td></tr>
+<tr><td>1</td><td>7</td><td>22.50%</td><td>52.38%</td></tr>
+</table>
+<p>
+<strong>Finding</strong>: Optimal truncation is 2 forward-only loops (N=2), achieving 39.13% vs 36.25% baseline.
+</p>
+<h4>Nonlinearity Ablation (Table 4, p. 9)</h4>
+<table>
+<tr><th>Model Configuration</th><th>pass@1</th><th>pass@1000</th></tr>
+<tr><td>Full URM</td><td><strong>53.75%</strong></td><td><strong>85.13%</strong></td></tr>
+<tr><td>w/o Short Conv</td><td>45.25%</td><td>78.25%</td></tr>
+<tr><td>SwiGLU → SiLU</td><td>29.75%</td><td>54.50%</td></tr>
+<tr><td>SiLU → ReLU</td><td>28.63%</td><td>54.88%</td></tr>
+<tr><td>w/o Attention Softmax</td><td>2.00%</td><td>15.00%</td></tr>
+</table>
+<p>
+<strong>Finding</strong>: Performance degrades monotonically with reduced nonlinearity. Removing softmax causes catastrophic failure (2% vs 53.75%).
+</p>
+<h4>Attention Matrix Visualization (Figure 4, p. 7)</h4>
+<ul>
+<li><strong>Without ConvSwiGLU</strong>: Sparse and homogeneous attention patterns</li>
+<li><strong>With ConvSwiGLU</strong>: More diverse and structured attention distributions</li>
+<li><strong>Interpretation</strong>: Short convolution enhances inter-channel information flow</li>
+</ul>
+<h4>Optimizer Comparison (Figure 5, p. 9-10)</h4>
+<h5>Muon vs AdamAtan2</h5>
+<table>
+<tr><th>Metric</th><th>Muon</th><th>AdamAtan2</th></tr>
+<tr><td>Steps to 11.5% (ARC-AGI 2)</td><td>~600K</td><td>~1,300K</td></tr>
+<tr><td>Final ARC-AGI 1</td><td>~53.8%</td><td>~53.8%</td></tr>
+<tr><td>Final ARC-AGI 2</td><td>~16.0%</td><td>~16.0%</td></tr>
+</table>
+<p>
+<strong>Finding</strong>: Muon achieves ~2× faster convergence but identical final performance. Optimization efficiency is separable from architectural capacity.
+</p>
+<h4>Component Contribution Analysis</h4>
+<p>
+Based on ablations, each component contributes:
+</p>
+<table>
+<tr><th>Component</th><th>Contribution to pass@1 (ARC-AGI 1)</th></tr>
+<tr><td>Short Convolution</td><td>+8.5 pp (45.3% → 53.8%)</td></tr>
+<tr><td>Truncated Backprop</td><td>+5.3 pp (40.0% → 45.3%)*</td></tr>
+<tr><td>Recurrence vs Depth</td><td>+16.25 pp (23.75% → 40.0%)</td></tr>
+</table>
+<p>
+*Estimated from ablation showing 40.0% without truncated backprop
+</p>
+        </section>
+
+        <section id="glossary">
+            <h2>Glossary</h2>
+            <h4>Core Concepts</h4>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Transformer_(machine_learning_model">Universal Transformer (UT)</a>#Universal_Transformer)</strong>: An extension of the standard Transformer that introduces recurrent computation over depth. Instead of stacking L distinct layers, UT applies a single transition block repeatedly, sharing parameters across all iterations. This enables flexible-depth computation and higher parameter efficiency.
+</p>
+<p>
+<strong><a href="https://github.com/zitian-gao/URM">Universal Reasoning Model (URM)</a></strong>: The model proposed in this paper. A decoder-only Universal Transformer enhanced with ConvSwiGLU (short convolution in the feed-forward block) and Truncated Backpropagation Through Loops (TBPTL) for improved nonlinearity and training stability.
+</p>
+<p>
+<strong><a href="https://arcprize.org/">ARC-AGI</a></strong>: Abstraction and Reasoning Corpus for Artificial General Intelligence. A benchmark created by François Chollet consisting of visual grid puzzles that test abstract pattern recognition and few-shot generalization. Humans achieve ~80% accuracy; most LLMs perform poorly.
+</p>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Inductive_bias">Recurrent Inductive Bias</a></strong>: The preference built into a model's architecture that favors iterative refinement through repeated application of the same transformation. In UTs, this manifests as parameter sharing across depth, allowing the model to "think" about problems multiple times.
+</p>
+<h4>Architecture Components</h4>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Attention_(machine_learning">Multi-Head Self-Attention (MHSA)</a>#Multi-head_attention)</strong>: A mechanism that allows each token in a sequence to attend to all other tokens using learned query, key, and value projections. Multiple attention heads enable the model to capture different types of relationships simultaneously.
+</p>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Feedforward_neural_network">Feed-Forward Network (FFN)</a></strong>: A two-layer multilayer perceptron applied independently to each position in a Transformer. Typically expands the hidden dimension by 4× before projecting back, providing the model's primary source of nonlinear transformation.
+</p>
+<p>
+<strong><a href="https://arxiv.org/abs/2002.05202">SwiGLU</a></strong>: A gated linear unit variant used in modern Transformers. Combines the Swish activation function with gating: output = Swish(xW₁) ⊙ (xW₂). Provides richer nonlinearity than simple activation functions.
+</p>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Swish_function">SiLU (Swish)</a></strong>: Sigmoid Linear Unit activation function defined as SiLU(x) = x · σ(x), where σ is the sigmoid function. A smooth approximation to ReLU that allows small negative values.
+</p>
+<p>
+<strong>ConvSwiGLU</strong>: The novel FFN variant introduced in this paper. Augments SwiGLU with a depthwise 1D convolution after the gated multiplication, adding local token interactions and additional nonlinearity.
+</p>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Convolutional_neural_network#Depthwise_separable_convolution">Depthwise Convolution</a></strong>: A convolution where each input channel is convolved with its own filter, rather than combining all channels. Much more parameter-efficient than standard convolution (m×k parameters vs m×m×k).
+</p>
+<p>
+<strong><a href="https://arxiv.org/abs/1910.07467">RMSNorm</a></strong>: Root Mean Square Layer Normalization. A simplification of LayerNorm that normalizes by the root mean square of activations without mean centering. Used in many modern architectures including LLaMA.
+</p>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Layer_normalization">Layer Normalization</a></strong>: A normalization technique that normalizes across the feature dimension for each token independently. Helps stabilize training in deep networks.
+</p>
+<h4>Training Techniques</h4>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Backpropagation_through_time#Truncated_backpropagation_through_time">Truncated Backpropagation Through Time (TBPTT)</a></strong>: A technique for training recurrent neural networks where gradients are only propagated through a fixed number of recent time steps rather than the entire sequence. Reduces computational cost and gradient instability.
+</p>
+<p>
+<strong>Truncated Backpropagation Through Loops (TBPTL)</strong>: The adaptation of TBPTT to Universal Transformers, where only the last (M-N) recurrent loops receive gradients, while the first N loops are forward-only. Improves optimization stability.
+</p>
+<p>
+<strong><a href="https://arxiv.org/abs/1603.08983">Adaptive Computation Time (ACT)</a></strong>: A mechanism that allows different tokens to halt at different recurrent steps based on learned confidence. Tokens predict halting probabilities; computation stops when cumulative probability exceeds a threshold.
+</p>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average">Exponential Moving Average (EMA)</a></strong>: A technique that maintains a running average of model parameters during training. The EMA model often generalizes better than the final trained model.
+</p>
+<p>
+<strong><a href="https://arxiv.org/abs/2311.10211">AdamAtan2</a></strong>: An Adam optimizer variant that uses the atan2 function for computing parameter updates. Designed for better scaling behavior across different parameterizations.
+</p>
+<p>
+<strong><a href="https://arxiv.org/abs/2411.01116">Muon Optimizer</a></strong>: Momentum Updated Orthogonal Newton. An optimizer that approximates second-order curvature to apply orthogonal updates. Shows faster convergence on recurrent architectures.
+</p>
+<h4>Evaluation Metrics</h4>
+<p>
+<strong>pass@n</strong>: The evaluation metric used for ARC-AGI. Measures the probability that at least one of n sampled answers is correct. Higher n allows the model to "try" multiple times, revealing the diversity of its solution distribution.
+</p>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/FLOPS">FLOPs</a></strong>: Floating Point Operations Per Second (or total floating point operations). Used to measure computational cost of a model. In this paper, used as a normalized measure relative to a baseline configuration.
+</p>
+<h4>Related Models</h4>
+<p>
+<strong><a href="https://arxiv.org/abs/2502.01413">Hierarchical Reasoning Model (HRM)</a></strong>: A prior UT-based model for ARC-AGI that introduces multi-timescale recurrence with inner and outer loops. Achieves strong results but the authors of URM argue its gains come primarily from recurrence, not hierarchy.
+</p>
+<p>
+<strong><a href="https://arxiv.org/abs/2502.02697">Tiny Recursive Model (TRM)</a></strong>: A simplified UT variant showing that a single lightweight network applied recursively can match more complex hierarchical designs. URM builds on TRM's insights.
+</p>
+<p>
+<strong><a href="https://arxiv.org/abs/2501.08540">VARC (Vision ARC)</a></strong>: An approach that reformulates ARC as an image-to-image transformation problem, leveraging visual inductive biases.
+</p>
+<h4>Mathematical Notation</h4>
+<p>
+<strong>H^t</strong>: Hidden state at recurrent iteration t. H^0 is the initial embedding.
+</p>
+<p>
+<strong>θ</strong>: Model parameters. In UTs, these are shared across all recurrent iterations.
+</p>
+<p>
+<strong>⊙</strong>: Hadamard (element-wise) product. Used in gated activations like SwiGLU.
+</p>
+<p>
+<strong>∗</strong>: Convolution operation. W_dwconv ∗ H denotes depthwise convolution.
+</p>
+<p>
+<strong>σ</strong>: Either sigmoid function σ(x) = 1/(1+e^(-x)) or a generic nonlinear activation, depending on context.
+</p>
+<h4>Other Terms</h4>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Inductive_bias">Inductive Bias</a></strong>: The assumptions built into a learning algorithm that guide it toward certain solutions. Recurrence introduces an inductive bias favoring iterative refinement.
+</p>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Parameter_sharing">Parameter Sharing</a></strong>: Using the same parameters across different parts of a model. In UTs, all recurrent iterations share weights.
+</p>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Residual_neural_network">Residual Connection</a></strong>: A skip connection that adds the input of a block to its output: y = f(x) + x. Enables training of very deep networks by providing gradient highways.
+</p>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Activation_function">Nonlinearity</a></strong>: A function that introduces non-additive transformations into a neural network. Essential for learning complex patterns; without nonlinearity, any depth of linear layers collapses to a single linear transformation.
+</p>
+<p>
+<strong>Effective Depth</strong>: The total number of transformations applied to an input. For UTs, effective depth = layers × loops, even though parameter count only scales with layers.
+</p>
+<p>
+<strong><a href="https://en.wikipedia.org/wiki/Transformer_(machine_learning_model">Decoder-Only Architecture</a>#Decoder)</strong>: A Transformer variant that only uses the decoder stack with causal (unidirectional) attention. Used by GPT, LLaMA, and other autoregressive language models.
+</p>
+        </section>
+
+        <section id="prereqs">
+            <h2>Prerequisites</h2>
+            <p>
+This paper assumes familiarity with the following concepts. For readers new to these areas, we provide learning resources.
+</p>
+<h4>Essential Background</h4>
+<h5>1. Transformer Architecture</h5>
+<p>
+The paper builds directly on Transformer fundamentals.
+</p>
+<p>
+<strong>You should understand:</strong>
+</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Attention_(machine_learning">Multi-head self-attention</a>#Multi-head_attention) mechanism</li>
+<li><a href="https://en.wikipedia.org/wiki/Feedforward_neural_network">Feed-forward networks</a> in Transformers</li>
+<li><a href="https://en.wikipedia.org/wiki/Residual_neural_network">Residual connections</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Layer_normalization">Layer normalization</a></li>
+<li>Query, key, value projections</li>
+</ul>
+<p>
+<strong>Learning Resources:</strong>
+</p>
+<ul>
+<li><a href="https://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a> - Jay Alammar's visual guide</li>
+<li><a href="https://arxiv.org/abs/1706.03762">"Attention Is All You Need"</a> - Original Transformer paper (Vaswani et al., 2017)</li>
+<li><a href="http://nlp.seas.harvard.edu/annotated-transformer/">The Annotated Transformer</a> - Harvard NLP's code walkthrough</li>
+</ul>
+<h5>2. Universal Transformers</h5>
+<p>
+The core architecture that URM builds upon.
+</p>
+<p>
+<strong>You should understand:</strong>
+</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Parameter_sharing">Weight tying</a> / parameter sharing across layers</li>
+<li>Recurrent computation over depth</li>
+<li>Difference between fixed-depth and adaptive-depth models</li>
+</ul>
+<p>
+<strong>Learning Resources:</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/1807.03819">"Universal Transformers"</a> - Dehghani et al., 2019</li>
+<li><a href="https://ai.googleblog.com/2018/08/moving-beyond-translation-with.html">Google AI Blog post on Universal Transformers</a></li>
+</ul>
+<h5>3. Activation Functions</h5>
+<p>
+Critical for understanding the nonlinearity experiments.
+</p>
+<p>
+<strong>You should understand:</strong>
+</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Rectifier_(neural_networks">ReLU</a>) (Rectified Linear Unit)</li>
+<li><a href="https://arxiv.org/abs/1606.08415">GELU</a> (Gaussian Error Linear Unit)</li>
+<li><a href="https://en.wikipedia.org/wiki/Swish_function">SiLU/Swish</a>: SiLU(x) = x · σ(x)</li>
+<li><a href="https://arxiv.org/abs/2002.05202">GLU variants</a> (Gated Linear Units): SwiGLU, GeGLU</li>
+</ul>
+<p>
+<strong>Learning Resources:</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2002.05202">"GLU Variants Improve Transformer"</a> - Shazeer, 2020</li>
+<li><a href="https://mlfromscratch.com/activation-functions-explained/">Activation Functions in Deep Learning</a> - Visual guide</li>
+</ul>
+<h5>4. Backpropagation Through Time</h5>
+<p>
+For understanding TBPTL.
+</p>
+<p>
+<strong>You should understand:</strong>
+</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Backpropagation">Backpropagation</a> basics</li>
+<li><a href="https://en.wikipedia.org/wiki/Backpropagation_through_time">Backpropagation through time (BPTT)</a> for RNNs</li>
+<li><a href="https://en.wikipedia.org/wiki/Vanishing_gradient_problem">Vanishing/exploding gradients</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Backpropagation_through_time#Truncated_backpropagation_through_time">Truncated BPTT</a></li>
+</ul>
+<p>
+<strong>Learning Resources:</strong>
+</p>
+<ul>
+<li><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">Understanding LSTM Networks</a> - Chris Olah (covers gradient flow)</li>
+<li><a href="http://proceedings.mlr.press/v28/pascanu13.pdf">"On the difficulty of training RNNs"</a> - Pascanu et al., 2013</li>
+</ul>
+<h4>Helpful Background</h4>
+<h5>5. Convolutions in Sequence Models</h5>
+<p>
+Useful for understanding ConvSwiGLU.
+</p>
+<p>
+<strong>You should understand:</strong>
+</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Convolutional_neural_network#1D_convolutions">1D convolution</a> over sequences</li>
+<li><a href="https://en.wikipedia.org/wiki/Convolutional_neural_network#Depthwise_separable_convolution">Depthwise separable convolution</a></li>
+<li>Local vs global receptive fields</li>
+</ul>
+<p>
+<strong>Learning Resources:</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/1603.07285">A guide to convolution arithmetic</a> - Dumoulin & Visin</li>
+<li><a href="https://arxiv.org/abs/1610.02357">"Xception: Deep Learning with Depthwise Separable Convolutions"</a></li>
+</ul>
+<h5>6. Adaptive Computation</h5>
+<p>
+For understanding ACT mechanism.
+</p>
+<p>
+<strong>You should understand:</strong>
+</p>
+<ul>
+<li>Dynamic computation graphs</li>
+<li>Halting mechanisms in neural networks</li>
+<li>Ponder time / computation budgets</li>
+</ul>
+<p>
+<strong>Learning Resources:</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/1603.08983">"Adaptive Computation Time for Recurrent Neural Networks"</a> - Graves, 2016</li>
+</ul>
+<h5>7. ARC-AGI Benchmark</h5>
+<p>
+Context for why this problem matters.
+</p>
+<p>
+<strong>You should understand:</strong>
+</p>
+<ul>
+<li>What ARC puzzles look like</li>
+<li>Why ARC tests "intelligence" differently than standard benchmarks</li>
+<li>Few-shot generalization</li>
+</ul>
+<p>
+<strong>Learning Resources:</strong>
+</p>
+<ul>
+<li><a href="https://arcprize.org/">ARC Prize website</a> - Official benchmark site</li>
+<li><a href="https://arxiv.org/abs/1911.01547">"The Measure of Intelligence"</a> - Chollet, 2019</li>
+</ul>
+<h4>Mathematical Prerequisites</h4>
+<h5>Linear Algebra</h5>
+<ul>
+<li>Matrix multiplication</li>
+<li>Vector operations</li>
+<li><a href="https://en.wikipedia.org/wiki/Tensor">Tensor operations</a></li>
+</ul>
+<h5>Calculus</h5>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Chain_rule">Chain rule</a> for derivatives</li>
+<li><a href="https://en.wikipedia.org/wiki/Gradient_descent">Gradient descent</a></li>
+<li>Partial derivatives</li>
+</ul>
+<h5>Probability</h5>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Softmax_function">Softmax function</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Cross_entropy">Cross-entropy loss</a></li>
+</ul>
+<h4>Optional: Advanced Topics</h4>
+<h5>For Deeper Understanding</h5>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Computational_complexity_theory">Computational complexity</a> of sequence models</li>
+<li><a href="https://en.wikipedia.org/wiki/Expressive_power_(computer_science">Expressivity</a>) of neural networks</li>
+<li><a href="https://en.wikipedia.org/wiki/Inductive_bias">Inductive biases</a> in machine learning</li>
+</ul>
+<h5>Related Recent Work</h5>
+<ul>
+<li><a href="https://arxiv.org/abs/2502.01413">"Hierarchical Reasoning Model"</a> (HRM) - Wang et al., 2025</li>
+<li><a href="https://arxiv.org/abs/2502.02697">"Less is more: Recursive reasoning with tiny networks"</a> (TRM) - Jolicoeur-Martineau, 2025</li>
+<li><a href="https://arxiv.org/abs/2403.05379">"Reasoning with Latent Thoughts"</a> - Saunshi et al., 2025</li>
+</ul>
+        </section>
+
+        <section id="questions">
+            <h2>Questions</h2>
+            <h4>Understanding the Core Problem</h4>
+<ol>
+<li><strong>Why do large language models struggle with ARC-AGI puzzles despite their impressive performance on other tasks?</strong> What fundamental capability might be missing?</li>
+</ol>
+<ol>
+<li><strong>What is the key difference between how a standard Transformer processes information versus how a Universal Transformer does?</strong> How does this relate to iterative problem-solving?</li>
+</ol>
+<ol>
+<li><strong>Why might parameter sharing across depth provide an advantage for reasoning tasks?</strong> What does "thinking about a problem multiple times" mean computationally?</li>
+</ol>
+<h4>Analyzing the Methods</h4>
+<ol>
+<li><strong>Why did the authors choose to place the short convolution after the MLP expansion rather than in the attention pathway?</strong> What does this suggest about the different roles of attention vs FFN?</li>
+</ol>
+<ol>
+<li><strong>Why does truncating gradient computation for early loops improve rather than hurt performance?</strong> What problems does full backpropagation through all loops cause?</li>
+</ol>
+<ol>
+<li><strong>What is the purpose of Adaptive Computation Time (ACT)?</strong> When would different tokens need different amounts of computation?</li>
+</ol>
+<h4>Interpreting the Results</h4>
+<ol>
+<li><strong>Looking at Table 2, why does a 64-layer vanilla Transformer perform worse than a 32-layer one?</strong> What might explain this counterintuitive result?</li>
+</ol>
+<ol>
+<li><strong>The paper shows that removing the attention softmax causes catastrophic failure (2% accuracy). Why is this nonlinearity so critical?</strong> What would attention compute without softmax?</li>
+</ol>
+<ol>
+<li><strong>Why do URM's advantages widen at higher sampling budgets (pass@1000)?</strong> What does this tell us about the model's output distribution?</li>
+</ol>
+<h4>Deeper Thinking</h4>
+<ol>
+<li><strong>If recurrence is so beneficial, why don't all Transformers use weight sharing?</strong> What tradeoffs might exist for other task types?</li>
+</ol>
+<ol>
+<li><strong>The paper claims nonlinearity is more important than elaborate architectural designs. Do you agree?</strong> What evidence supports or contradicts this claim?</li>
+</ol>
+<ol>
+<li><strong>How might the findings about recurrence and nonlinearity inform the design of future reasoning systems?</strong> What architectural principles emerge?</li>
+</ol>
+<h4>Comparative Analysis</h4>
+<ol>
+<li><strong>How does URM's approach differ from chain-of-thought prompting in LLMs?</strong> Both involve iterative processing—what's fundamentally different?</li>
+</ol>
+<ol>
+<li><strong>Why might small models trained from scratch on ARC outperform large pretrained models?</strong> What does this suggest about the role of pretraining for abstract reasoning?</li>
+</ol>
+<ol>
+<li><strong>The paper compares against HRM and TRM but not against visual approaches like VARC. Is this a fair comparison?</strong> What are the tradeoffs between sequence-based and vision-based approaches?</li>
+</ol>
+        </section>
+
+        <section id="quiz">
+            <h2>Quiz</h2>
+            <p>
+Test your understanding of the Universal Reasoning Model paper.
+</p>
+<h4>Questions</h4>
+<h5>Question 1</h5>
+<p>
+What are the two key factors that the paper identifies as the true sources of Universal Transformer performance gains on ARC-AGI?
+</p>
+<details>
+<summary>Show Answer</summary>
+<ol>
+<li><strong>Recurrent inductive bias</strong> (parameter sharing across depth, allowing iterative refinement)</li>
+<li><strong>Strong nonlinear components</strong> (particularly SwiGLU activation and attention softmax)</li>
+</ol>
+<p>
+The paper argues these matter more than elaborate architectural designs like hierarchical structures.
+</p>
+</details>
+<hr>
+<h5>Question 2</h5>
+<p>
+In the comparison between vanilla Transformers and Universal Transformers at 32× FLOPs (Table 2), what pass@1 scores did each achieve on ARC-AGI 1?
+</p>
+<details>
+<summary>Show Answer</summary>
+<ul>
+<li>Vanilla Transformer (32 layers, 512 hidden): <strong>23.75%</strong></li>
+<li>Universal Transformer (4 layers, 8 loops, 512 hidden): <strong>40.00%</strong></li>
+</ul>
+<p>
+The UT achieves 68.4% relative improvement at the same computational cost.
+</p>
+</details>
+<hr>
+<h5>Question 3</h5>
+<p>
+What is ConvSwiGLU, and where is the convolution placed in the architecture?
+</p>
+<details>
+<summary>Show Answer</summary>
+<p>
+ConvSwiGLU is a modified feed-forward block that augments the standard SwiGLU with a depthwise 1D convolution (kernel size 2). The convolution is placed <strong>after the MLP expansion</strong> (position f), not in the attention pathway.
+</p>
+<p>
+This placement works best because it operates within the already-nonlinear FFN subspace, enhancing representational capacity without interfering with attention's geometric structure.
+</p>
+</details>
+<hr>
+<h5>Question 4</h5>
+<p>
+What is the optimal number of forward-only loops in TBPTL according to the ablation study, and why does truncation help?
+</p>
+<details>
+<summary>Show Answer</summary>
+<p>
+The optimal setting is <strong>N=2 forward-only loops</strong> (out of 8 total), achieving 39.13% vs 36.25% baseline.
+</p>
+<p>
+Truncation helps because:
+</p>
+<ol>
+<li>It reduces gradient noise accumulation from early, less informative loops</li>
+<li>It provides more stable optimization</li>
+<li>Early loops still contribute via the forward pass—they just don't receive gradients</li>
+</ol>
+</details>
+<hr>
+<h5>Question 5</h5>
+<p>
+What happens to performance when the attention softmax is removed?
+</p>
+<details>
+<summary>Show Answer</summary>
+<p>
+Performance drops catastrophically from <strong>53.75% to 2.00%</strong> pass@1.
+</p>
+<p>
+This demonstrates that the nonlinear normalization in attention is essential for reasoning. Without softmax, attention becomes a linear combination of values, losing the ability to sharply focus on relevant tokens.
+</p>
+</details>
+<hr>
+<h5>Question 6</h5>
+<p>
+What is the difference between the Muon and AdamAtan2 optimizers in terms of convergence speed and final performance?
+</p>
+<details>
+<summary>Show Answer</summary>
+<ul>
+<li><strong>Convergence speed</strong>: Muon is ~2× faster (reaches 11.5% on ARC-AGI 2 in 600K steps vs 1,300K for Adam)</li>
+<li><strong>Final performance</strong>: Both achieve approximately the same accuracy (~53.8% on ARC-AGI 1, ~16.0% on ARC-AGI 2)</li>
+</ul>
+<p>
+This separates optimization efficiency from architectural capacity—Muon helps training but doesn't improve the model's ceiling.
+</p>
+</details>
+<hr>
+<h5>Question 7</h5>
+<p>
+What are URM's state-of-the-art results on the three benchmarks?
+</p>
+<details>
+<summary>Show Answer</summary>
+<table>
+<tr><th>Benchmark</th><th>URM pass@1</th></tr>
+<tr><td>ARC-AGI 1</td><td><strong>53.8%</strong></td></tr>
+<tr><td>ARC-AGI 2</td><td><strong>16.0%</strong></td></tr>
+<tr><td>Sudoku</td><td><strong>77.6%</strong></td></tr>
+</table>
+<p>
+These all significantly exceed prior UT-based models (TRM, HRM).
+</p>
+</details>
+<hr>
+<h5>Question 8</h5>
+<p>
+Why did placing convolution in the attention pathway (positions a-d) degrade performance?
+</p>
+<details>
+<summary>Show Answer</summary>
+<p>
+Inserting convolution after SDPA output, value/key/query projections interferes with the <strong>geometric structure of attention's linear projections</strong>.
+</p>
+<p>
+Attention relies on carefully learned linear mappings for query-key matching and value aggregation. Adding local perturbations disrupts these relationships. In contrast, the FFN is already nonlinear, so adding convolution there enhances capacity rather than disrupting function.
+</p>
+</details>
+<hr>
+<h5>Question 9</h5>
+<p>
+How does Adaptive Computation Time (ACT) work in URM?
+</p>
+<details>
+<summary>Show Answer</summary>
+<p>
+ACT allows different tokens to halt at different recurrent steps:
+</p>
+<ol>
+<li>At each step t, each position predicts a halting probability: p_{t,i} = σ(w^T h_{t,i} + b)</li>
+<li>Probabilities are accumulated until reaching threshold 1-ε</li>
+<li>The final representation is a weighted mixture: h_final = Σ_t Δ_{t,i} h_{t,i}</li>
+</ol>
+<p>
+This lets the model allocate more computation to complex tokens and less to simpler ones. Maximum ACT steps is 16.
+</p>
+</details>
+<hr>
+<h5>Question 10</h5>
+<p>
+What does the paper conclude about the relationship between parameter count and reasoning performance in vanilla Transformers?
+</p>
+<details>
+<summary>Show Answer</summary>
+<p>
+Simply scaling parameters in vanilla Transformers shows <strong>diminishing returns</strong> and can even cause <strong>performance degradation</strong> for reasoning tasks.
+</p>
+<p>
+Evidence:
+</p>
+<ul>
+<li>32-layer vanilla achieves 23.75%, but 64-layer achieves only 18.25% (despite more params)</li>
+<li>16-layer with 1024 hidden (32× params) achieves 0% (complete failure)</li>
+<li>Meanwhile, a 4× parameter UT achieves 40%</li>
+</ul>
+<p>
+This indicates a <strong>fundamental inefficiency</strong> in how vanilla Transformers use parameters for multi-step reasoning.
+</p>
+</details>
+        </section>
+
+        <section id="related">
+            <h2>Related Work</h2>
+            <h4>Core References from the Paper</h4>
+<h5>Universal Transformers & Looped Architectures</h5>
+<p>
+<strong>Universal Transformers (Dehghani et al., 2019)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/1807.03819">arXiv:1807.03819</a></li>
+<li>The foundational paper introducing parameter sharing across depth and Adaptive Computation Time</li>
+<li>URM is a direct extension of this architecture</li>
+</ul>
+<p>
+<strong>Looped Transformers are Better at Learning Learning Algorithms (Yang et al., 2024)</strong>
+</p>
+<ul>
+<li><a href="https://openreview.net/forum?id=GJT7rmCJTW">OpenReview</a></li>
+<li>Shows UTs have improved algorithmic learning capabilities</li>
+<li>Supports the claim that recurrence helps with iterative computation</li>
+</ul>
+<p>
+<strong>Reasoning with Latent Thoughts: On the Power of Looped Transformers (Saunshi et al., 2025)</strong>
+</p>
+<ul>
+<li><a href="https://openreview.net/forum?id=L5NLxJ7Cpj">OpenReview</a></li>
+<li>Argues reasoning tasks benefit more from iterative computation than from independent layers</li>
+<li>Key theoretical support for why recurrent depth beats parameter depth</li>
+</ul>
+<h5>ARC-AGI Related Work</h5>
+<p>
+<strong>ARC Prize 2024 Technical Report (Chollet et al., 2025)</strong>
+</p>
+<ul>
+<li><a href="https://arcprize.org/">arcprize.org</a></li>
+<li>Official technical report describing ARC-AGI 1 benchmark</li>
+</ul>
+<p>
+<strong>ARC-AGI-2: A New Challenge (Chollet et al., 2025)</strong>
+</p>
+<ul>
+<li><a href="https://arcprize.org/">arcprize.org</a></li>
+<li>Describes the harder ARC-AGI 2 benchmark used in evaluation</li>
+</ul>
+<p>
+<strong>Hierarchical Reasoning Model (Wang et al., 2025)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2502.01413">arXiv:2502.01413</a></li>
+<li>Multi-timescale recurrence with inner and outer loops</li>
+<li>One of the main baselines (HRM) that URM outperforms</li>
+</ul>
+<p>
+<strong>Less is More: Recursive Reasoning with Tiny Networks (Jolicoeur-Martineau, 2025)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2502.02697">arXiv:2502.02697</a></li>
+<li>Tiny Recursive Model (TRM): simplified recursive approach</li>
+<li>Shows single lightweight network can match hierarchical designs</li>
+<li>The other main baseline URM compares against</li>
+</ul>
+<p>
+<strong>ARC is a Vision Problem! (Hu et al., 2025)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2501.08540">arXiv:2501.08540</a></li>
+<li>Vision ARC (VARC): treats ARC as image-to-image transformation</li>
+<li>Alternative approach using visual inductive biases</li>
+<li>Excluded from URM's comparison (different paradigm)</li>
+</ul>
+<h5>Transformer Variants & Architecture</h5>
+<p>
+<strong>Attention Is All You Need (Vaswani et al., 2017)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/1706.03762">arXiv:1706.03762</a></li>
+<li>Original Transformer paper defining the base architecture</li>
+</ul>
+<p>
+<strong>GLU Variants Improve Transformer (Shazeer, 2020)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2002.05202">arXiv:2002.05202</a></li>
+<li>Introduces SwiGLU and other gated linear unit variants</li>
+<li>Foundation for ConvSwiGLU modification</li>
+</ul>
+<p>
+<strong>Physics of Language Models: Part 4.1 (Allen-Zhu, 2025)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2407.00069">NeurIPS 2025</a></li>
+<li>Discusses architecture design and "canon layers"</li>
+<li>Theoretical support for lightweight channel mixing</li>
+</ul>
+<p>
+<strong>MetaFormer is Actually What You Need for Vision (Yu et al., 2022)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2111.11418">CVPR 2022</a></li>
+<li>Shows token mixing mechanisms are key, not just attention</li>
+<li>Supports importance of ConvSwiGLU's token interactions</li>
+</ul>
+<h5>Training & Optimization</h5>
+<p>
+<strong>Adaptive Computation Time for RNNs (Graves, 2017)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/1603.08983">arXiv:1603.08983</a></li>
+<li>Introduces ACT mechanism used in URM</li>
+</ul>
+<p>
+<strong>On the Difficulty of Training RNNs (Pascanu et al., 2013)</strong>
+</p>
+<ul>
+<li><a href="http://proceedings.mlr.press/v28/pascanu13.pdf">ICML 2013</a></li>
+<li>Foundational work on gradient issues in recurrent nets</li>
+<li>Motivates TBPTL approach</li>
+</ul>
+<p>
+<strong>Unbiasing Truncated Backpropagation Through Time (Tallec & Ollivier, 2017)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/1705.08209">arXiv:1705.08209</a></li>
+<li>Theoretical treatment of truncated backpropagation</li>
+</ul>
+<p>
+<strong>Scaling Exponents Across Parameterizations and Optimizers (Everett et al., 2024)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2407.05872">ICML 2024</a></li>
+<li>Introduces AdamAtan2 optimizer used in URM</li>
+</ul>
+<p>
+<strong>Muon: An Optimizer for Hidden Layers (Jordan et al., 2024)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2411.01116">arXiv:2411.01116</a></li>
+<li>Muon optimizer compared in optimizer experiments</li>
+</ul>
+<p>
+<strong>Muon is Scalable for LLM Training (Liu et al., 2025)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2502.16982">arXiv:2502.16982</a></li>
+<li>Shows Muon scales to large language models</li>
+</ul>
+<h5>Theoretical Foundations</h5>
+<p>
+<strong>The Devil is in the Detail: Simple Tricks Improve Systematic Generalization (Csordás et al., 2021)</strong>
+</p>
+<ul>
+<li><a href="https://aclanthology.org/2021.emnlp-main.49/">EMNLP 2021</a></li>
+<li>Shows UTs have stronger multi-step reasoning abilities</li>
+</ul>
+<p>
+<strong>Grokked Transformers are Implicit Reasoners (Wang et al., 2024)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2405.15071">NeurIPS 2024</a></li>
+<li>Recurrent refinement helps overcome reasoning limitations</li>
+</ul>
+<p>
+<strong>What Makes Looped Transformers Perform Better (Gong et al., 2025)</strong>
+</p>
+<ul>
+<li>Related theoretical analysis of why looped transformers excel</li>
+</ul>
+<p>
+<strong>Investigating Layer Importance in LLMs (Zhang et al., 2024)</strong>
+</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2403.12838">BlackboxNLP 2024</a></li>
+<li>Argues additional FLOPs in standard Transformers often spent on redundant refinement</li>
+</ul>
+<h4>Broader Context</h4>
+<h5>Reasoning in Neural Networks</h5>
+<p>
+<strong>Chain-of-Thought Prompting</strong>
+</p>
+<ul>
+<li>Different approach: explicit reasoning steps in language models</li>
+<li>Contrast: URM uses implicit iterative refinement</li>
+</ul>
+<p>
+<strong>Neural Turing Machines & Memory Networks</strong>
+</p>
+<ul>
+<li>Alternative approaches to iterative computation</li>
+<li>Use external memory rather than recurrent layers</li>
+</ul>
+<h5>Benchmark Evolution</h5>
+<p>
+<strong>CLEVR, bAbI, and Other Reasoning Benchmarks</strong>
+</p>
+<ul>
+<li>Earlier benchmarks that ARC aimed to supersede</li>
+<li>Often solvable via shortcuts, unlike ARC</li>
+</ul>
+<h5>Scaling Laws and Architecture Search</h5>
+<p>
+<strong>Scaling Laws for Neural Language Models (Kaplan et al., 2020)</strong>
+</p>
+<ul>
+<li>Standard approach: scale everything uniformly</li>
+<li>URM challenges this for reasoning tasks</li>
+</ul>
+        </section>
+
+        <section id="context">
+            <h2>Research Context</h2>
+            <h4>Position in the Field</h4>
+<p>
+This paper sits at the intersection of several active research threads in AI:
+</p>
+<h5>1. The Quest for Machine Reasoning</h5>
+<p>
+<strong>The Challenge</strong>: Despite impressive advances in language modeling, AI systems struggle with abstract reasoning tasks that humans find trivial. The ARC-AGI benchmark crystallizes this challenge—humans achieve 80%+ accuracy while state-of-the-art LLMs often achieve less than 20%.
+</p>
+<p>
+<strong>Why It Matters</strong>: ARC-AGI tests fluid intelligence and few-shot generalization, capabilities considered essential for artificial general intelligence. Success on ARC would demonstrate a form of reasoning that current AI largely lacks.
+</p>
+<p>
+<strong>URM's Contribution</strong>: Achieves 53.8% pass@1 on ARC-AGI 1, narrowing the human-AI gap significantly for small, task-specific models.
+</p>
+<h5>2. Universal Transformers Revival</h5>
+<p>
+<strong>Historical Context</strong>: Universal Transformers were introduced in 2018-2019 but remained relatively niche compared to standard Transformers, which dominated via scaling. The ARC-AGI challenge has sparked renewed interest in UT-based approaches.
+</p>
+<p>
+<strong>Recent Trajectory</strong>:
+</p>
+<pre><code>
+2019: Universal Transformer (Dehghani et al.) - Original architecture
+2024: Theoretical work showing UT advantages for reasoning
+2025: HRM achieves strong ARC results via multi-timescale recurrence
+2025: TRM simplifies, showing recurrence is the key factor
+2025: URM (this paper) pushes further, identifies nonlinearity as critical
+</code></pre>
+<p>
+<strong>URM's Contribution</strong>: Systematically identifies <em>why</em> UTs work—recurrence and nonlinearity—rather than proposing yet another elaborate architecture.
+</p>
+<h5>3. Rethinking the Scaling Hypothesis</h5>
+<p>
+<strong>Dominant Paradigm</strong>: The past few years have been dominated by the "scaling hypothesis"—that bigger models trained on more data achieve better capabilities. This has driven development of ever-larger LLMs.
+</p>
+<p>
+<strong>Counter-Evidence from ARC</strong>: Large pretrained models perform poorly on ARC despite having orders of magnitude more parameters than task-specific alternatives. This suggests scale alone doesn't solve reasoning.
+</p>
+<p>
+<strong>URM's Contribution</strong>: Demonstrates that architectural inductive biases (recurrence, nonlinearity) can dramatically outperform scale for specific tasks. A ~10M parameter URM beats models with billions of parameters on ARC.
+</p>
+<h5>4. The Efficiency-Capability Tradeoff</h5>
+<p>
+<strong>Traditional View</strong>: More parameters and compute → better performance. The relationship is roughly linear (scaling laws).
+</p>
+<p>
+<strong>URM's Insight</strong>: For reasoning tasks, there's a non-linear relationship where the <em>structure</em> of computation matters more than raw scale. Recurrent computation converts FLOPs into "effective depth" more efficiently than stacking independent layers.
+</p>
+<p>
+<strong>Implications</strong>: Points toward more efficient reasoning systems that don't require massive scale.
+</p>
+<h4>Relationship to Other Approaches</h4>
+<h5>vs. Large Language Models</h5>
+<table>
+<tr><th>Aspect</th><th>LLMs</th><th>URM</th></tr>
+<tr><td>Parameters</td><td>Billions</td><td>~10 million</td></tr>
+<tr><td>Training data</td><td>Internet-scale</td><td>Task-specific</td></tr>
+<tr><td>Reasoning approach</td><td>In-context learning</td><td>Iterative refinement</td></tr>
+<tr><td>ARC-AGI 1 performance</td><td><20% (most)</td><td>53.8%</td></tr>
+</table>
+<p>
+LLMs use their vast knowledge base to pattern-match against seen examples. URM uses deep iterative computation to derive answers from scratch.
+</p>
+<h5>vs. Vision Approaches (VARC)</h5>
+<p>
+VARC treats ARC as an image-to-image transformation problem, leveraging visual inductive biases. URM treats it as a sequence modeling problem, leveraging recurrent computation.
+</p>
+<p>
+Both approaches demonstrate that <strong>inductive biases matter more than scale</strong> for ARC, but they rely on different biases:
+</p>
+<ul>
+<li>VARC: Visual/spatial structure</li>
+<li>URM: Iterative refinement</li>
+</ul>
+<h5>vs. Chain-of-Thought Prompting</h5>
+<p>
+Chain-of-thought (CoT) prompting makes LLMs "show their work" through explicit reasoning steps in natural language. URM's recurrent loops implement implicit iterative processing.
+</p>
+<table>
+<tr><th>Aspect</th><th>Chain-of-Thought</th><th>URM</th></tr>
+<tr><td>Reasoning steps</td><td>Explicit (text)</td><td>Implicit (hidden states)</td></tr>
+<tr><td>Architecture</td><td>Standard Transformer</td><td>Universal Transformer</td></tr>
+<tr><td>Training</td><td>Prompting/few-shot</td><td>From scratch</td></tr>
+<tr><td>Interpretability</td><td>High</td><td>Low</td></tr>
+</table>
+<h4>Timeline of ARC Progress</h4>
+<pre><code>
+2019: ARC benchmark introduced (Chollet)
+      - Designed to resist dataset bias exploitation
+      - Initial methods: near-random performance
+
+2020-2023: Limited progress
+      - Various approaches attempted
+      - Best methods ~20-30% on easier splits
+      - Highlighted gap between LLM capabilities and abstract reasoning
+
+2024: Universal Transformer approaches emerge
+      - HRM: Multi-timescale recurrence (~32% ARC-AGI 1)
+      - Vision approaches: ~40% with ensembling
+
+2025: Rapid progress
+      - TRM: Simplified recurrence (~40%)
+      - VARC: Vision approach (~50%+ with ensembling)
+      - URM: 53.8% single model, new state-of-the-art
+</code></pre>
+<h4>Open Questions</h4>
+<h5>1. Is Recurrence Sufficient?</h5>
+<p>
+URM shows recurrence is necessary but not sufficient. What additional components are needed to approach human-level performance?
+</p>
+<h5>2. Does This Generalize?</h5>
+<p>
+Will the recurrence + nonlinearity insight apply to other reasoning benchmarks (math, logic, code), or is it ARC-specific?
+</p>
+<h5>3. Hybrid Approaches?</h5>
+<p>
+Can URM's insights be combined with LLM pretraining or visual approaches for further gains?
+</p>
+<h5>4. Interpretability</h5>
+<p>
+What computation actually happens in each recurrent loop? Can we understand the "algorithm" URM learns?
+</p>
+<h5>5. Scaling Behavior</h5>
+<p>
+Do the findings hold at larger scales, or is there a crossover point where standard Transformers catch up?
+</p>
+<h4>Impact and Significance</h4>
+<p>
+<strong>For AI Research</strong>:
+</p>
+<ul>
+<li>Challenges the primacy of scaling as the path to reasoning</li>
+<li>Provides concrete guidance: focus on recurrence and nonlinearity</li>
+<li>Opens new architectural directions</li>
+</ul>
+<p>
+<strong>For Benchmarking</strong>:
+</p>
+<ul>
+<li>Demonstrates ARC remains challenging even for best approaches</li>
+<li>Shows progress is possible with the right inductive biases</li>
+<li>Motivates harder benchmarks (ARC-AGI 2)</li>
+</ul>
+<p>
+<strong>For Applications</strong>:
+</p>
+<ul>
+<li>Suggests small, efficient models can excel at specific reasoning tasks</li>
+<li>Points toward domain-specific reasoning systems</li>
+<li>May inform design of reasoning components for larger systems</li>
+</ul>
+<h4>Where This Fits</h4>
+<pre><code>
+                    AI Architectures
+                          │
+         ┌────────────────┼────────────────┐
+         │                │                │
+    LLMs (Scale)    Vision Models    Recurrent/Iterative
+         │                │                │
+    GPT, Claude      ViT, CLIP      UT, Mamba, SSMs
+         │                │                │
+         └───────┬────────┴───────┬────────┘
+                 │                │
+            Vision-LLMs      URM (this paper)
+            (multimodal)     (reasoning-focused)
+</code></pre>
+<p>
+URM represents a specialized branch focused on reasoning through iterative refinement, complementing rather than competing with large-scale pretrained models.
+</p>
+        </section>
+
+        <section id="highlights">
+            <h2>Highlights</h2>
+            <p>
+Selected quotes from the paper that capture essential insights.
+</p>
+<hr>
+<h4>On the Source of UT Performance</h4>
+<blockquote>"Prior studies often attribute improvements to high-level architectural innovations, yet our analysis reveals that the core performance gain actually arises from the often-overlooked recurrent inductive bias intrinsic to the Universal Transformer." (p. 2)</blockquote>
+<blockquote>"In particular, nonlinear depth-wise computation plays a much larger role than previously acknowledged, suggesting that architectural modifications that enhance recurrent processing can yield substantial downstream improvements." (p. 2)</blockquote>
+<hr>
+<h4>Main Contributions</h4>
+<blockquote>"Through extensive ablation studies, we show that the performance of models on ARC-AGI–style complex reasoning tasks primarily stems from their nonlinearity. Moreover, we reveal that the true source of reasoning capability beyond standard Transformers comes from the recurrent mechanism of Universal Transformers rather than overly elaborate design in prior work." (p. 2)</blockquote>
+<hr>
+<h4>On ConvSwiGLU</h4>
+<blockquote>"Unlike the conventional point-wise SwiGLU, which treats each token independently, our design explicitly injects local contextual interactions into the gating mechanism, introducing lightweight channel mixing in token space without increasing sequence-level complexity." (p. 3)</blockquote>
+<blockquote>"The dominant effect arises at position (f), after the MLP expansion, indicating that short-range mixing is most beneficial when applied within an already nonlinear subspace." (p. 7-8)</blockquote>
+<hr>
+<h4>On Truncated Backpropagation</h4>
+<blockquote>"When the number of recurrent reasoning loops becomes large, the gradients propagated from early loops may hinder optimization due to noise accumulation and instability." (p. 4)</blockquote>
+<blockquote>"Moderately truncating gradient propagation therefore provides a favorable balance between optimization stability and effective long-horizon learning." (p. 8)</blockquote>
+<hr>
+<h4>On Parameter Efficiency</h4>
+<blockquote>"With only 4× parameters, a UT achieves a pass@1 score of 40.0, dramatically outperforming vanilla Transformers that employ up to 32× more parameters yet remain markedly weaker." (p. 6)</blockquote>
+<blockquote>"Simply scaling depth or width in vanilla Transformers yields diminishing returns and can even lead to performance degradation, highlighting a fundamental inefficiency in how parameters are used to support multi-step reasoning." (p. 6)</blockquote>
+<hr>
+<h4>On Recurrence vs Depth</h4>
+<blockquote>"Crucially, this advantage persists even when computation is held constant. At 32× FLOPs, reallocating computation from deep, non-shared layers to recurrent refinement improves pass@1 from 23.75 for vanilla Transformers to 40.0 for UTs." (p. 6)</blockquote>
+<blockquote>"This behavior is consistent with analyses of previous works, which argue that many reasoning tasks benefit more from iterative computation than from increasing the number of independent layers." (p. 6)</blockquote>
+<hr>
+<h4>On Nonlinearity</h4>
+<blockquote>"The performance on ARC-AGI 1 decreases monotonically as nonlinear components are progressively removed from the model. Among these components, the activation function in the MLP plays a particularly critical role." (p. 9)</blockquote>
+<blockquote>"These results suggest that the expressive power required for ARC-AGI primarily arises from rich nonlinear mappings. Weakening the nonlinearity may systematically limit the model's ability to represent complex reasoning skills." (p. 9)</blockquote>
+<hr>
+<h4>On Attention Visualization</h4>
+<blockquote>"While the standard Universal Transformer exhibits relatively sparse and homogeneous attention patterns, the model with ConvSwiGLU produces attention matrices with more diverse and structured distributions. This suggests that short convolution facilitates more effective inter-channel information flow, thereby improving the expressiveness of the attention mechanism." (p. 8)</blockquote>
+<hr>
+<h4>On Optimizer Comparison</h4>
+<blockquote>"These results suggest a separation between optimization efficiency and architectural capacity in the URM. While Muon preconditions the challenging spectral properties of recurrent weight matrices and reduces training cost, it does not lead to improved final generalization." (p. 10)</blockquote>
+<hr>
+<h4>Conclusion</h4>
+<blockquote>"Extensive ablation studies reveal that these gains stem primarily from the recurrent inductive bias and strong nonlinear components of Transformer, rather than from overly complex architectural designs." (p. 10)</blockquote>
+        </section>
+
+        <section id="limitations">
+            <h2>Limitations</h2>
+            <h4>Acknowledged Limitations</h4>
+<p>
+The paper does not include an explicit limitations section, but several limitations can be identified from the methodology and scope.
+</p>
+<h4>Scope Limitations</h4>
+<h5>1. Task-Specific Training</h5>
+<ul>
+<li>URM is trained from scratch on ARC-AGI/Sudoku data specifically (p. 5)</li>
+<li>Results may not generalize to other reasoning tasks without retraining</li>
+<li>Does not leverage pretrained knowledge from large-scale data</li>
+</ul>
+<h5>2. Comparison Scope</h5>
+<ul>
+<li>Excludes test-time scaling, ensembling, and visual methods like VARC (p. 1)</li>
+<li>Only compares against single small models trained from scratch</li>
+<li>Larger ensembled systems may achieve higher absolute performance</li>
+</ul>
+<h5>3. Benchmark Focus</h5>
+<ul>
+<li>Evaluated only on ARC-AGI 1, ARC-AGI 2, and Sudoku</li>
+<li>Unclear how well findings generalize to other reasoning benchmarks (e.g., mathematical reasoning, logical deduction, program synthesis)</li>
+</ul>
+<h4>Methodological Limitations</h4>
+<h5>4. Ablation Study Variations</h5>
+<ul>
+<li>TBPTL ablation uses 2-layer URM without short convolution (p. 8)</li>
+<li>This differs from the full 4-layer URM, making direct comparison imprecise</li>
+<li>Interaction effects between components not fully explored</li>
+</ul>
+<h5>5. Limited Nonlinearity Ablation</h5>
+<ul>
+<li>Some forms of nonlinearity not ablated: RMSNorm, query-key dot product (p. 9)</li>
+<li>Authors note these are "difficult to remove without causing training instability"</li>
+<li>Full understanding of nonlinearity requirements remains incomplete</li>
+</ul>
+<h5>6. Optimizer Comparison</h5>
+<ul>
+<li>Only compared AdamAtan2 and Muon (p. 9-10)</li>
+<li>Other optimizers (SGD, standard Adam, Lion, etc.) not explored</li>
+<li>Muon's 2× speedup may not hold for all configurations</li>
+</ul>
+<h4>Architectural Limitations</h4>
+<h5>7. Fixed Hyperparameters</h5>
+<ul>
+<li>Inner loops fixed at 8, ACT max at 16 (p. 5)</li>
+<li>Optimal values may differ for other tasks or model scales</li>
+<li>No exploration of very deep recurrence (e.g., 32+ loops)</li>
+</ul>
+<h5>8. ConvSwiGLU Kernel Size</h5>
+<ul>
+<li>Only kernel size 2 used in main experiments (p. 3-4)</li>
+<li>Figure 3 shows all sizes work similarly, but interaction with other factors unexplored</li>
+</ul>
+<h5>9. Decoder-Only Design</h5>
+<ul>
+<li>Uses decoder-only architecture (p. 3)</li>
+<li>Encoder-decoder or bidirectional variants not explored</li>
+<li>May limit applicability to certain task types</li>
+</ul>
+<h4>Reproducibility Concerns</h4>
+<h5>10. Minor Score Discrepancies</h5>
+<ul>
+<li>Scores may differ from official leaderboard due to randomness (p. 5)</li>
+<li>Some results reproduced from official repositories, not original runs</li>
+</ul>
+<h5>11. Data Augmentation Details</h5>
+<ul>
+<li>Uses "same datasets and augmented data as in prior work" (p. 5)</li>
+<li>Specific augmentation techniques and their impact not detailed</li>
+</ul>
+<h4>Theoretical Limitations</h4>
+<h5>12. Mechanistic Understanding</h5>
+<ul>
+<li>Paper identifies <em>what</em> works (recurrence, nonlinearity) but limited insight into <em>why</em></li>
+<li>No formal analysis of what computational problems benefit from recurrence</li>
+<li>Attention visualization provides hints but not rigorous explanation</li>
+</ul>
+<h5>13. Scalability</h5>
+<ul>
+<li>Model tested at relatively small scale (~10M parameters)</li>
+<li>Unclear if findings hold at larger scales</li>
+<li>No experiments on scaling behavior</li>
+</ul>
+<h4>Potential Concerns</h4>
+<h5>14. Generalization</h5>
+<ul>
+<li>Strong performance on ARC-AGI may indicate task-specific overfitting</li>
+<li>No analysis of how learned representations generalize to novel puzzle types</li>
+</ul>
+<h5>15. Sample Efficiency</h5>
+<ul>
+<li>pass@1000 results suggest generating many samples improves accuracy significantly</li>
+<li>This represents significant computational overhead at inference time</li>
+<li>Single-sample (pass@1) accuracy remains the more practical metric</li>
+</ul>
+        </section>
+
+        <section id="disagreements">
+            <h2>Disagreements</h2>
+            <p>
+Points to question, potential weaknesses, and alternative interpretations.
+</p>
+<h4>Methodological Concerns</h4>
+<h5>1. Ablation Study Inconsistency</h5>
+<p>
+The TBPTL ablation (Table 3) uses a 2-layer URM without short convolution, while the main model uses 4 layers with ConvSwiGLU. This makes it difficult to directly compare the contribution of TBPTL in the full system.
+</p>
+<p>
+<strong>Question</strong>: How do TBPTL effects change with ConvSwiGLU present? Are there interaction effects?
+</p>
+<h5>2. Limited Benchmark Diversity</h5>
+<p>
+The paper evaluates only on ARC-AGI 1, ARC-AGI 2, and Sudoku. All three are grid-based abstract reasoning tasks with similar structural properties.
+</p>
+<p>
+<strong>Question</strong>: Do the findings generalize to other reasoning tasks (math word problems, logical deduction, code generation)? The paper doesn't address this.
+</p>
+<h5>3. Comparison Scope</h5>
+<p>
+The paper explicitly excludes test-time scaling, ensembling, and visual methods like VARC from comparison. This is fair for single-model comparisons but may overstate URM's practical advantage.
+</p>
+<p>
+<strong>Alternative view</strong>: VARC with ensembling achieves comparable or better results. The "state-of-the-art" claim is narrowly scoped.
+</p>
+<h4>Interpretation Questions</h4>
+<h5>4. Causality vs Correlation in Nonlinearity Ablation</h5>
+<p>
+The paper shows performance drops as nonlinearity is removed but doesn't establish a causal mechanism. It could be that:
+</p>
+<ul>
+<li>Reduced nonlinearity hurts optimization, not representational capacity</li>
+<li>The specific implementation (SwiGLU) matters more than "nonlinearity" as a concept</li>
+<li>Training dynamics change in ways that confound the comparison</li>
+</ul>
+<p>
+<strong>Question</strong>: Would longer training or different hyperparameters recover performance with simpler activations?
+</p>
+<h5>5. The "Recurrence" Explanation</h5>
+<p>
+The paper attributes UT success to "recurrent inductive bias," but this is somewhat vague. The actual mechanism could be:
+</p>
+<ul>
+<li>True iterative refinement (each loop builds on the previous)</li>
+<li>Increased effective depth (more transformations regardless of sharing)</li>
+<li>Regularization effect from parameter sharing</li>
+<li>Different optimization landscape</li>
+</ul>
+<p>
+<strong>Question</strong>: What computation actually happens across loops? Do later loops use different "algorithms" than earlier ones?
+</p>
+<h5>6. Short Convolution Position Results</h5>
+<p>
+The paper claims convolution in attention pathways "interferes with geometric structure," but this is speculation. An alternative explanation: attention already provides global mixing, so local convolution is redundant there but complementary in FFN.
+</p>
+<p>
+<strong>Question</strong>: Is there evidence that the FFN is the "nonlinear core" beyond performance results?
+</p>
+<h4>Potential Weaknesses</h4>
+<h5>7. Task-Specific Training</h5>
+<p>
+URM is trained from scratch on ARC data. This makes it incomparable to models that leverage pretrained knowledge. A fair comparison might involve:
+</p>
+<ul>
+<li>Fine-tuning pretrained models on ARC</li>
+<li>Testing URM on tasks it wasn't trained for</li>
+</ul>
+<p>
+<strong>Concern</strong>: Results may reflect overfitting to ARC's specific structure rather than general reasoning ability.
+</p>
+<h5>8. Sample Efficiency at Inference</h5>
+<p>
+The pass@1000 results (85.1% vs 53.8% pass@1) suggest the model benefits enormously from generating many samples. This is computationally expensive and raises questions about the model's confidence calibration.
+</p>
+<p>
+<strong>Question</strong>: What's the practical cost of achieving high accuracy? Is pass@1 the right metric?
+</p>
+<h5>9. Missing Baselines</h5>
+<p>
+The paper doesn't compare against:
+</p>
+<ul>
+<li>State space models (Mamba, S4) which also have recurrent structure</li>
+<li>Memory-augmented networks</li>
+<li>Pretrained + fine-tuned approaches</li>
+<li>Simpler baselines like KNN or program synthesis</li>
+</ul>
+<p>
+<strong>Question</strong>: Would a simpler approach with the right inductive bias also work?
+</p>
+<h5>10. Optimizer Findings Implications</h5>
+<p>
+The paper notes Muon achieves 2× faster convergence with identical final performance. This suggests training efficiency is separable from architecture. But it also means:
+</p>
+<ul>
+<li>The full potential of different optimizers isn't explored</li>
+<li>Final performance might not be optimal for either optimizer</li>
+</ul>
+<p>
+<strong>Question</strong>: With enough compute, do all optimizers converge to the same result?
+</p>
+<h4>Alternative Interpretations</h4>
+<h5>11. Maybe Scale Does Matter</h5>
+<p>
+The paper argues against scaling, but the comparison is unfair:
+</p>
+<ul>
+<li>32× parameter vanilla Transformers are still relatively small</li>
+<li>True scale effects might emerge at billions of parameters</li>
+<li>Pretrained models weren't tested in a comparable setup</li>
+</ul>
+<p>
+<strong>Alternative view</strong>: Scale might still help, but the efficiency curve is different for reasoning tasks.
+</p>
+<h5>12. The Role of Augmented Data</h5>
+<p>
+The paper uses "same datasets and augmented data as in prior work" without detailing the augmentation. Data augmentation could be doing significant work here.
+</p>
+<p>
+<strong>Question</strong>: How much of URM's performance comes from architecture vs training data?
+</p>
+<h5>13. Architectural Simplicity Claim</h5>
+<p>
+The paper claims URM is simpler than HRM/TRM, but it adds two non-trivial components (ConvSwiGLU, TBPTL). Is this truly "simpler"?
+</p>
+<p>
+<strong>Alternative view</strong>: URM trades one form of complexity for another. The key insight is which complexity helps, not that simplicity itself is valuable.
+</p>
+<h4>Missing Analysis</h4>
+<h5>14. Failure Mode Analysis</h5>
+<p>
+The paper doesn't analyze what types of puzzles URM fails on, limiting our understanding of its limitations.
+</p>
+<h5>15. Computational Cost</h5>
+<p>
+No detailed analysis of training time, GPU requirements, or inference latency. The 2× speedup from Muon is mentioned but absolute numbers are absent.
+</p>
+<h5>16. Reproducibility Details</h5>
+<p>
+Some implementation details are missing (exact augmentation, early stopping criteria, number of training runs for variance estimates).
+</p>
+<h4>Broader Skepticism</h4>
+<h5>17. The ARC Benchmark Itself</h5>
+<p>
+ARC may not measure "intelligence" as claimed by its creators. Success on ARC might reflect:
+</p>
+<ul>
+<li>Finding the right inductive bias for visual patterns</li>
+<li>Exploiting specific structure in how puzzles are generated</li>
+<li>Pattern matching rather than "reasoning"</li>
+</ul>
+<p>
+<strong>Question</strong>: Is 53.8% on ARC evidence of reasoning ability or sophisticated pattern matching?
+</p>
+        </section>
+
+        <section id="future-work">
+            <h2>Future Work</h2>
+            <h4>Directions Suggested by the Paper</h4>
+<p>
+The paper's conclusion (p. 10) is brief and doesn't explicitly outline future work, but several directions emerge from the findings:
+</p>
+<h4>Architectural Extensions</h4>
+<h5>1. Scaling Studies</h5>
+<ul>
+<li>How do the findings scale to larger models (100M+ parameters)?</li>
+<li>Does the recurrence-over-depth advantage persist at scale?</li>
+<li>What are the optimal depth/loop tradeoffs at different parameter counts?</li>
+</ul>
+<h5>2. Alternative Nonlinear Components</h5>
+<ul>
+<li>Explore other gating mechanisms beyond SwiGLU</li>
+<li>Test newer activation functions (e.g., GeGLU, Mish, GELU variants)</li>
+<li>Investigate learnable activation functions for reasoning tasks</li>
+</ul>
+<h5>3. Convolution Variants</h5>
+<ul>
+<li>Explore different convolution types (dilated, grouped, attention-augmented)</li>
+<li>Test adaptive kernel sizes based on task complexity</li>
+<li>Investigate multi-scale convolutions</li>
+</ul>
+<h5>4. Hybrid Architectures</h5>
+<ul>
+<li>Combine UT with other architectures (e.g., state space models)</li>
+<li>Explore mixture of experts with recurrent computation</li>
+<li>Investigate memory-augmented recurrent transformers</li>
+</ul>
+<h4>Training Improvements</h4>
+<h5>5. Advanced Truncation Strategies</h5>
+<ul>
+<li>Adaptive truncation based on gradient statistics</li>
+<li>Curriculum learning over truncation length</li>
+<li>Per-layer or per-head truncation policies</li>
+</ul>
+<h5>6. Alternative Optimizers</h5>
+<ul>
+<li>Systematic comparison of second-order optimizers for UTs</li>
+<li>Explore shampoo, KFAC, and other matrix-preconditioned methods</li>
+<li>Combine Muon's speed with techniques for better final performance</li>
+</ul>
+<h5>7. Regularization Techniques</h5>
+<ul>
+<li>Dropout strategies specific to recurrent transformers</li>
+<li>Noise injection during recurrent loops</li>
+<li>Consistency regularization across loop iterations</li>
+</ul>
+<h4>Application Domains</h4>
+<h5>8. Other Reasoning Benchmarks</h5>
+<ul>
+<li>Mathematical reasoning (GSM8K, MATH)</li>
+<li>Logical deduction (FOLIO, ProofWriter)</li>
+<li>Program synthesis (HumanEval, MBPP)</li>
+<li>Commonsense reasoning (HellaSwag, PIQA)</li>
+</ul>
+<h5>9. Multimodal Reasoning</h5>
+<ul>
+<li>Combine visual encoders with URM for vision-language tasks</li>
+<li>Explore URM on video understanding requiring temporal reasoning</li>
+<li>Apply to scientific diagram understanding</li>
+</ul>
+<h5>10. Pretrained + Fine-tuned URM</h5>
+<ul>
+<li>Initialize URM from pretrained transformers</li>
+<li>Explore efficient fine-tuning strategies (LoRA, adapters)</li>
+<li>Hybrid training: pretrain standard, fine-tune recurrent</li>
+</ul>
+<h4>Theoretical Understanding</h4>
+<h5>11. Mechanistic Interpretability</h5>
+<ul>
+<li>Analyze what computation happens at each loop iteration</li>
+<li>Identify emergent algorithms in trained URMs</li>
+<li>Compare learned solutions to known algorithmic approaches</li>
+</ul>
+<h5>12. Formal Analysis</h5>
+<ul>
+<li>Theoretical characterization of problems benefiting from recurrence</li>
+<li>Computational complexity analysis of URM vs standard transformers</li>
+<li>Connection to circuit complexity theory</li>
+</ul>
+<h5>13. Information Flow Analysis</h5>
+<ul>
+<li>Track how information propagates across loops</li>
+<li>Quantify the effective depth utilized for different puzzles</li>
+<li>Analyze attention patterns at different iterations</li>
+</ul>
+<h4>Efficiency Improvements</h4>
+<h5>14. Inference Optimization</h5>
+<ul>
+<li>Early exit mechanisms to reduce unnecessary loops</li>
+<li>KV cache strategies for recurrent transformers</li>
+<li>Speculative execution across loops</li>
+</ul>
+<h5>15. Memory Efficiency</h5>
+<ul>
+<li>Gradient checkpointing strategies for deep recurrence</li>
+<li>Mixed-precision training for URM</li>
+<li>Sparse attention variants for long sequences</li>
+</ul>
+<h5>16. Hardware Acceleration</h5>
+<ul>
+<li>Custom kernels for ConvSwiGLU</li>
+<li>Optimized implementations for repeated layer application</li>
+<li>Batched inference across loop iterations</li>
+</ul>
+<h4>Benchmark Development</h4>
+<h5>17. New Evaluation Tasks</h5>
+<ul>
+<li>Design tasks specifically testing recurrent reasoning</li>
+<li>Create benchmarks measuring iterative refinement quality</li>
+<li>Develop metrics beyond pass@n</li>
+</ul>
+<h5>18. Difficulty Scaling</h5>
+<ul>
+<li>Systematically vary task complexity to understand URM limits</li>
+<li>Create ARC-like benchmarks with controllable difficulty</li>
+<li>Analyze failure modes at different complexity levels</li>
+</ul>
+<h4>Real-World Applications</h4>
+<h5>19. Code Generation</h5>
+<ul>
+<li>Apply URM to multi-step code generation</li>
+<li>Explore iterative code refinement and debugging</li>
+<li>Test on repository-level understanding</li>
+</ul>
+<h5>20. Scientific Reasoning</h5>
+<ul>
+<li>Apply to automated theorem proving</li>
+<li>Explore chemical/biological structure reasoning</li>
+<li>Test on scientific discovery tasks</li>
+</ul>
+<h5>21. Planning and Decision-Making</h5>
+<ul>
+<li>Apply URM to sequential decision problems</li>
+<li>Explore integration with reinforcement learning</li>
+<li>Test on game playing and strategy tasks</li>
+</ul>
+        </section>
+    </main>
+</body>
+</html>
