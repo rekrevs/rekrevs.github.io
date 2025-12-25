@@ -593,8 +593,8 @@ Imagine finding the optimal $c_L$ such that:
 <table>
 <tr><th>Lever</th><th>What It Controls</th></tr>
 <tr><td><strong>All Control Flow levers</strong></td><td>Everything from before</td></tr>
-<tr><td>$P(c_L\</td><td>a_L)$</td><td>How to formulate requests (collaboration)</td></tr>
-<tr><td>$P(c_K\</td><td>a_K)$</td><td>How to return results (negotiation)</td></tr>
+<tr><td>$P(c_L \mid a_L)$</td><td>How to formulate requests (collaboration)</td></tr>
+<tr><td>$P(c_K \mid a_K)$</td><td>How to return results (negotiation)</td></tr>
 </table>
 <p>
 This is strictly more degrees of freedom than any single-agent architecture.
@@ -983,8 +983,8 @@ The multi-agent formulation reveals new probability terms:
 </p>
 <table>
 <tr><th>Term</th><th>Meaning</th></tr>
-<tr><td>$P(c_L\</td><td>a_L)$</td><td>Probability of context generation for downstream agent</td></tr>
-<tr><td>$P(c_K\</td><td>a_K)$</td><td>Probability of result context returned upstream</td></tr>
+<tr><td>$P(c_L \mid a_L)$</td><td>Probability of context generation for downstream agent</td></tr>
+<tr><td>$P(c_K \mid a_K)$</td><td>Probability of result context returned upstream</td></tr>
 </table>
 <p>
 These terms represent <strong>collaboration</strong> and <strong>negotiation</strong>—optimization surfaces that don't exist in single-agent architectures. (p. 6-7)
@@ -1010,7 +1010,7 @@ By isolating sub-actions to a specialized agent with tuned $F$, $u$, and $s(c)$:
 <tr><td>Fine Tuning</td><td>Model parameters</td><td>$F$</td></tr>
 <tr><td>Control Flow</td><td>Partition actions, change prompts per step</td><td>$F$, $u$, $s_0(c)$, $a_i \rightarrow \{\alpha_i,x_i,o_i\}$</td></tr>
 <tr><td>Multi-Agent (no collab)</td><td>Partition actions and agent logic</td><td>$F$, $u$, $s_0(c)$, $a_i \rightarrow \{\alpha_i,x_i,o_i\}$</td></tr>
-<tr><td>Multi-Agent (collab)</td><td>All above + collaboration/negotiation</td><td>All above + $P(c_L\</td><td>a_L)$, $P(c_K\</td><td>a_K)$</td></tr>
+<tr><td>Multi-Agent (collab)</td><td>All above + collaboration/negotiation</td><td>All above + $P(c_L \mid a_L)$, $P(c_K \mid a_K)$</td></tr>
 </table>
 <h5>6. Protocol Roles Clarified</h5>
 <p>
@@ -1252,7 +1252,7 @@ If you need a 5-minute refresher on any topic:
 </p>
 <table>
 <tr><th>Topic</th><th>Key Idea</th></tr>
-<tr><td>Conditional Probability</td><td>$P(A\</td><td>B)$ = "probability of A given B happened"</td></tr>
+<tr><td>Conditional Probability</td><td>$P(A \mid B)$ = "probability of A given B happened"</td></tr>
 <tr><td>Markov Property</td><td>Next state depends only on current state, not history</td></tr>
 <tr><td>ReAct</td><td>Think → Act → Observe → Repeat</td></tr>
 <tr><td>State Machine</td><td>Current state + Input → Next state</td></tr>
